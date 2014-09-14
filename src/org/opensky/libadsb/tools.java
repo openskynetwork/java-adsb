@@ -38,7 +38,7 @@ public class tools {
 	 * @return concatenated hex representation of input byte array
 	 */
 	public static String toHexString(byte[] bytes) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (byte b : bytes)
 			result.append(toHexString(b));
 
