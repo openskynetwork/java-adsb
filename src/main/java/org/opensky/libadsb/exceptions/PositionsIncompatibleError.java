@@ -22,6 +22,8 @@ package org.opensky.libadsb.exceptions;
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
 public class PositionsIncompatibleError extends Exception {
+	private static final long serialVersionUID = 6482688479919911669L;
+
 	public PositionsIncompatibleError(String reason) {
 		super(reason);
 	}
