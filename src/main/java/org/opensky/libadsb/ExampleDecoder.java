@@ -1,3 +1,5 @@
+package org.opensky.libadsb;
+
 import org.opensky.libadsb.AirbornePositionMsg;
 import org.opensky.libadsb.Decoder;
 import org.opensky.libadsb.IdentificationMsg;

@@ -10,4 +10,4 @@ Currently it only supports the following ADS-B messages:
 
 More message formats will follow soon...
 
-An usage example is provided in src/ExampleDecoder.java
+An usage example is provided in ExampleDecoder.java
