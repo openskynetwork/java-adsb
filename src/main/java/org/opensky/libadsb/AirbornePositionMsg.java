@@ -90,17 +90,17 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 		case 9: return 7.5;
 		case 10: return 25;
 		case 11:
-			if ((nic_suppl&0b110) == 0b110) return 75;
+			if ((nic_suppl&0x6) == 0x6) return 75;
 			else return 185.2;
 		case 12: return 370.4;
 		case 13:
-			if ((nic_suppl&0b110) == 0b010) return 555.6;
-			else if ((nic_suppl&0b110) == 0b000) return 926;
+			if ((nic_suppl&0x6) == 0x2) return 555.6;
+			else if ((nic_suppl&0x6) == 0) return 926;
 			else return 1111.2;
 		case 14: return 1852;
 		case 15: return 3704;
 		case 16:
-			if ((nic_suppl&0b110) == 0b110) return 7408;
+			if ((nic_suppl&0x6) == 0x6) return 7408;
 			else return 14816;
 		case 17: return 37040;
 		case 18: return 0;
@@ -122,14 +122,14 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 		case 9: return 11;
 		case 10: return 10;
 		case 11:
-			if ((nic_suppl&0b110) == 0b110) return 9;
+			if ((nic_suppl&0x6) == 0x6) return 9;
 			else return 8;
 		case 12: return 7;
 		case 13: return 6;
 		case 14: return 5;
 		case 15: return 4;
 		case 16:
-			if ((nic_suppl&0b110) == 0b110) return 3;
+			if ((nic_suppl&0x6) == 0x6) return 3;
 			else return 2;
 		case 17: return 1;
 		case 18: return 0;
