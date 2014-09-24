@@ -53,16 +53,18 @@ public class ExampleDecoder {
 		}
 		
 		// decode position message
-		msg = Decoder.genericDecoder("8d47875c58b986d0b3bd25000000"); // odd position msg
-		ModeSReply msg2 = Decoder.genericDecoder("8d47875c58b9835693c897000000"); // even position msg
+//		msg = Decoder.genericDecoder("8d47875c58b986d0b3bd25000000"); // odd position msg
+//		ModeSReply msg2 = Decoder.genericDecoder("8d47875c58b9835693c897000000"); // even position msg
+		msg = Decoder.genericDecoder("8d40064678000740000000000000"); // odd position msg
+		ModeSReply msg2 = Decoder.genericDecoder("8d40064678000000000000000000"); // even position msg
 		if (msg instanceof AirbornePositionMsg && msg2 instanceof AirbornePositionMsg) {
 			// Note that I ensured that msg2 was received shortly after msg
 			AirbornePositionMsg p1 = (AirbornePositionMsg)msg;
 			AirbornePositionMsg p2 = (AirbornePositionMsg)msg2;
 			double[] pos = p1.getGlobalPosition(p2);
 			System.out.println("Aircraft 0x"+tools.toHexString(msg.getIcao24())+
-					" was at latitude "+pos[0]+" and longitude "+pos[1]+
-					" at an altitude of "+p1.getAltitude()+"m.");
+					" was at latitude "+pos[0]+" and longitude "+pos[1]);//+
+//					" at an altitude of "+p1.getAltitude()+"m.");
 		}
 	}
 
