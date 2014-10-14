@@ -29,11 +29,15 @@ public class ExtendedSquitter extends ModeSReply {
 	
 	/**
 	 * @param raw_message raw extended squitter as hex string
+	 * @throws Exception if message is not extended squitter or contains wrong
+	 * values.
 	 */
-	public ExtendedSquitter(String raw_message) {
+	public ExtendedSquitter(String raw_message) throws Exception {
 		super(raw_message);
 		
-		assert getDownlinkFormat() == 17 || getDownlinkFormat() == 18: "Message is not an extended squitter!";
+		if (getDownlinkFormat() != 17 && getDownlinkFormat() != 18) {
+			throw new Exception("Message is not an extended squitter!");
+		}
 		
 		byte[] payload = getPayload();
 		capabilities = (byte) (payload[0] & 0x7);

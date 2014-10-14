@@ -38,11 +38,14 @@ public class ModeSReply {
 
 	/**
 	 * @param raw_message Mode S message in hex representation
+	 * @throws Exception if message has invalid length
 	 */
-	public ModeSReply (String raw_message) {
+	public ModeSReply (String raw_message) throws Exception {
 		// check format invariants
 		int length = raw_message.length();
-		assert length == 14 || length == 28: "Raw message has invalid length";
+		if (length != 14 && length != 28) {
+			throw new Exception("Raw message has invalid length");
+		}
 
 		byte downlink_format = (byte) (Short.parseShort(raw_message.substring(0, 2), 16) >>> 3);
 
@@ -89,10 +92,18 @@ public class ModeSReply {
 		}
 		
 		// check format invariants
-		assert downlink_format <= 31: "Invalid downlink format";
-		assert icao24.length == 3: "ICAO address too short/long";
-		assert payload.length == 4 || payload.length == 11: "Payload length does not match specification";
-		assert parity.length == 3: "Parity too short/long";
+		if (downlink_format > 31) {
+			throw new Exception("Invalid downlink format");
+		}
+		if (icao24.length != 3) { 
+			throw new Exception("ICAO address too short/long");
+		}
+		if (payload.length != 4 && payload.length != 11) {
+			throw new Exception("Payload length does not match specification");
+		}
+		if (parity.length != 3) {
+			throw new Exception("Parity too short/long");
+		}
 
 		this.downlink_format = downlink_format;
 		this.icao24 = icao24;

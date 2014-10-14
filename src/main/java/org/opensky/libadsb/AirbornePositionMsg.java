@@ -36,8 +36,9 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 
 	/**
 	 * @param raw_message raw ADS-B airborne position message as hex string
+	 * @throws Exception if message has wrong format
 	 */
-	public AirbornePositionMsg(String raw_message) {
+	public AirbornePositionMsg(String raw_message) throws Exception {
 		super(raw_message);
 
 		assert getFormatTypeCode() == 0 ||

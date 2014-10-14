@@ -27,7 +27,7 @@ public class Decoder {
 	 * A top-down decoder. Use instanceof to check for payload.
 	 * @param raw_message The Mode S message in hex representation
 	 */
-	public static ModeSReply genericDecoder (String raw_message) {
+	public static ModeSReply genericDecoder (String raw_message) throws Exception {
 		ModeSReply modes = new ModeSReply(raw_message);
 		
 		if (modes.getDownlinkFormat() == 17 || modes.getDownlinkFormat() == 18) {

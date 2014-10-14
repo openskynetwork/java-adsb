@@ -53,11 +53,14 @@ public class IdentificationMsg extends ExtendedSquitter {
 	
 	/**
 	 * @param raw_message The full Mode S message in hex representation
+	 * @throws Exception if message has the wrong typecode
 	 */
-	public IdentificationMsg(String raw_message) {
+	public IdentificationMsg(String raw_message) throws Exception {
 		super(raw_message);
 		
-		assert getFormatTypeCode() >= 1 && getFormatTypeCode() <= 4: "Identification messages must have typecode of 1-4.";
+		if (getFormatTypeCode() < 1 || getFormatTypeCode() > 4) {
+			throw new Exception("Identification messages must have typecode of 1-4.");
+		}
 		
 		byte[] msg = this.getMessage();
 		emitter_category = (byte) (msg[0] & 0x7);

@@ -40,15 +40,19 @@ public class VelocityOverGroundMsg extends ExtendedSquitter {
 	private boolean geo_minus_baro_available;
 	
 
-	public VelocityOverGroundMsg(String raw_message) {
+	public VelocityOverGroundMsg(String raw_message) throws Exception {
 		super(raw_message);
 		
-		assert this.getFormatTypeCode() == 19: "Velocity messages must have typecode 19.";
+		if (this.getFormatTypeCode() != 19) {
+			throw new Exception("Velocity messages must have typecode 19.");
+		}
 		
 		byte[] msg = this.getMessage();
 		
 		subtype = (byte) (msg[0]&0x7);
-		assert subtype == 1 || subtype == 2: "Ground speed messages have subtype 1 or 2.";
+		if (subtype != 1 && subtype != 2) {
+			throw new Exception("Ground speed messages have subtype 1 or 2.");
+		}
 		
 		intent_change = (msg[1]&0x80)>0;
 		ifr_capability = (msg[1]&0x40)>0;
