@@ -48,15 +48,13 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 
 				byte[] msg = getMessage();
 
-				if (getFormatTypeCode() != 0)
-					horizontal_position_available = true;
+				horizontal_position_available = getFormatTypeCode() != 0;
 
 				surveillance_status = (byte) ((msg[0]>>>1)&0x3);
 				single_antenna_flag = (msg[0]&0x1) == 1;
 
 				altitude_encoded = (short) (((msg[1]<<4)|((msg[2]>>>4)&0xF))&0xFFF);
-				if (altitude_encoded != 0)
-					altitude_available = true;
+				altitude_available = altitude_encoded != 0;
 
 				time_flag = ((msg[2]>>>3)&0x1) == 1;
 				cpr_format = ((msg[2]>>>2)&0x1) == 1;
