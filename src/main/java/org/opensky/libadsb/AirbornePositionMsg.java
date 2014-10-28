@@ -1,5 +1,7 @@
 package org.opensky.libadsb;
 
+import java.io.Serializable;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -21,8 +23,9 @@ package org.opensky.libadsb;
  * Decoder for ADS-B airborne position messages
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
-public class AirbornePositionMsg extends ExtendedSquitter {
+public class AirbornePositionMsg extends ExtendedSquitter implements Serializable {
 
+	private static final long serialVersionUID = 8593107448574597504L;
 	private boolean horizontal_position_available;
 	private boolean altitude_available;
 	private byte surveillance_status;

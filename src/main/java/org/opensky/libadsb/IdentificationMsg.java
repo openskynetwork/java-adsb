@@ -1,5 +1,7 @@
 package org.opensky.libadsb;
 
+import java.io.Serializable;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -21,8 +23,9 @@ package org.opensky.libadsb;
  * Decoder for ADS-B identification messages
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
-public class IdentificationMsg extends ExtendedSquitter {
+public class IdentificationMsg extends ExtendedSquitter implements Serializable {
 
+	private static final long serialVersionUID = -4395826778354619987L;
 	private byte emitter_category;
 	private byte[] identity;
 	

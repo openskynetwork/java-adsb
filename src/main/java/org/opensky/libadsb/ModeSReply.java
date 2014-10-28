@@ -1,5 +1,7 @@
 package org.opensky.libadsb;
 
+import java.io.Serializable;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -21,11 +23,12 @@ package org.opensky.libadsb;
  * Decoder for Mode S replies
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
-public class ModeSReply {
+public class ModeSReply implements Serializable {
+	private static final long serialVersionUID = 5369519167589262290L;
+
 	/*
 	 * Attributes
 	 */
-
 	private byte downlink_format; // 0-31
 	private byte[] icao24; // 3 bytes
 	private byte[] payload; // 3 or 10 bytes

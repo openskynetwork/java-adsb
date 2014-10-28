@@ -1,5 +1,7 @@
 package org.opensky.libadsb;
 
+import java.io.Serializable;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -21,8 +23,9 @@ package org.opensky.libadsb;
  * Decoder for Mode S extended squitters
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
-public class ExtendedSquitter extends ModeSReply {
+public class ExtendedSquitter extends ModeSReply implements Serializable {
 
+	private static final long serialVersionUID = -7877955448285410779L;
 	private byte capabilities;
 	private byte[] message;
 	private byte format_type_code;
