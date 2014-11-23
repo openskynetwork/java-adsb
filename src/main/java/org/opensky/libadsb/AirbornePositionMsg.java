@@ -41,25 +41,25 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 	public AirbornePositionMsg(String raw_message) throws Exception {
 		super(raw_message);
 
-		assert getFormatTypeCode() == 0 ||
+		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 9 && getFormatTypeCode() <= 18) ||
-				(getFormatTypeCode() >= 20 && getFormatTypeCode() <= 22):
-					"This is not a position message! Wrong format type code ("+getFormatTypeCode()+").";
+				(getFormatTypeCode() >= 20 && getFormatTypeCode() <= 22))) 
+			throw new Exception("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").");
 
-				byte[] msg = getMessage();
+		byte[] msg = getMessage();
 
-				horizontal_position_available = getFormatTypeCode() != 0;
+		horizontal_position_available = getFormatTypeCode() != 0;
 
-				surveillance_status = (byte) ((msg[0]>>>1)&0x3);
-				single_antenna_flag = (msg[0]&0x1) == 1;
+		surveillance_status = (byte) ((msg[0]>>>1)&0x3);
+		single_antenna_flag = (msg[0]&0x1) == 1;
 
-				altitude_encoded = (short) (((msg[1]<<4)|((msg[2]>>>4)&0xF))&0xFFF);
-				altitude_available = altitude_encoded != 0;
+		altitude_encoded = (short) (((msg[1]<<4)|((msg[2]>>>4)&0xF))&0xFFF);
+		altitude_available = altitude_encoded != 0;
 
-				time_flag = ((msg[2]>>>3)&0x1) == 1;
-				cpr_format = ((msg[2]>>>2)&0x1) == 1;
-				cpr_encoded_lat = (((msg[2]&0x3)<<15) | ((msg[3]&0xFF)<<7) | ((msg[4]>>>1)&0x7F)) & 0x1FFFF;
-				cpr_encoded_lon = (((msg[4]&0x1)<<16) | ((msg[5]&0xFF)<<8) | (msg[6]&0xFF)) & 0x1FFFF;
+		time_flag = ((msg[2]>>>3)&0x1) == 1;
+		cpr_format = ((msg[2]>>>2)&0x1) == 1;
+		cpr_encoded_lat = (((msg[2]&0x3)<<15) | ((msg[3]&0xFF)<<7) | ((msg[4]>>>1)&0x7F)) & 0x1FFFF;
+		cpr_encoded_lon = (((msg[4]&0x1)<<16) | ((msg[5]&0xFF)<<8) | (msg[6]&0xFF)) & 0x1FFFF;
 	}
 
 	/**
@@ -255,12 +255,18 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 	 * @throws org.opensky.libadsb.exceptions.PositionsIncompatibleError if position messages straddle latitude transition
 	 */
 	public double[] getGlobalPosition(AirbornePositionMsg other) throws Exception {
-		assert tools.areEqual(other.getIcao24(), getIcao24()): String.format("Transmitter of other message (%s) not equal to this (%s).",
-				tools.toHexString(other.getIcao24()), tools.toHexString(this.getIcao24()));
-		assert other.isOddFormat() != this.isOddFormat(): "Expected "+(isOddFormat()?"even":"odd")+" message format.";
+		if (!tools.areEqual(other.getIcao24(), getIcao24()))
+				throw new Exception(
+						String.format("Transmitter of other message (%s) not equal to this (%s).",
+						tools.toHexString(other.getIcao24()), tools.toHexString(this.getIcao24())));
+		
+		if (other.isOddFormat() == this.isOddFormat())
+			throw new Exception("Expected "+(isOddFormat()?"even":"odd")+" message format.");
 
-		if (!horizontal_position_available) throw new Exception("No position information available!");
-		if (!other.hasPosition()) throw new Exception("Other message has no position information.");
+		if (!horizontal_position_available)
+			throw new Exception("No position information available!");
+		if (!other.hasPosition())
+			throw new Exception("Other message has no position information.");
 
 		AirbornePositionMsg even = isOddFormat()?other:this;
 		AirbornePositionMsg odd = isOddFormat()?this:other;
@@ -285,7 +291,8 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 		if (Rlat1 <= -270 && Rlat1 >= -360) Rlat1 += 360;
 
 		// ensure that the number of even longitude zones are equal
-		if (NL(Rlat0) != NL(Rlat1)) throw new org.opensky.libadsb.exceptions.PositionsIncompatibleError(
+		if (NL(Rlat0) != NL(Rlat1))
+			throw new org.opensky.libadsb.exceptions.PositionsIncompatibleError(
 				"The two given position straddle a transition latitude "+
 				"and cannot be decoded. Wait for positions where they are equal.");
 
@@ -322,7 +329,8 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 	 * @throws Exception if no position information is available
 	 */
 	public double[] getLocalPosition(double ref_lat, double ref_lon) throws Exception {
-		if (!horizontal_position_available) throw new Exception("No position information available!");
+		if (!horizontal_position_available)
+			throw new Exception("No position information available!");
 		
 		// latitude zone size
 		double Dlat = isOddFormat() ? 360.0/59.0 : 360.0/60.0;
@@ -368,7 +376,8 @@ public class AirbornePositionMsg extends ExtendedSquitter {
 	 * @throws Exception if no position available
 	 */
 	public double getAltitude() throws Exception {
-		if (!altitude_available) throw new Exception("No altitude information available!");
+		if (!altitude_available)
+			throw new Exception("No altitude information available!");
 
 		boolean Qbit = (altitude_encoded&0x10)!=0;
 		int N;

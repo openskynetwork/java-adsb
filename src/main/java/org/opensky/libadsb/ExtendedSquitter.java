@@ -45,7 +45,7 @@ public class ExtendedSquitter extends ModeSReply {
 		// extract ADS-B message
 		message = new byte[7];
 		for (int i=0; i<7; i++)
-			message[i] = payload[i+4];
+			message[i] = payload[i+3];
 		
 		format_type_code = (byte) ((message[0] >>> 3) & 0x1F);
 	}
