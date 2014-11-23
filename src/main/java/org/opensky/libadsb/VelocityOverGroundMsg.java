@@ -1,5 +1,7 @@
 package org.opensky.libadsb;
 
+import java.io.Serializable;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -21,8 +23,9 @@ package org.opensky.libadsb;
  * Decoder for ADS-B velocity messages
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
-public class VelocityOverGroundMsg extends ExtendedSquitter {
+public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializable {
 	
+	private static final long serialVersionUID = -7397309420290359454L;
 	private byte subtype;
 	private boolean intent_change;
 	private boolean ifr_capability;
