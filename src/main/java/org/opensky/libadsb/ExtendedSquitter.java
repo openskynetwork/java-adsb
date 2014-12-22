@@ -2,6 +2,8 @@ package org.opensky.libadsb;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.exceptions.BadFormatException;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -32,14 +34,14 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	
 	/**
 	 * @param raw_message raw extended squitter as hex string
-	 * @throws Exception if message is not extended squitter or contains wrong
-	 * values.
+	 * @throws BadFormatException if message is not extended squitter or 
+	 * contains wrong values.
 	 */
-	public ExtendedSquitter(String raw_message) throws Exception {
+	public ExtendedSquitter(String raw_message) throws BadFormatException {
 		super(raw_message);
 		
 		if (getDownlinkFormat() != 17 && getDownlinkFormat() != 18) {
-			throw new Exception("Message is not an extended squitter!");
+			throw new BadFormatException("Message is not an extended squitter!", raw_message);
 		}
 		
 		byte[] payload = getPayload();

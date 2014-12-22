@@ -2,6 +2,9 @@ package org.opensky.libadsb;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.exceptions.MissingInformationException;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -42,19 +45,22 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	private short geo_minus_baro; // in ft
 	private boolean geo_minus_baro_available;
 	
-
-	public VelocityOverGroundMsg(String raw_message) throws Exception {
+	/**
+	 * @param raw_message raw ADS-B velocity-over-ground message as hex string
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public VelocityOverGroundMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
 		
 		if (this.getFormatTypeCode() != 19) {
-			throw new Exception("Velocity messages must have typecode 19.");
+			throw new BadFormatException("Velocity messages must have typecode 19.", raw_message);
 		}
 		
 		byte[] msg = this.getMessage();
 		
 		subtype = (byte) (msg[0]&0x7);
 		if (subtype != 1 && subtype != 2) {
-			throw new Exception("Ground speed messages have subtype 1 or 2.");
+			throw new BadFormatException("Ground speed messages have subtype 1 or 2.", raw_message);
 		}
 		
 		intent_change = (msg[1]&0x80)>0;
@@ -140,20 +146,20 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 	/**
 	 * @return velocity from east to south in m/s
-	 * @throws Exception if no velocity information available
+	 * @throws MissingInformationException if no velocity information available
 	 */
-	public double getEastToWestVelocity() throws Exception {
-		if (!velocity_info_available) throw new Exception("No velocity info available!");
+	public double getEastToWestVelocity() throws MissingInformationException {
+		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
 		return (direction_west ? east_west_velocity : -east_west_velocity) * 0.514444;
 	}
 
 
 	/**
 	 * @return velocity from north to south in m/s
-	 * @throws Exception if no velocity information available
+	 * @throws MissingInformationException if no velocity information available
 	 */
-	public double getNorthToSouthVelocity() throws Exception {
-		if (!velocity_info_available) throw new Exception("No velocity info available!");
+	public double getNorthToSouthVelocity() throws MissingInformationException {
+		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
 		return (direction_south ? north_south_velocity : -north_south_velocity) * 0.514444;
 	}
 
@@ -168,29 +174,29 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 	/**
 	 * @return vertical rate in m/s (negative value means descending)
-	 * @throws Exception if no vertical rate info is available
+	 * @throws MissingInformationException if no vertical rate info is available
 	 */
-	public double getVerticalRate() throws Exception {
-		if (!vertical_rate_info_available) throw new Exception("No vertical rate info available!");
+	public double getVerticalRate() throws MissingInformationException {
+		if (!vertical_rate_info_available) throw new MissingInformationException("No vertical rate info available!");
 		return (vertical_rate_down ? -vertical_rate : vertical_rate) * 0.00508;
 	}
 
 
 	/**
 	 * @return difference between barometric and geometric altitude in m
-	 * @throws Exception  if no geo/baro difference info is available
+	 * @throws MissingInformationException  if no geo/baro difference info is available
 	 */
-	public double getGeoMinusBaro() throws Exception {
-		if (!geo_minus_baro_available) throw new Exception("No geo/baro difference info available!");
+	public double getGeoMinusBaro() throws MissingInformationException {
+		if (!geo_minus_baro_available) throw new MissingInformationException("No geo/baro difference info available!");
 		return geo_minus_baro * 0.3048;
 	}
 	
 	/**
 	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north
-	 * @throws Exception if no velocity info is available
+	 * @throws MissingInformationException if no velocity info is available
 	 */
-	public double getHeading() throws Exception {
-		if (!velocity_info_available) throw new Exception("No velocity info available!");
+	public double getHeading() throws MissingInformationException {
+		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
 		double angle = Math.toDegrees(Math.atan2(
 				-this.getEastToWestVelocity(),
 				-this.getNorthToSouthVelocity()));
@@ -202,10 +208,10 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	
 	/**
 	 * @return speed over ground in m/s
-	 * @throws Exception if no velocity info is available
+	 * @throws MissingInformationException if no velocity info is available
 	 */
-	public double getVelocity() throws Exception {
-		if (!velocity_info_available) throw new Exception("No velocity info available!");
+	public double getVelocity() throws MissingInformationException {
+		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
 		return Math.hypot(north_south_velocity, east_west_velocity) * 0.514444;
 	}
 	

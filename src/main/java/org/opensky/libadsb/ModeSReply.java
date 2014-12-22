@@ -1,7 +1,9 @@
 package org.opensky.libadsb;
 
-import java.util.Arrays;
 import java.io.Serializable;
+import java.util.Arrays;
+
+import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -95,13 +97,14 @@ public class ModeSReply implements Serializable {
 	 *   5    3    3/10      3
 	 * 
 	 * @param raw_message Mode S message in hex representation
-	 * @throws Exception if message has invalid length
+	 * @throws BadFormatException if message has invalid length or payload does
+	 * not match specification or parity has invalid length
 	 */
-	public ModeSReply (String raw_message) throws Exception {
+	public ModeSReply (String raw_message) throws BadFormatException {
 		// check format invariants
 		int length = raw_message.length();
 		if (length != 14 && length != 28)
-			throw new Exception("Raw message has invalid length");
+			throw new BadFormatException("Raw message has invalid length", raw_message);
 
 		downlink_format = (byte) (Short.parseShort(raw_message.substring(0, 2), 16));
 		capabilities = (byte) (downlink_format & 0x7);
@@ -149,11 +152,11 @@ public class ModeSReply implements Serializable {
 
 		// check format invariants
 		if (icao24.length != 3)
-			throw new Exception("ICAO address too short/long");
+			throw new BadFormatException("ICAO address too short/long", raw_message);
 		if (payload.length != 3 && payload.length != 10)
-			throw new Exception("Payload length does not match specification");
+			throw new BadFormatException("Payload length does not match specification", raw_message);
 		if (parity.length != 3)
-			throw new Exception("Parity too short/long");
+			throw new BadFormatException("Parity too short/long", raw_message);
 
 		this.icao24 = icao24;
 		this.payload = payload;

@@ -2,6 +2,10 @@ package org.opensky.libadsb;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.exceptions.MissingInformationException;
+import org.opensky.libadsb.exceptions.PositionStraddleError;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -39,15 +43,15 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 
 	/**
 	 * @param raw_message raw ADS-B airborne position message as hex string
-	 * @throws Exception if message has wrong format
+	 * @throws BadFormatException if message has wrong format
 	 */
-	public AirbornePositionMsg(String raw_message) throws Exception {
+	public AirbornePositionMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 9 && getFormatTypeCode() <= 18) ||
 				(getFormatTypeCode() >= 20 && getFormatTypeCode() <= 22))) 
-			throw new Exception("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").");
+			throw new BadFormatException("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").", raw_message);
 
 		byte[] msg = getMessage();
 
@@ -254,22 +258,25 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @return globally unambiguously decoded position tuple (latitude, longitude). The positional
 	 *         accuracy maintained by the Airborne CPR encoding will be approximately 5.1 meters.
 	 *         A message of the other format is needed for global decoding.
-	 * @throws Exception if no position information is available in one of the messages
-	 * @throws org.opensky.libadsb.exceptions.PositionsIncompatibleError if position messages straddle latitude transition
+	 * @throws MissingInformationException if no position information is available in one of the messages
+	 * @throws IllegalArgumentException if input message was emitted from a different transmitter
+	 * @throws PositionStraddleError if position messages straddle latitude transition
+	 * @throws BadFormatException other has the same format (even/odd)
 	 */
-	public double[] getGlobalPosition(AirbornePositionMsg other) throws Exception {
+	public double[] getGlobalPosition(AirbornePositionMsg other) throws BadFormatException,
+		PositionStraddleError, MissingInformationException {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
-				throw new Exception(
+				throw new IllegalArgumentException(
 						String.format("Transmitter of other message (%s) not equal to this (%s).",
 						tools.toHexString(other.getIcao24()), tools.toHexString(this.getIcao24())));
 		
 		if (other.isOddFormat() == this.isOddFormat())
-			throw new Exception("Expected "+(isOddFormat()?"even":"odd")+" message format.");
+			throw new BadFormatException("Expected "+(isOddFormat()?"even":"odd")+" message format.", other.toString());
 
 		if (!horizontal_position_available)
-			throw new Exception("No position information available!");
+			throw new MissingInformationException("No position information available!");
 		if (!other.hasPosition())
-			throw new Exception("Other message has no position information.");
+			throw new MissingInformationException("Other message has no position information.");
 
 		AirbornePositionMsg even = isOddFormat()?other:this;
 		AirbornePositionMsg odd = isOddFormat()?this:other;
@@ -295,7 +302,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 
 		// ensure that the number of even longitude zones are equal
 		if (NL(Rlat0) != NL(Rlat1))
-			throw new org.opensky.libadsb.exceptions.PositionsIncompatibleError(
+			throw new org.opensky.libadsb.exceptions.PositionStraddleError(
 				"The two given position straddle a transition latitude "+
 				"and cannot be decoded. Wait for positions where they are equal.");
 
@@ -329,11 +336,11 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 *        ref_lon longitude of reference position
 	 * @return decoded position as tuple (latitude, longitude). The positional
 	 *         accuracy maintained by the Airborne CPR encoding will be approximately 5.1 meters.
-	 * @throws Exception if no position information is available
+	 * @throws MissingInformationException if no position information is available
 	 */
-	public double[] getLocalPosition(double ref_lat, double ref_lon) throws Exception {
+	public double[] getLocalPosition(double ref_lat, double ref_lon) throws MissingInformationException {
 		if (!horizontal_position_available)
-			throw new Exception("No position information available!");
+			throw new MissingInformationException("No position information available!");
 		
 		// latitude zone size
 		double Dlat = isOddFormat() ? 360.0/59.0 : 360.0/60.0;
@@ -376,11 +383,11 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 
 	/**
 	 * @return the decoded altitude in meters
-	 * @throws Exception if no position available
+	 * @throws MissingInformationException if no position available
 	 */
-	public double getAltitude() throws Exception {
+	public double getAltitude() throws MissingInformationException {
 		if (!altitude_available)
-			throw new Exception("No altitude information available!");
+			throw new MissingInformationException("No altitude information available!");
 
 		boolean Qbit = (altitude_encoded&0x10)!=0;
 		int N;
