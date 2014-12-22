@@ -39,8 +39,11 @@ public class Decoder {
 			
 			if (ftc >= 1 && ftc <= 4) // identification message
 				return new IdentificationMsg(raw_message);
+
+			if (ftc >= 5 && ftc <= 8) // surface position message
+				return new SurfacePositionMsg(raw_message);
 			
-			if ((ftc >= 9 && ftc <= 18) || (ftc >= 20 && ftc <= 22)) // position message
+			if ((ftc >= 9 && ftc <= 18) || (ftc >= 20 && ftc <= 22)) // airborne position message
 				return new AirbornePositionMsg(raw_message);
 			
 			if (ftc == 19) { // possible velocity message, check subtype
