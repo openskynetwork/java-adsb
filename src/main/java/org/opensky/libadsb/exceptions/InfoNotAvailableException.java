@@ -18,15 +18,15 @@ package org.opensky.libadsb.exceptions;
  */
 
 /**
- * Exception which is thrown when incompatible positions are used
- * for CPR decoding.
+ * Exception which is thrown when the user tries to retrieve
+ * information that is not available.
  * 
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
-public class PositionsIncompatibleError extends Exception {
+public class InfoNotAvailableException extends Exception {
 	private static final long serialVersionUID = 6482688479919911669L;
 
-	public PositionsIncompatibleError(String reason) {
+	public InfoNotAvailableException(String reason) {
 		super(reason);
 	}
 }

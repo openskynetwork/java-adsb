@@ -18,15 +18,16 @@ package org.opensky.libadsb.exceptions;
  */
 
 /**
- * Exception which is thrown when incompatible positions are used
- * for CPR decoding.
+ * Exception which is thrown when messages with unknown format
+ * are passed to a constructor. This happens if e.g. a subtype is
+ * not yet used or marked as "reserved".
  * 
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
-public class PositionsIncompatibleError extends Exception {
+public class UnspecifiedFormatError extends Exception {
 	private static final long serialVersionUID = 6482688479919911669L;
 
-	public PositionsIncompatibleError(String reason) {
+	public UnspecifiedFormatError(String reason) {
 		super(reason);
 	}
 }
