@@ -2,6 +2,8 @@ package org.opensky.libadsb;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.exceptions.BadFormatException;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -56,13 +58,13 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 	
 	/**
 	 * @param raw_message The full Mode S message in hex representation
-	 * @throws Exception if message has the wrong typecode
+	 * @throws BadFormatException if message has the wrong typecode
 	 */
-	public IdentificationMsg(String raw_message) throws Exception {
+	public IdentificationMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
 		
 		if (getFormatTypeCode() < 1 || getFormatTypeCode() > 4) {
-			throw new Exception("Identification messages must have typecode of 1-4.");
+			throw new BadFormatException("Identification messages must have typecode of 1-4.", raw_message);
 		}
 		
 		byte[] msg = this.getMessage();

@@ -2,6 +2,10 @@ package org.opensky.libadsb;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.exceptions.MissingInformationException;
+import org.opensky.libadsb.exceptions.PositionStraddleError;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -39,14 +43,14 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 
 	/**
 	 * @param raw_message raw ADS-B surface position message as hex string
-	 * @throws Exception if message has wrong format
+	 * @throws BadFormatException if message has wrong format
 	 */
-	public SurfacePositionMsg(String raw_message) throws Exception {
+	public SurfacePositionMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 5 && getFormatTypeCode() <= 8)))
-			throw new Exception("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").");
+			throw new BadFormatException("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").", raw_message);
 
 		byte[] msg = getMessage();
 
@@ -136,9 +140,9 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	
 	/**
 	 * @return speed in m/s
-	 * @throws Exception if ground speed is not available
+	 * @throws MissingInformationException if ground speed is not available
 	 */
-	public double getGroundSpeed() throws Exception {
+	public double getGroundSpeed() throws MissingInformationException {
 		double speed;
 		
 		if (movement == 1)
@@ -158,16 +162,16 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		else if (movement == 124)
 			speed = 175;
 		else
-			throw new Exception("Ground speed info not available!");
+			throw new MissingInformationException("Ground speed info not available!");
 		
 		return speed*0.514444;
 	}
 	
 	/**
 	 * @return speed resolution (accuracy) in m/s
-	 * @throws Exception if ground speed is not available
+	 * @throws MissingInformationException if ground speed is not available
 	 */
-	public double getGroundSpeedResolution() throws Exception {
+	public double getGroundSpeedResolution() throws MissingInformationException {
 		double resolution;
 		
 		if (movement >= 1 && movement <= 8)
@@ -185,7 +189,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		else if (movement == 124)
 			resolution = 175;
 		else
-			throw new Exception("Ground speed info not available!");
+			throw new MissingInformationException("Ground speed info not available!");
 		
 		return resolution*0.514444;
 	}
@@ -201,9 +205,9 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north
 	 * @throws Exception if no valid heading info is available
 	 */
-	public double getHeading() throws Exception {
+	public double getHeading() throws MissingInformationException {
 		if (!heading_status)
-			throw new Exception("No valid heading information available!");
+			throw new MissingInformationException("No valid heading information available!");
 		
 		return ground_track*360/128;
 	}
@@ -274,22 +278,25 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 * @return globally unambiguously decoded position tuple (latitude, longitude). The positional
 	 *         accuracy maintained by the CPR encoding will be approximately 1.25 meters.
 	 *         A message of the other format is needed for global decoding.
-	 * @throws Exception if no position information is available in one of the messages
-	 * @throws org.opensky.libadsb.exceptions.PositionsIncompatibleError if position messages straddle latitude transition
+	 * @throws MissingInformationException if no position information is available in one of the messages
+	 * @throws IllegalArgumentException if input message was emitted from a different transmitter
+	 * @throws PositionStraddleError if position messages straddle latitude transition
+	 * @throws BadFormatException other has the same format (even/odd)
 	 */
-	public double[] getGlobalPosition(SurfacePositionMsg other) throws Exception {
+	public double[] getGlobalPosition(SurfacePositionMsg other) throws MissingInformationException, 
+		PositionStraddleError, BadFormatException {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
-				throw new Exception(
+				throw new IllegalArgumentException(
 						String.format("Transmitter of other message (%s) not equal to this (%s).",
 						tools.toHexString(other.getIcao24()), tools.toHexString(this.getIcao24())));
 		
 		if (other.isOddFormat() == this.isOddFormat())
-			throw new Exception("Expected "+(isOddFormat()?"even":"odd")+" message format.");
+			throw new BadFormatException("Expected "+(isOddFormat()?"even":"odd")+" message format.", other.toString());
 
 		if (!horizontal_position_available)
-			throw new Exception("No position information available!");
+			throw new MissingInformationException("No position information available!");
 		if (!other.hasPosition())
-			throw new Exception("Other message has no position information.");
+			throw new MissingInformationException("Other message has no position information.");
 
 		SurfacePositionMsg even = isOddFormat()?other:this;
 		SurfacePositionMsg odd = isOddFormat()?this:other;
@@ -315,7 +322,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 
 		// ensure that the number of even longitude zones are equal
 		if (NL(Rlat0) != NL(Rlat1))
-			throw new org.opensky.libadsb.exceptions.PositionsIncompatibleError(
+			throw new org.opensky.libadsb.exceptions.PositionStraddleError(
 				"The two given position straddle a transition latitude "+
 				"and cannot be decoded. Wait for positions where they are equal.");
 
@@ -349,11 +356,11 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 *        ref_lon longitude of reference position
 	 * @return decoded position as tuple (latitude, longitude). The positional
 	 *         accuracy maintained by the CPR encoding will be approximately 5.1 meters.
-	 * @throws Exception if no position information is available
+	 * @throws MissingInformationException if no position information is available
 	 */
-	public double[] getLocalPosition(double ref_lat, double ref_lon) throws Exception {
+	public double[] getLocalPosition(double ref_lat, double ref_lon) throws MissingInformationException {
 		if (!horizontal_position_available)
-			throw new Exception("No position information available!");
+			throw new MissingInformationException("No position information available!");
 		
 		// latitude zone size
 		double Dlat = isOddFormat() ? 90.0/59.0 : 90.0/60.0;
