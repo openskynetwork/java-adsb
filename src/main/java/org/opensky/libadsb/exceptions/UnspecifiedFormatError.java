@@ -18,9 +18,9 @@ package org.opensky.libadsb.exceptions;
  */
 
 /**
- * Exception which is thrown when messages with unknown format
- * are passed to a constructor. This happens if e.g. a subtype is
- * not yet used or marked as "reserved".
+ * Exception which is thrown when a raw message is passed to the wrong
+ * decoder. E.g. when the format type code in the raw message does not
+ * correspond to the message type.
  * 
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
