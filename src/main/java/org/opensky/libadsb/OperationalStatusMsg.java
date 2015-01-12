@@ -501,11 +501,11 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 		}
 		retstr += "\tSystem design assurance: ";
 		try  {
-			retstr += getSystemDesignAssurance();
+			retstr += getSystemDesignAssurance()+"\n";
 		} catch (MissingInformationException e) {
 			retstr += "unknown\n";
 		}
-		retstr += "\tADS-B version: "+getVersion();
+		retstr += "\tADS-B version: "+getVersion()+"\n";
 		retstr += "\tNIC supplement A: ";
 		try  {
 			retstr += (usesSingleAntenna() ? "true" : "false")+"\n";

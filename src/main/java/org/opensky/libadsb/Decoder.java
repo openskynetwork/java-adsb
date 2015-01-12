@@ -24,7 +24,7 @@ package org.opensky.libadsb;
 public class Decoder {
 
 	/**
-	 * A top-down decoder. Use instanceof to check for payload.
+	 * A top-down decoder. Use instanceof to check for the message type.
 	 * @param raw_message The Mode S message in hex representation
 	 */
 	public static ModeSReply genericDecoder (String raw_message) throws Exception {
@@ -51,6 +51,13 @@ public class Decoder {
 				
 				if (subtype == 1 || subtype == 2) // velocity over ground
 					return new VelocityOverGroundMsg(raw_message);
+			}
+			
+			if (ftc == 31) { // operational status message
+				int subtype = es1090.getMessage()[0]&0x7;
+				
+				if (subtype == 0 || subtype == 1) // airborne or surface?
+					return new OperationalStatusMsg(raw_message);
 			}
 			
 			return es1090; // unknown extended squitter
