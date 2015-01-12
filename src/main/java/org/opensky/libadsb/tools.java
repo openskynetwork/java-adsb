@@ -59,4 +59,16 @@ public class tools {
 		
 		return true;
 	}
+
+	/**
+	 * Checks whether a byte array just contains elements equal to zero
+	 * @return true if all bytes of the array are 0
+	 */
+	public static boolean isZero(byte[] bytes) {
+		int x = 0;
+		for (int i = 0; i < bytes.length; i++) {
+			x |= bytes[i];
+		}
+		return x == 0;
+	}
 }

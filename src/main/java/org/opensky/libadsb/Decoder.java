@@ -30,7 +30,10 @@ public class Decoder {
 	public static ModeSReply genericDecoder (String raw_message) throws Exception {
 		ModeSReply modes = new ModeSReply(raw_message);
 		
-		if (modes.getDownlinkFormat() == 17 || modes.getDownlinkFormat() == 18) {
+		// some receivers set parity to 0
+		if ((tools.isZero(modes.getParity()) || modes.checkParity())
+				&& (modes.getDownlinkFormat() == 17 || modes
+						.getDownlinkFormat() == 18)) {
 			// it's an extended squitter (ADS-B)!!
 			ExtendedSquitter es1090 = new ExtendedSquitter(raw_message);
 			
