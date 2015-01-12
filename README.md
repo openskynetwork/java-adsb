@@ -7,8 +7,10 @@ Currently it only supports the following ADS-B messages:
 * Identification messages
 * Velocity over ground messages
 * Airborne Position messages (including global and local CPR)
+* Surface Position messages (including global and local CPR)
+* Operational status reports (airborne and surface)
 
-These are the most commonly used formats, but more formats will follow soon.
+These are the most commonly used formats, more formats will follow soon. The formats are implemented according to RTCA DO-260B. Most message formats from earlier ADS-B versions are upward compatible.
 
 ### Example decoding of position message
 ```java
