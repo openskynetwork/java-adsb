@@ -146,7 +146,7 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 			"Reserved"
 		}};
 		
-		return categories[getFormatTypeCode()-4][emitter_category];
+		return categories[4-getFormatTypeCode()][emitter_category];
 	}
 
 	/* (non-Javadoc)
