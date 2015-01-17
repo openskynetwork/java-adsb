@@ -6,6 +6,7 @@ import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
+import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 /**
@@ -70,6 +71,8 @@ public class Decoder {
 
 					if (subtype == 1) // emergency/priority status
 						return new EmergencyOrPriorityStatusMsg(raw_message);
+					if (subtype == 2) // TCAS resolution advisory report
+						return new TCASResolutionAdvisoryMsg(raw_message);
 				}
 				
 				if (ftc == 31) { // operational status message
