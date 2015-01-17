@@ -24,12 +24,12 @@ import org.opensky.libadsb.exceptions.MissingInformationException;
  */
 
 /**
- * Decoder for ADS-B velocity messages
+ * Decoder for ADS-B airspeed and heading messages
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
 public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable {
 	
-	private static final long serialVersionUID = -7397309420290359454L;
+	private static final long serialVersionUID = -7072061713588878404L;
 	private byte subtype;
 	private boolean intent_change;
 	private boolean ifr_capability;
@@ -54,14 +54,14 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 		super(raw_message);
 		
 		if (this.getFormatTypeCode() != 19) {
-			throw new BadFormatException("Velocity messages must have typecode 19.", raw_message);
+			throw new BadFormatException("Airspeed and heading messages must have typecode 19.", raw_message);
 		}
 		
 		byte[] msg = this.getMessage();
 		
 		subtype = (byte) (msg[0]&0x7);
 		if (subtype != 3 && subtype != 4) {
-			throw new BadFormatException("Ground speed messages have subtype 1 or 2.", raw_message);
+			throw new BadFormatException("Airspeed and heading messages have subtype 3 or 4.", raw_message);
 		}
 		
 		intent_change = (msg[1]&0x80)>0;
@@ -203,7 +203,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	
 	public String toString() {
 		String ret = super.toString()+"\n"+
-				"Velocity over ground:\n";
+				"Airspeed and heading:\n";
 		try { ret += "\tAirspeed:\t"+getAirspeed()+" m/s\n"; }
 		catch (Exception e) { ret += "\tAirspeed:\t\tnot available\n"; }
 		ret += "\tAirspeed Type:\t\t"+(isTrueAirspeed() ? "true" : "indicated")+"\n";
