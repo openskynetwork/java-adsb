@@ -3,7 +3,6 @@ package org.opensky.libadsb.msgs;
 import java.io.Serializable;
 import org.opensky.libadsb.ExtendedSquitter;
 import org.opensky.libadsb.exceptions.BadFormatException;
-import org.opensky.libadsb.exceptions.MissingInformationException;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -34,7 +33,7 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	private short mode_a_code;
 	
 	/**
-	 * @param raw_message raw ADS-B velocity-over-ground message as hex string
+	 * @param raw_message raw ADS-B aircraft status message as hex string
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public EmergencyOrPriorityStatusMsg(String raw_message) throws BadFormatException {

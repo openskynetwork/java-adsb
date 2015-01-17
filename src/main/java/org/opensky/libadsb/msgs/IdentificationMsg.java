@@ -58,7 +58,7 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 	}
 	
 	/**
-	 * @param raw_message The full Mode S message in hex representation
+	 * @param raw_message the identification message in hex representation
 	 * @throws BadFormatException if message has the wrong typecode
 	 */
 	public IdentificationMsg(String raw_message) throws BadFormatException {

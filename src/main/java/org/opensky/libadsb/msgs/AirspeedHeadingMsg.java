@@ -47,7 +47,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	private boolean geo_minus_baro_available;
 	
 	/**
-	 * @param raw_message raw ADS-B velocity-over-ground message as hex string
+	 * @param raw_message raw ADS-B airspeed and heading message as hex string
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public AirspeedHeadingMsg(String raw_message) throws BadFormatException {
