@@ -1,11 +1,11 @@
 package org.opensky.libadsb;
 
-import org.opensky.libadsb.AirbornePositionMsg;
 import org.opensky.libadsb.Decoder;
-import org.opensky.libadsb.IdentificationMsg;
 import org.opensky.libadsb.ModeSReply;
-import org.opensky.libadsb.VelocityOverGroundMsg;
 import org.opensky.libadsb.tools;
+import org.opensky.libadsb.msgs.AirbornePositionMsg;
+import org.opensky.libadsb.msgs.IdentificationMsg;
+import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 /**
  *  This file is part of org.opensky.libadsb.

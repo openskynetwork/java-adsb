@@ -1,7 +1,8 @@
-package org.opensky.libadsb;
+package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.ExtendedSquitter;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
 
@@ -126,12 +127,18 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		return subtype == 2;
 	}
 	
-	public boolean isIntentChange() {
+	/**
+	 * @return true, if aircraft wants to change altitude for instance
+	 */
+	public boolean hasChangeIntent() {
 		return intent_change;
 	}
 
-
-	public boolean hasIfrCapability() {
+	/**
+	 * Note: only in ADS-B version 1 transponders!!
+	 * @return true, iff aircraft has equipage class A1 or higher
+	 */
+	public boolean hasIFRCapability() {
 		return ifr_capability;
 	}
 

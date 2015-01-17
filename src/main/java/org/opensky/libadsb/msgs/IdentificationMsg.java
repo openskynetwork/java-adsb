@@ -1,7 +1,8 @@
-package org.opensky.libadsb;
+package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.ExtendedSquitter;
 import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**

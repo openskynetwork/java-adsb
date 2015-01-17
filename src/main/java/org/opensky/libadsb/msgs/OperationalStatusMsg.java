@@ -1,7 +1,8 @@
-package org.opensky.libadsb;
+package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.ExtendedSquitter;
 import org.opensky.libadsb.exceptions.MissingInformationException;
 import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 
@@ -321,7 +322,7 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	/**
 	 * @return the NIC supplement A to the format type code of position messages
 	 */
-	public boolean getNICSupplement() {
+	public boolean getNICSupplementA() {
 		return nic_suppl;
 	}
 
