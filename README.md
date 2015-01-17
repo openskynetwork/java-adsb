@@ -9,6 +9,7 @@ Currently it only supports the following ADS-B messages:
 * Airborne Position messages (including global and local CPR)
 * Surface Position messages (including global and local CPR)
 * Operational status reports (airborne and surface)
+* Aircraft status reports (emergency/priority, TCAS RA)
 
 The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. Most message formats of ADS-B Version 1 are upward compatible.
 Please check the API documentation of the message formats for differences. The ADS-B version of transponders can be obtained in Aircraft
