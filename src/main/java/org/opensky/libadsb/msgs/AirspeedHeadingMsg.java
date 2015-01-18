@@ -2,7 +2,6 @@ package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
-import org.opensky.libadsb.ExtendedSquitter;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
 
@@ -99,6 +98,15 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 		return heading_available;
 	}
 
+	/**
+	 * Must be checked before accessing airspeed!
+	 * 
+	 * @return whether airspeed info is available
+	 */
+	public boolean hasAirspeedInfo() {
+		return airspeed_available;
+	}
+	
 	/**
 	 * Must be checked before accessing vertical rate!
 	 * 
