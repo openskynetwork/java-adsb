@@ -45,4 +45,6 @@ System.out.println("Latitude  = "+ lat_lon[0]+ "°\n"+
 // ...
 ```
 
-A complete example can be found in ExampleDecoder.java
+A complete example can be found in ExampleDecoder.java. It reads messages line-by-line from STDIN and prints the decoded information. You can use it as follows:
+`tail messages.txt | java ExampleDecoder`
+or pipe messages from your receiver to it.
