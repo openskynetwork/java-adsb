@@ -22,13 +22,21 @@ import java.util.HashMap;
 import org.opensky.libadsb.Decoder;
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
-import org.opensky.libadsb.msgs.*;
+import org.opensky.libadsb.msgs.AirbornePositionMsg;
+import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
+import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
+import org.opensky.libadsb.msgs.IdentificationMsg;
+import org.opensky.libadsb.msgs.ModeSReply;
+import org.opensky.libadsb.msgs.OperationalStatusMsg;
+import org.opensky.libadsb.msgs.SurfacePositionMsg;
+import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
+import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 /**
  * ADS-B decoder example: It reads messages line-by-line from STDIN and prints some information. You can
  * Use it as follows:<br>
  * tail messages.txt | java ExampleDecoder<br>
- * messages.txt containts 100000 random messages from the OpenSky database.
+ * src/test/resources/messages.txt contains 15000 random messages from the OpenSky database.
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
 public class ExampleDecoder {
