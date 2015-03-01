@@ -15,6 +15,11 @@ The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. Mos
 Please check the API documentation of the message formats for differences. The ADS-B version of transponders can be obtained in Aircraft
 Operational Status reports (type code 31; `OperationalStatusMsg.getVersion()`).
 
+### Packaging
+
+This is a Maven project. You can simply generate a jar file with `mvn package`.
+All the output can afterwards be found in the `target` directory.
+
 ### Example decoding of position message
 ```java
 import org.opensky.libadsb.*;
@@ -45,6 +50,6 @@ System.out.println("Latitude  = "+ lat_lon[0]+ "°\n"+
 // ...
 ```
 
-A complete example can be found in ExampleDecoder.java. It reads messages line-by-line from STDIN and prints the decoded information. You can use it as follows:
-`tail messages.txt | java ExampleDecoder`
+A complete example can be found in ExampleDecoder.java. It reads messages line-by-line from STDIN and prints the decoded information. You can use it as follows after packaging:
+`tail src/test/resources/messages.txt | java -cp target/libadsb-0.1.jar ExampleDecoder`
 or pipe messages from your receiver to it.
