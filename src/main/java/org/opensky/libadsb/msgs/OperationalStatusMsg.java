@@ -507,11 +507,7 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 		}
 		retstr += "\tADS-B version: "+getVersion()+"\n";
 		retstr += "\tNIC supplement A: ";
-		try  {
-			retstr += (usesSingleAntenna() ? "true" : "false")+"\n";
-		} catch (MissingInformationException e) {
-			retstr += "unknown\n";
-		}
+		retstr += (getNICSupplementA() ? "true" : "false")+"\n";
 		retstr += "\tPosition NAC: "+getPositionNAC()+"\n";
 		retstr += "\tVertical Accuracy: "+getGeometricVerticalAccuracy()+"\n";
 		retstr += "\tSource Integrity Level: "+getSourceIntegrityLevel()+"\n";
