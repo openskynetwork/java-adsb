@@ -60,6 +60,6 @@ or pipe messages from your receiver to it.
 
 ### Reading OpenSky sample data
 
-You can find some OpenSky sample data [here](https://github.com/openskynetwork/osky-sample).
+You can find some OpenSky sample data in the [osky-sample repository](https://github.com/openskynetwork/osky-sample).
 Here's how to show the first `n` messages of an Avro dump:
-`java -jar target/libadsb-fat.jar /path/to/osky-sample/avro/raw20150421 n`
+`java -jar target/libadsb-1.0-fat.jar /path/to/osky-sample/avro/raw20150421 n`
