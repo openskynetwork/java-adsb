@@ -51,5 +51,5 @@ System.out.println("Latitude  = "+ lat_lon[0]+ "°\n"+
 ```
 
 A complete example can be found in ExampleDecoder.java. It reads messages line-by-line from STDIN and prints the decoded information. You can use it as follows after packaging:
-`tail src/test/resources/messages.txt | java -cp target/libadsb-0.1.jar ExampleDecoder`
+`tail src/test/resources/messages.txt | java -cp target/libadsb-0.1.jar org.opensky.example.ExampleDecoder`
 or pipe messages from your receiver to it.
