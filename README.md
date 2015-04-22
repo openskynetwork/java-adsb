@@ -18,7 +18,11 @@ Operational Status reports (type code 31; `OperationalStatusMsg.getVersion()`).
 ### Packaging
 
 This is a Maven project. You can simply generate a jar file with `mvn package`.
-All the output can afterwards be found in the `target` directory.
+All the output can afterwards be found in the `target` directory. There will
+be two jar files
+
+* `libadsb-1.0.jar` contains libadsb, only. You should use this in your projects
+* `libadsb-1.0-fat.jar` is packaged with all dependencies to read AVRO files. You should use it to decode OpenSky Avro dumps.
 
 ### Example decoding of position message
 ```java
@@ -51,5 +55,11 @@ System.out.println("Latitude  = "+ lat_lon[0]+ "°\n"+
 ```
 
 A complete example can be found in ExampleDecoder.java. It reads messages line-by-line from STDIN and prints the decoded information. You can use it as follows after packaging:
-`tail src/test/resources/messages.txt | java -cp target/libadsb-0.1.jar org.opensky.example.ExampleDecoder`
+`tail src/test/resources/messages.txt | java -cp target/libadsb-1.0.jar org.opensky.example.ExampleDecoder`
 or pipe messages from your receiver to it.
+
+### Reading OpenSky sample data
+
+You can find some OpenSky sample data [here](https://github.com/openskynetwork/osky-sample).
+Here's how to show the first `n` messages of an Avro dump:
+`java -jar target/libadsb-fat.jar /path/to/osky-sample/avro/raw20150421 n`
