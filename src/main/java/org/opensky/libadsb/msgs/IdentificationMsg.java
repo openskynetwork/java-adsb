@@ -143,6 +143,7 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 			"Reserved",
 			"Reserved",
 			"Reserved",
+			"Reserved",
 			"Reserved"
 		}};
 		
