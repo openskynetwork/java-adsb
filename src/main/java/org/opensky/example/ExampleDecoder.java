@@ -182,8 +182,13 @@ public class ExampleDecoder {
 						tmp.last_even_airborne = airpos;
 						
 						if (tmp.last_odd_airborne != null) { // use global CPR
-							tmp.last_position = airpos.getGlobalPosition(tmp.last_odd_airborne);
-							System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (global)");
+							try {
+								tmp.last_position = airpos.getGlobalPosition(tmp.last_odd_airborne);
+								System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (global)");
+							}
+							catch (Exception e) {
+								System.out.println("Could not decode position (probably incompatible)");
+							}
 						}
 						else {
 							System.out.println("Cannot decode position yet.");
@@ -198,7 +203,7 @@ public class ExampleDecoder {
 					System.out.println("First position.");
 				}
 				System.out.println("          Horizontal containment radius is "+airpos.getHorizontalContainmentRadiusLimit()+" m");
-				System.out.println("          Altitude is "+airpos.getAltitude()+" m");
+				System.out.println("          Altitude is "+ (airpos.hasAltitude() ? airpos.getAltitude() : "unknown") +" m");
 			}
 			
 			else if (msg instanceof OperationalStatusMsg) {
