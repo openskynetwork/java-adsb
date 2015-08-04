@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import org.opensky.libadsb.Decoder;
+import org.opensky.libadsb.Position;
+import org.opensky.libadsb.PositionDecoder;
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.msgs.AirbornePositionMsg;
@@ -34,10 +36,8 @@ import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 /**
- * ADS-B decoder example: It reads messages line-by-line from STDIN and prints some information. You can
- * Use it as follows:<br>
- * tail messages.txt | java ExampleDecoder<br>
- * src/test/resources/messages.txt contains 15000 random messages from the OpenSky database.
+ * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
+ * comma-separated timestamp and message.
  * @author Matthias Schäfer <schaefer@sero-systems.de>
  */
 public class ExampleDecoder {
@@ -73,20 +73,9 @@ public class ExampleDecoder {
 				System.out.println("No more input. Exiting...");
 				System.exit(0);
 			}
-			decoder.decodeMsg(raw);
+			String[] input = raw.split(",");
+			decoder.decodeMsg(Double.parseDouble(input[0]), input[1]);
 		}
-	}
-
-	/**
-	 * This class is mainly used for position decoding
-	 */
-	private class Aircraft {
-		public AirbornePositionMsg last_even_airborne;
-		public AirbornePositionMsg last_odd_airborne;
-		public SurfacePositionMsg last_even_surface;
-		public SurfacePositionMsg last_odd_surface;
-		public double[] last_position; // lat lon
-		public boolean supplA;
 	}
 
 	// tmp variables for the different message types
@@ -100,12 +89,11 @@ public class ExampleDecoder {
 	TCASResolutionAdvisoryMsg tcas;
 	VelocityOverGroundMsg veloc;
 	String icao24;
-	Aircraft tmp;
 	
-	// we store the positions of aircraft for the CPR
-	HashMap<String, Aircraft> aircraft = new HashMap<String, Aircraft>();
+	// we store the position decoder for each aircraft
+	HashMap<String, PositionDecoder> aircraft = new HashMap<String, PositionDecoder>();
 	
-	public void decodeMsg(String raw) throws Exception {
+	public void decodeMsg(double timestamp, String raw) throws Exception {
 		try {
 			msg = Decoder.genericDecoder(raw);
 		} catch (BadFormatException e) {
@@ -155,50 +143,18 @@ public class ExampleDecoder {
 				System.out.print("["+icao24+"]: ");
 				
 				// decode the position if possible
-				if (aircraft.containsKey(icao24) && airpos.hasPosition()) {
-					tmp = aircraft.get(icao24);
-					airpos.setNICSupplementA(tmp.supplA);
-					if (tmp.last_position != null) { // use local CPR
-						tmp.last_position = airpos.getLocalPosition(tmp.last_position[0], tmp.last_position[1]);
-						System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (local)");
-					}
-					else if (airpos.isOddFormat()) {
-						tmp.last_odd_airborne = airpos;
-						
-						if (tmp.last_even_airborne != null) { // use global CPR
-							try {
-								tmp.last_position = airpos.getGlobalPosition(tmp.last_even_airborne);
-								System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (global)");
-							}
-							catch (Exception e) {
-								System.out.println("Could not decode position (probably incompatible)");
-							}
-						}
-						else {
-							System.out.println("Cannot decode position yet.");
-						}
-					}
-					else {
-						tmp.last_even_airborne = airpos;
-						
-						if (tmp.last_odd_airborne != null) { // use global CPR
-							try {
-								tmp.last_position = airpos.getGlobalPosition(tmp.last_odd_airborne);
-								System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (global)");
-							}
-							catch (Exception e) {
-								System.out.println("Could not decode position (probably incompatible)");
-							}
-						}
-						else {
-							System.out.println("Cannot decode position yet.");
-						}
-					}
+				if (aircraft.containsKey(icao24)) {
+					PositionDecoder tmp = aircraft.get(icao24);
+					airpos.setNICSupplementA(tmp.getNICSupplementA());
+					Position current = tmp.decodePosition(timestamp, airpos);
+					if (current == null)
+						System.out.println("Cannot decode position yet.");
+					else
+						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+") (global)");
 				}
 				else {
-					tmp = new ExampleDecoder().new Aircraft();
-					if (airpos.isOddFormat()) tmp.last_odd_airborne = airpos;
-					else tmp.last_even_airborne = airpos;
+					PositionDecoder tmp = new PositionDecoder();
+					tmp.decodePosition(timestamp, airpos);
 					aircraft.put(icao24, tmp);
 					System.out.println("First position.");
 				}
@@ -210,7 +166,7 @@ public class ExampleDecoder {
 				counters[4]++;
 				opstat = (OperationalStatusMsg) msg;
 				if (aircraft.containsKey(icao24))
-					aircraft.get(icao24).supplA = opstat.getNICSupplementA();
+					aircraft.get(icao24).setNICSupplementA(opstat.getNICSupplementA());
 				System.out.println("["+icao24+"]: Using ADS-B version "+opstat.getVersion());
 				System.out.println("          Has ADS-B IN function: "+opstat.has1090ESIn());
 			}
@@ -222,44 +178,18 @@ public class ExampleDecoder {
 				System.out.print("["+icao24+"]: ");
 				
 				// decode the position if possible
-				if (aircraft.containsKey(icao24) && surfpos.hasPosition()) {
-					tmp = aircraft.get(icao24);
-					if (tmp.last_position != null) { // use local CPR
-						tmp.last_position = surfpos.getLocalPosition(tmp.last_position[0], tmp.last_position[1]);
-						System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (local)");
-					}
-					else if (surfpos.isOddFormat()) {
-						tmp.last_odd_surface = surfpos;
-						
-						if (tmp.last_even_surface != null) { // use global CPR
-							try {
-								tmp.last_position = surfpos.getGlobalPosition(tmp.last_even_surface);
-								System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (global)");
-							}
-							catch (Exception e) {
-								System.out.println("Could not decode position (probably incompatible)");
-							}
-						}
-						else {
-							System.out.println("Cannot decode position yet.");
-						}
-					}
-					else {
-						tmp.last_even_surface = surfpos;
-						
-						if (tmp.last_odd_surface != null) { // use global CPR
-							tmp.last_position = surfpos.getGlobalPosition(tmp.last_odd_surface);
-							System.out.println("Now at position ("+tmp.last_position[0]+","+tmp.last_position[1]+") (global)");
-						}
-						else {
-							System.out.println("Cannot decode position yet.");
-						}
-					}
+				if (aircraft.containsKey(icao24)) {
+					PositionDecoder tmp = aircraft.get(icao24);
+					airpos.setNICSupplementA(tmp.getNICSupplementA());
+					Position current = tmp.decodePosition(timestamp, airpos);
+					if (current == null)
+						System.out.println("Cannot decode position yet.");
+					else
+						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+") (global)");
 				}
 				else {
-					tmp = new ExampleDecoder().new Aircraft();
-					if (surfpos.isOddFormat()) tmp.last_odd_surface = surfpos;
-					else tmp.last_even_surface = surfpos;
+					PositionDecoder tmp = new PositionDecoder();
+					tmp.decodePosition(timestamp, airpos);
 					aircraft.put(icao24, tmp);
 					System.out.println("First position.");
 				}

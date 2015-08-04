@@ -2,6 +2,7 @@ package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.Position;
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
@@ -284,7 +285,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 * @throws PositionStraddleError if position messages straddle latitude transition
 	 * @throws BadFormatException other has the same format (even/odd)
 	 */
-	public double[] getGlobalPosition(SurfacePositionMsg other) throws MissingInformationException, 
+	public Position getGlobalPosition(SurfacePositionMsg other) throws MissingInformationException, 
 		PositionStraddleError, BadFormatException {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 				throw new IllegalArgumentException(
@@ -344,8 +345,10 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		if (Rlon1 < -180 && Rlon1 > -360) Rlon1 += 360;
 		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
 		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
-		
-		return new double[] {isOddFormat()?Rlat1:Rlat0, isOddFormat()?Rlon1:Rlon0};
+
+		return new Position(isOddFormat()?Rlon1:Rlon0,
+				            isOddFormat()?Rlat1:Rlat0,
+				            0.0);
 	}
 	
 	/**
@@ -353,13 +356,12 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 * uses a reference position known to be within 45NM (= 83.34km) of the true target
 	 * position. the reference point may be a previously tracked position that has
 	 * been confirmed by global decoding (see getGlobalPosition()).
-	 * @param ref_lat latitude of reference position
-	 *        ref_lon longitude of reference position
-	 * @return decoded position as tuple (latitude, longitude). The positional
+	 * @param ref reference position for local CPR
+	 * @return decoded position. The positional
 	 *         accuracy maintained by the CPR encoding will be approximately 5.1 meters.
 	 * @throws MissingInformationException if no position information is available
 	 */
-	public double[] getLocalPosition(double ref_lat, double ref_lon) throws MissingInformationException {
+	public Position getLocalPosition(Position ref) throws MissingInformationException {
 		if (!horizontal_position_available)
 			throw new MissingInformationException("No position information available!");
 		
@@ -367,7 +369,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		double Dlat = isOddFormat() ? 90.0/59.0 : 90.0/60.0;
 		
 		// latitude zone index
-		double j = Math.floor(ref_lat/Dlat) + Math.floor(0.5+(mod(ref_lat, Dlat))/Dlat-getCPREncodedLatitude()/((double)(1<<17)));
+		double j = Math.floor(ref.getLatitude()/Dlat) + Math.floor(0.5+(mod(ref.getLatitude(), Dlat))/Dlat-getCPREncodedLatitude()/((double)(1<<17)));
 		
 		// decoded position latitude
 		double Rlat = Dlat*(j+getCPREncodedLatitude()/((double)(1<<17)));
@@ -377,8 +379,8 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		
 		// longitude zone coordinate
 		double m =
-				Math.floor(ref_lon/Dlon) +
-				Math.floor(0.5+(mod(ref_lon,Dlon))/Dlon-(float)getCPREncodedLongitude()/((double)(1<<17)));
+				Math.floor(ref.getLongitude()/Dlon) +
+				Math.floor(0.5+(mod(ref.getLongitude(),Dlon))/Dlon-(float)getCPREncodedLongitude()/((double)(1<<17)));
 		
 		// and finally the longitude
 		double Rlon = Dlon * (m + getCPREncodedLongitude()/((double)(1<<17)));
@@ -386,7 +388,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 //		System.out.println("Loc: EncLon: "+getCPREncodedLongitude()+
 //				" m: "+m+" Dlon: "+Dlon+ " Rlon2: "+Rlon2);
 		
-		return new double[] {Rlat,Rlon}; 
+		return new Position(Rlon, Rlat, 0.0);
 	}
 	
 	public String toString() {

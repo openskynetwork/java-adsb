@@ -2,6 +2,7 @@ package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.Position;
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
@@ -251,7 +252,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * and set with msg.setOtherFormatMsg(other).
 	 * @param other airborne position message of the other format (even/odd). Note that the time between
 	 *        both messages should be not longer than 10 seconds! 
-	 * @return globally unambiguously decoded position tuple (latitude, longitude). The positional
+	 * @return globally unambiguously decoded position. The positional
 	 *         accuracy maintained by the Airborne CPR encoding will be approximately 5.1 meters.
 	 *         A message of the other format is needed for global decoding.
 	 * @throws MissingInformationException if no position information is available in one of the messages
@@ -259,7 +260,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @throws PositionStraddleError if position messages straddle latitude transition
 	 * @throws BadFormatException other has the same format (even/odd)
 	 */
-	public double[] getGlobalPosition(AirbornePositionMsg other) throws BadFormatException,
+	public Position getGlobalPosition(AirbornePositionMsg other) throws BadFormatException,
 		PositionStraddleError, MissingInformationException {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 				throw new IllegalArgumentException(
@@ -320,7 +321,9 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
 		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
 		
-		return new double[] {isOddFormat()?Rlat1:Rlat0, isOddFormat()?Rlon1:Rlon0};
+		return new Position(isOddFormat()?Rlon1:Rlon0,
+				            isOddFormat()?Rlat1:Rlat0,
+				            this.hasAltitude() ? this.getAltitude() : null);
 	}
 	
 	/**
@@ -328,13 +331,12 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * uses a reference position known to be within 180NM (= 333.36km) of the true target
 	 * airborne position. the reference point may be a previously tracked position that has
 	 * been confirmed by global decoding (see getGlobalPosition()).
-	 * @param ref_lat latitude of reference position
-	 *        ref_lon longitude of reference position
-	 * @return decoded position as tuple (latitude, longitude). The positional
+	 * @param ref reference position
+	 * @return decoded position. The positional
 	 *         accuracy maintained by the Airborne CPR encoding will be approximately 5.1 meters.
 	 * @throws MissingInformationException if no position information is available
 	 */
-	public double[] getLocalPosition(double ref_lat, double ref_lon) throws MissingInformationException {
+	public Position getLocalPosition(Position ref) throws MissingInformationException {
 		if (!horizontal_position_available)
 			throw new MissingInformationException("No position information available!");
 		
@@ -342,7 +344,8 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		double Dlat = isOddFormat() ? 360.0/59.0 : 360.0/60.0;
 		
 		// latitude zone index
-		double j = Math.floor(ref_lat/Dlat) + Math.floor(0.5+(mod(ref_lat, Dlat))/Dlat-getCPREncodedLatitude()/((double)(1<<17)));
+		double j = Math.floor(ref.getLatitude()/Dlat) +
+				Math.floor(0.5+(mod(ref.getLatitude(), Dlat))/Dlat-getCPREncodedLatitude()/((double)(1<<17)));
 		
 		// decoded position latitude
 		double Rlat = Dlat*(j+getCPREncodedLatitude()/((double)(1<<17)));
@@ -352,16 +355,13 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		
 		// longitude zone coordinate
 		double m =
-				Math.floor(ref_lon/Dlon) +
-				Math.floor(0.5+(mod(ref_lon,Dlon))/Dlon-(float)getCPREncodedLongitude()/((double)(1<<17)));
+				Math.floor(ref.getLongitude()/Dlon) +
+				Math.floor(0.5+(mod(ref.getLongitude(),Dlon))/Dlon-(double)getCPREncodedLongitude()/((double)(1<<17)));
 		
 		// and finally the longitude
 		double Rlon = Dlon * (m + getCPREncodedLongitude()/((double)(1<<17)));
-		
-//		System.out.println("Loc: EncLon: "+getCPREncodedLongitude()+
-//				" m: "+m+" Dlon: "+Dlon+ " Rlon2: "+Rlon2);
-		
-		return new double[] {Rlat,Rlon}; 
+
+		return new Position(Rlon, Rlat, this.hasAltitude() ? this.getAltitude() : null);
 	}
 
 	/**
