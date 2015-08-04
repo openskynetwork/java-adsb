@@ -97,6 +97,7 @@ public class Avro2Kml {
 		private Folder unreasonable;
 		private Folder reasonable;
 		private Folder empty;
+		private int num_flights;
 		
 		public OskyKml () {
 			// prepare KML
@@ -156,6 +157,8 @@ public class Avro2Kml {
 				.withAltitudeMode(AltitudeMode.fromValue(AltitudeMode.ABSOLUTE.value()))
 				.withId(flight.icao24)
 				.withExtrude(false);
+			
+			num_flights++;
 		}
 		
 		public void writeToFile(File file) {
@@ -164,6 +167,10 @@ public class Avro2Kml {
 			} catch (FileNotFoundException e) {
 				System.err.println("Could not write to file '"+file.getAbsolutePath()+"'.\nReason: "+e.toString());
 			}
+		}
+		
+		public int getNumberOfFlights() {
+			return num_flights;
 		}
 	}
 
@@ -281,7 +288,7 @@ public class Avro2Kml {
 //		});
 //		
 //		for (ModeSEncodedMessage record : msgs) {
-			
+			mainloop:
 			while (fileReader.hasNext()) {
 				// get next record from file
 				record = fileReader.next(record);
@@ -298,6 +305,10 @@ public class Avro2Kml {
 				for (String key : to_remove) {
 					kml.addFlight(flights.get(key));
 					flights.remove(key);
+					
+					// number of flights filter
+					if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
+						break mainloop;
 				}
 				
 				msgCount++;
@@ -309,11 +320,7 @@ public class Avro2Kml {
 				}
 				icao24 = tools.toHexString(msg.getIcao24());
 				
-				/*** Filters ***/
-				// TODO: filter_max is actually max number of flights!
-				if (filter_max != null && msgCount>filter_max)
-					break;
-				
+				// icao24 filter
 				if (filter_icao24 != null && !icao24.equals(filter_icao24))
 					continue;
 				
@@ -392,8 +399,13 @@ public class Avro2Kml {
 			}
 			
 			// write residual flights to KML
-			for (String key : flights.keySet())
+			for (String key : flights.keySet()) {
 				kml.addFlight(flights.get(key));
+
+				// number of flights filter
+				if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
+					break;
+			}
 			
 			fileReader.close();
 			kml.writeToFile(kmlfile);

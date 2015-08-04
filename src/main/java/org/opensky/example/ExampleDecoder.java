@@ -44,51 +44,17 @@ public class ExampleDecoder {
 	// we count the message types and biterrors for our summary
 	private static int[] counters = new int[10];
 	
-	public static void main(String[] args) throws Exception {
-		// print summary on shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				System.out.println("\nSummary:");
-				System.out.println("\tIdentification Messages: "+counters[0]);
-				System.out.println("\tEmergency/Priority Status Messages: "+counters[1]);
-				System.out.println("\tAirspeed/Heading Messages: "+counters[2]);
-				System.out.println("\tAirborne Position Messages: "+counters[3]);
-				System.out.println("\tOperational Status Messages: "+counters[4]);
-				System.out.println("\tSurface Position Messages: "+counters[5]);
-				System.out.println("\tTCAS Resolution Advisory Messages: "+counters[6]);
-				System.out.println("\tVelocity Messages: "+counters[7]);
-				System.out.println("\n\tUnkown Messages: "+counters[8]);
-				System.out.println("\tErroneous Messages: "+counters[9]);
-			}
-		});
-
-		ExampleDecoder decoder = new ExampleDecoder();
-		
-		// the main loop
-		String raw;
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		while (true) {
-			raw = in.readLine();
-			if (raw == null) {
-				System.out.println("No more input. Exiting...");
-				System.exit(0);
-			}
-			String[] input = raw.split(",");
-			decoder.decodeMsg(Double.parseDouble(input[0]), input[1]);
-		}
-	}
-
 	// tmp variables for the different message types
-	ModeSReply msg;
-	IdentificationMsg ident;
-	EmergencyOrPriorityStatusMsg status;
-	AirspeedHeadingMsg airspeed;
-	AirbornePositionMsg airpos;
-	OperationalStatusMsg opstat;
-	SurfacePositionMsg surfpos;
-	TCASResolutionAdvisoryMsg tcas;
-	VelocityOverGroundMsg veloc;
-	String icao24;
+	private ModeSReply msg;
+	private IdentificationMsg ident;
+	private EmergencyOrPriorityStatusMsg status;
+	private AirspeedHeadingMsg airspeed;
+	private AirbornePositionMsg airpos;
+	private OperationalStatusMsg opstat;
+	private SurfacePositionMsg surfpos;
+	private TCASResolutionAdvisoryMsg tcas;
+	private VelocityOverGroundMsg veloc;
+	private String icao24;
 	
 	// we store the position decoder for each aircraft
 	HashMap<String, PositionDecoder> aircraft = new HashMap<String, PositionDecoder>();

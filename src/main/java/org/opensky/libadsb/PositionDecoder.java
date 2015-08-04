@@ -237,7 +237,7 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, Position receiver, AirbornePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
-		if (ret != null && ret.distanceTo(receiver) > 600000) {
+		if (ret != null && receiver != null && ret.distanceTo(receiver) > 600000) {
 			ret.setReasonable(false);
 			num_reasonable = 0;
 		}
