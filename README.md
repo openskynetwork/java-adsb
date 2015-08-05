@@ -37,8 +37,8 @@ ModeSReply odd = Decoder.genericDecoder("8dc0ffee58b986d0b3bd25000000");
 ModeSReply even = Decoder.genericDecoder("8dc0ffee58b9835693c897000000");
 
 // test for message types
-if (!(odd.getType() != ADSB_AIRBORN_POSITION) ||
-    !(even.getType() != ADSB_AIRBORN_POSITION)) {
+if (odd.getType() != ADSB_AIRBORN_POSITION ||
+    even.getType() != ADSB_AIRBORN_POSITION) {
     System.out.println("Airborne position reports expected!");
     System.exit(1);
 }
