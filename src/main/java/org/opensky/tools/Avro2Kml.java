@@ -180,8 +180,8 @@ public class Avro2Kml {
 		Options opts = new Options();
 		opts.addOption("h", "help", false, "print this message" );
 		opts.addOption("i", "icao24", true, "filter by icao 24-bit address (hex)");
-		opts.addOption("s", "start", true, "filter by time (start time, unix timestamp)");
-		opts.addOption("e", "end", true, "filter by time (end time, unix timestamp)");
+		opts.addOption("s", "start", true, "only messages received after this time (unix timestamp)");
+		opts.addOption("e", "end", true, "only messages received before this time (unix timestamp)");
 		opts.addOption("n", "max-num", true, "max number of flights written to KML");
 		
 		// parse command line options
@@ -294,6 +294,13 @@ public class Avro2Kml {
 				// get next record from file
 				record = fileReader.next(record);
 				
+				// time filters
+				if (record.getTimeAtServer()<filter_start)
+					continue;
+				
+				if (record.getTimeAtServer()>filter_end)
+					continue;
+				
 				// cleanup decoders every 100.000 messages to avoid excessive memory usage
 				// therefore, remove decoders which have not been used for more than one hour.
 				List<String> to_remove = new ArrayList<String>();
@@ -304,12 +311,12 @@ public class Avro2Kml {
 				}
 				
 				for (String key : to_remove) {
-					kml.addFlight(flights.get(key));
-					flights.remove(key);
-					
 					// number of flights filter
 					if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
 						break mainloop;
+					
+					kml.addFlight(flights.get(key));
+					flights.remove(key);
 				}
 				
 				msgCount++;
@@ -406,11 +413,10 @@ public class Avro2Kml {
 			
 			// write residual flights to KML
 			for (String key : flights.keySet()) {
-				kml.addFlight(flights.get(key));
-
 				// number of flights filter
 				if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
 					break;
+				kml.addFlight(flights.get(key));
 			}
 			
 			fileReader.close();
