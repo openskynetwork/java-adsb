@@ -62,17 +62,17 @@ public class AvroInfo {
 		String file = null;
 		try {
 			cmd = parser.parse(opts, args);
-
-			// get filename
-			if (cmd.getArgList().size() != 1)
-				throw new ParseException("No avro file given or invalid arguments.");
-			file = cmd.getArgList().get(0);
 			
 			// print help
 			if (cmd.hasOption("h")) {
 				printHelp(opts);
 				System.exit(0);
 			}
+
+			// get filename
+			if (cmd.getArgList().size() != 1)
+				throw new ParseException("No avro file given or invalid arguments.");
+			file = cmd.getArgList().get(0);
 		} catch (ParseException e) {
 			// parsing failed
 			System.err.println(e.getMessage()+"\n");

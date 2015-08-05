@@ -154,7 +154,7 @@ public class Avro2Kml {
 			
 			placemark.createAndSetLineString()
 				.withCoordinates(flight.coords)
-				.withAltitudeMode(AltitudeMode.fromValue(AltitudeMode.ABSOLUTE.value()))
+				.withAltitudeMode(AltitudeMode.fromValue(AltitudeMode.RELATIVE_TO_GROUND.value()))
 				.withId(flight.icao24)
 				.withExtrude(false);
 			
@@ -205,17 +205,18 @@ public class Avro2Kml {
 				throw new ParseException("Invalid arguments: "+e.getMessage());
 			}
 			
+			// print help
+			if (cmd.hasOption("h")) {
+				printHelp(opts);
+				System.exit(0);
+			}
+			
 			// get filename
 			if (cmd.getArgList().size() != 2)
 				throw new ParseException("No avro file given or invalid arguments.");
 			file = cmd.getArgList().get(0);
 			out = cmd.getArgList().get(1);
 			
-			// print help
-			if (cmd.hasOption("h")) {
-				printHelp(opts);
-				System.exit(0);
-			}
 		} catch (ParseException e) {
 			// parsing failed
 			System.err.println(e.getMessage()+"\n");
@@ -356,9 +357,12 @@ public class Avro2Kml {
 					else {
 						if (pos.isReasonable()) {
 							Coordinate coord = new Coordinate(pos.getLongitude(), pos.getLatitude(),
-									pos.getAltitude() != null ? pos.getAltitude() : 0);
-							flight.coords.add(coord);
-							++good_pos_cnt;
+									// set altitude to 0 if negative... looks nicer in google earth
+									pos.getAltitude() != null && pos.getAltitude()>0 ? pos.getAltitude() : 0);
+							if (!flight.coords.contains(coord)) { // remove duplicates to safe memory
+								flight.coords.add(coord);
+								++good_pos_cnt;
+							}
 						}
 						else {
 							flight.contains_unreasonable = true;
@@ -380,10 +384,12 @@ public class Avro2Kml {
 						++err_pos_cnt;
 					else {
 						if (pos.isReasonable()) {
-							Coordinate coord = new Coordinate(pos.getLongitude(), pos.getLatitude(),
-									pos.getAltitude() != null ? pos.getAltitude() : 0);
-							flight.coords.add(coord);
-							++good_pos_cnt;
+							Coordinate coord = new Coordinate(pos.getLongitude(), pos.getLatitude(), 0);
+							
+							if (!flight.coords.contains(coord)) { // remove duplicates to safe memory
+								flight.coords.add(coord);
+								++good_pos_cnt;
+							}
 						}
 						else {
 							flight.contains_unreasonable = true;
