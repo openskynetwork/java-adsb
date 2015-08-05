@@ -3,6 +3,7 @@ package org.opensky.libadsb.msgs;
 import java.io.Serializable;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -29,7 +30,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Serializable {
 	
 	private static final long serialVersionUID = -5356935198993751991L;
-	private byte subtype;
+	private byte msg_subtype;
 	private short active_ra;
 	private byte racs_record;
 	private boolean ra_terminated;
@@ -43,14 +44,15 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	 */
 	public TCASResolutionAdvisoryMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.ADSB_TCAS);
 		
 		if (this.getFormatTypeCode() != 28)
 			throw new BadFormatException("TCAS RA reports must have typecode 28.", raw_message);
 		
 		byte[] msg = this.getMessage();
 		
-		subtype = (byte) (msg[0]&0x7);
-		if (subtype != 2)
+		msg_subtype = (byte) (msg[0]&0x7);
+		if (msg_subtype != 2)
 			throw new BadFormatException("TCAS RA reports have subtype 2.", raw_message);
 		
 		active_ra = (short) (((msg[2]>>>2) | (msg[1]<<6)) & 0x3FFF);
@@ -65,7 +67,7 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	 * @return the subtype code of the aircraft status report (should always be 2)
 	 */
 	public byte getSubtype() {
-		return subtype;
+		return msg_subtype;
 	}
 
 	/**

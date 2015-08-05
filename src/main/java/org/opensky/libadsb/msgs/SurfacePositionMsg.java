@@ -7,6 +7,7 @@ import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
 import org.opensky.libadsb.exceptions.PositionStraddleError;
+import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -40,7 +41,9 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	private boolean cpr_format;
 	private int cpr_encoded_lat;
 	private int cpr_encoded_lon;
-	private byte nic_suppl;
+	private boolean nic_supplA;
+	private boolean nic_supplC;
+	
 	
 
 	/**
@@ -49,6 +52,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 */
 	public SurfacePositionMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.ADSB_SURFACE_POSITION);
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 5 && getFormatTypeCode() <= 8)))
@@ -71,16 +75,32 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	/**
 	 * @return NIC supplement that was set before
 	 */
-	public byte getNICSupplement() {
-		return nic_suppl;
+	public boolean getNICSupplementA() {
+		return nic_supplA;
 	}
 
 	/**
 	 * @param nic_suppl Navigation Integrity Category (NIC) supplement from operational status message.
 	 *        Otherwise worst case is assumed for containment radius limit and NIC.
 	 */
-	public void setNICSupplement(byte nic_suppl) {
-		this.nic_suppl = nic_suppl;
+	public void setNICSupplementA(boolean nic_suppl) {
+		this.nic_supplA = nic_suppl;
+	}
+	
+	/**
+	 * @return NIC supplement that was set before
+	 */
+	public boolean getNICSupplementC() {
+		return nic_supplC;
+	}
+
+	/**
+	 * @param nic_suppl Navigation Integrity Category (NIC) supplement C from operational status message.
+	 *        Otherwise worst case is assumed for containment radius limit and NIC. It's from the
+	 *        surface capability class (CC) subfield of Operational Status Messages
+	 */
+	public void setNICSupplementC(boolean nic_suppl) {
+		this.nic_supplC = nic_suppl;
 	}
 	
 	/**
@@ -94,12 +114,12 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		case 5: return 7.5;
 		case 6: return 25;
 		case 7:
-			if ((nic_suppl&0x5) == 0x4) return 75;
+			if (nic_supplA) return 75;
 			else return 185.2;
 		case 8:
-			if ((nic_suppl&0x5) == 0x5) return 370.4;
-			else if ((nic_suppl&0x5) == 0x4) return 555.6;
-			else return 1111.2;
+			if (nic_supplA && nic_supplC) return 370.4;
+			else if (nic_supplA && !nic_supplC) return 555.6;
+			else if (!nic_supplA && nic_supplC) return 1111.2;
 		default: return 0;
 		}
 	}
@@ -115,12 +135,12 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		case 5: return 11;
 		case 6: return 10;
 		case 7:
-			if ((nic_suppl&0x5) == 0x4) return 9;
+			if (nic_supplA) return 9;
 			else return 8;
 		case 8:
-			if ((nic_suppl&0x5) == 0x5) return 7;
-			else if ((nic_suppl&0x5) == 0x4) return 6;
-			else if ((nic_suppl&0x5) == 0x1) return 6;
+			if (nic_supplA && nic_supplC) return 7;
+			else if (nic_supplA && !nic_supplC) return 6;
+			else if (!nic_supplA && nic_supplC) return 6;
 			else return 0;
 		default: return 0;
 		}
@@ -287,6 +307,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 */
 	public Position getGlobalPosition(SurfacePositionMsg other) throws MissingInformationException, 
 		PositionStraddleError, BadFormatException {
+		System.out.format("Message: %s\n", tools.toHexString(this.getPayload()));
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 				throw new IllegalArgumentException(
 						String.format("Transmitter of other message (%s) not equal to this (%s).",

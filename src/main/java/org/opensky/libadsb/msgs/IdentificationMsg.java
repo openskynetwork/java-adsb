@@ -3,6 +3,7 @@ package org.opensky.libadsb.msgs;
 import java.io.Serializable;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -62,6 +63,7 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 	 */
 	public IdentificationMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.ADSB_IDENTIFICATION);
 		
 		if (getFormatTypeCode() < 1 || getFormatTypeCode() > 4) {
 			throw new BadFormatException("Identification messages must have typecode of 1-4.", raw_message);

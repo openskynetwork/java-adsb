@@ -47,6 +47,7 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	 */
 	public OperationalStatusMsg(String raw_message) throws Exception {
 		super(raw_message);
+		setType(subtype.ADSB_STATUS);
 		
 		if (getFormatTypeCode() != 31) {
 			throw new Exception("Operational status messages must have typecode 31.");

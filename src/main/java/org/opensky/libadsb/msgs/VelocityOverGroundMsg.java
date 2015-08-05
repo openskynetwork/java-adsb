@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
+import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -29,7 +30,7 @@ import org.opensky.libadsb.exceptions.MissingInformationException;
 public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializable {
 	
 	private static final long serialVersionUID = -7397309420290359454L;
-	private byte subtype;
+	private byte msg_subtype;
 	private boolean intent_change;
 	private boolean ifr_capability;
 	private byte navigation_accuracy_category;
@@ -51,6 +52,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	 */
 	public VelocityOverGroundMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.ADSB_VELOCITY);
 		
 		if (this.getFormatTypeCode() != 19) {
 			throw new BadFormatException("Velocity messages must have typecode 19.", raw_message);
@@ -58,8 +60,8 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		
 		byte[] msg = this.getMessage();
 		
-		subtype = (byte) (msg[0]&0x7);
-		if (subtype != 1 && subtype != 2) {
+		msg_subtype = (byte) (msg[0]&0x7);
+		if (msg_subtype != 1 && msg_subtype != 2) {
 			throw new BadFormatException("Ground speed messages have subtype 1 or 2.", raw_message);
 		}
 		
@@ -75,12 +77,12 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		direction_west = (msg[1]&0x4)>0;
 		east_west_velocity = (short) (((msg[1]&0x3)<<8 | msg[2]&0xFF)-1);
 		if (east_west_velocity == -1) velocity_info_available = false;
-		if (subtype == 2) east_west_velocity<<=2;
+		if (msg_subtype == 2) east_west_velocity<<=2;
 		
 		direction_south = (msg[3]&0x80)>0;
 		north_south_velocity = (short) (((msg[3]&0x7F)<<3 | msg[4]>>>5&0x07)-1);
 		if (north_south_velocity == -1) velocity_info_available = false;
-		if (subtype == 2) north_south_velocity<<=2;
+		if (msg_subtype == 2) north_south_velocity<<=2;
 
 		vertical_source = (msg[4]&0x10)>0;
 		vertical_rate_down = (msg[4]&0x08)>0;
@@ -123,7 +125,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	 * @return If supersonic, velocity has only 4 kts accuracy, otherwise 1 kt
 	 */
 	public boolean isSupersonic() {
-		return subtype == 2;
+		return msg_subtype == 2;
 	}
 	
 	/**

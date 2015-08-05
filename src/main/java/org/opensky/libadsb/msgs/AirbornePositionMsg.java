@@ -49,6 +49,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 */
 	public AirbornePositionMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.ADSB_AIRBORN_POSITION);
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 9 && getFormatTypeCode() <= 18) ||
@@ -262,6 +263,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 */
 	public Position getGlobalPosition(AirbornePositionMsg other) throws BadFormatException,
 		PositionStraddleError, MissingInformationException {
+		System.out.format("Message: %s\n", tools.toHexString(this.getPayload()));
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 				throw new IllegalArgumentException(
 						String.format("Transmitter of other message (%s) not equal to this (%s).",

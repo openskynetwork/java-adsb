@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
+import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -29,7 +30,7 @@ import org.opensky.libadsb.exceptions.MissingInformationException;
 public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable {
 	
 	private static final long serialVersionUID = -7072061713588878404L;
-	private byte subtype;
+	private byte msg_subtype;
 	private boolean intent_change;
 	private boolean ifr_capability;
 	private byte navigation_accuracy_category;
@@ -51,6 +52,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	 */
 	public AirspeedHeadingMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.ADSB_AIRSPEED);
 		
 		if (this.getFormatTypeCode() != 19) {
 			throw new BadFormatException("Airspeed and heading messages must have typecode 19.", raw_message);
@@ -58,8 +60,8 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 		
 		byte[] msg = this.getMessage();
 		
-		subtype = (byte) (msg[0]&0x7);
-		if (subtype != 3 && subtype != 4) {
+		msg_subtype = (byte) (msg[0]&0x7);
+		if (msg_subtype != 3 && msg_subtype != 4) {
 			throw new BadFormatException("Airspeed and heading messages have subtype 3 or 4.", raw_message);
 		}
 		
@@ -77,7 +79,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 		true_airspeed = (msg[3]&0x80)>0;
 		airspeed = (short) (((msg[3]&0x7F)<<3 | msg[4]>>>5&0x07)-1);
 		if (airspeed == -1) airspeed_available = false;
-		if (subtype == 2) airspeed<<=2;
+		if (msg_subtype == 2) airspeed<<=2;
 
 		vertical_source = (msg[4]&0x10)>0;
 		vertical_rate_down = (msg[4]&0x08)>0;
@@ -129,7 +131,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	 * @return If supersonic, velocity has only 4 kts accuracy, otherwise 1 kt
 	 */
 	public boolean isSupersonic() {
-		return subtype == 4;
+		return msg_subtype == 4;
 	}
 	
 	/**

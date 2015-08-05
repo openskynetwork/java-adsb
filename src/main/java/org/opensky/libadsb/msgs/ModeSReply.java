@@ -38,6 +38,24 @@ public class ModeSReply implements Serializable {
 	private byte[] icao24; // 3 bytes
 	private byte[] payload; // 3 or 10 bytes
 	private byte[] parity; // 3 bytes
+	
+	/*
+	 * Possible subtypes used for faster casting in top-down decoders
+	 */
+	public static enum subtype {
+		MODES_REPLY,
+		EXTENDED_SQUITTER,
+		// ADS-B subtypes
+		ADSB_AIRBORN_POSITION,
+		ADSB_SURFACE_POSITION,
+		ADSB_AIRSPEED,
+		ADSB_EMERGENCY,
+		ADSB_TCAS,
+		ADSB_VELOCITY,
+		ADSB_IDENTIFICATION,
+		ADSB_STATUS
+	}
+	private subtype type;
 
 	/*
 	 * Static fields and functions
@@ -162,8 +180,23 @@ public class ModeSReply implements Serializable {
 		this.icao24 = icao24;
 		this.payload = payload;
 		this.parity = parity;
+		setType(subtype.MODES_REPLY);
 	}
 
+	/**
+	 * @return the subtype
+	 */
+	public subtype getType() {
+		return type;
+	}
+
+	/**
+	 * @param subtype the subtype to set
+	 */
+	protected void setType(subtype subtype) {
+		this.type = subtype;
+	}
+	
 	/**
 	 * @return downlink format of the Mode S reply
 	 */

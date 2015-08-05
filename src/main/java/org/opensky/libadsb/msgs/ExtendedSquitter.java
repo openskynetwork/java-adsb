@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -40,6 +41,7 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	 */
 	public ExtendedSquitter(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.EXTENDED_SQUITTER);
 		
 		if (getDownlinkFormat() != 17 && getDownlinkFormat() != 18) {
 			throw new BadFormatException("Message is not an extended squitter!", raw_message);

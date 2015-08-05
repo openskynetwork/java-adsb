@@ -3,6 +3,7 @@ package org.opensky.libadsb.msgs;
 import java.io.Serializable;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -28,7 +29,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Serializable {
 	
 	private static final long serialVersionUID = 7197836328522321081L;
-	private byte subtype;
+	private byte msgsubtype;
 	private byte emergency_state;
 	private short mode_a_code;
 	
@@ -38,6 +39,7 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	 */
 	public EmergencyOrPriorityStatusMsg(String raw_message) throws BadFormatException {
 		super(raw_message);
+		setType(subtype.ADSB_EMERGENCY);
 		
 		if (this.getFormatTypeCode() != 28) {
 			throw new BadFormatException("Emergency and Priority Status messages must have typecode 28.", raw_message);
@@ -45,8 +47,8 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 		
 		byte[] msg = this.getMessage();
 		
-		subtype = (byte) (msg[0]&0x7);
-		if (subtype != 1) {
+		msgsubtype = (byte) (msg[0]&0x7);
+		if (msgsubtype != 1) {
 			throw new BadFormatException("Emergency and priority status reports have subtype 1.", raw_message);
 		}
 		
@@ -58,7 +60,7 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	 * @return the subtype code of the aircraft status report (should always be 1)
 	 */
 	public byte getSubtype() {
-		return subtype;
+		return msgsubtype;
 	}
 
 	/**
