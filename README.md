@@ -3,7 +3,7 @@ java-adsb
 
 This is an ADS-B decoding library for Java. It also supports Mode S messages. It is part of the OpenSky Network project (http://www.opensky-network.org).
 
-Currently it only supports the following ADS-B messages:
+Currently it supports the following ADS-B formats:
 * Identification messages
 * Velocity over ground messages
 * Airborne Position messages (including global and local CPR)
@@ -14,6 +14,8 @@ Currently it only supports the following ADS-B messages:
 The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. Most message formats of ADS-B Version 1 are upward compatible.
 Please check the API documentation of the message formats for differences. The ADS-B version of transponders can be obtained in Aircraft
 Operational Status reports (type code 31; `OperationalStatusMsg.getVersion()`).
+
+Note: format type code 29 (target state and status information) is missing since it's virtually non-existent in the current ADS-B deployment.
 
 ### Packaging
 
@@ -34,9 +36,9 @@ import org.opensky.libadsb.*;
 ModeSReply odd = Decoder.genericDecoder("8dc0ffee58b986d0b3bd25000000");
 ModeSReply even = Decoder.genericDecoder("8dc0ffee58b9835693c897000000");
 
-// test for message type with "instanceof"
-if (!(odd instanceof AirbornePositionMsg) ||
-    !(even instanceof AirbornePositionMsg)) {
+// test for message types
+if (!(odd.getType() != ADSB_AIRBORN_POSITION) ||
+    !(even.getType() != ADSB_AIRBORN_POSITION)) {
     System.out.println("Airborne position reports expected!");
     System.exit(1);
 }
@@ -54,12 +56,7 @@ System.out.println("Latitude  = "+ lat_lon[0]+ "°\n"+
 // ...
 ```
 
-A complete example can be found in ExampleDecoder.java. It reads messages line-by-line from STDIN and prints the decoded information. You can use it as follows after packaging:
-`tail src/test/resources/messages.txt | java -cp target/libadsb-1.0.jar org.opensky.example.ExampleDecoder`
-or pipe messages from your receiver to it.
-
-### Reading OpenSky sample data
-
-You can find some OpenSky sample data in the [osky-sample repository](https://github.com/openskynetwork/osky-sample).
-Here's how to show the first `n` messages of an Avro dump:
-`java -jar target/libadsb-1.0-fat.jar /path/to/osky-sample/avro/raw20150421 n`
+A complete working decoder can be found in [ExampleDecoder.java](src/main/java/org/opensky/example/ExampleDecoder.java). A demonstration how this
+decoder can be used is provided in [OskySampleReader.java](src/main/java/org/opensky/example/OskySampleReader.java). It reads, decodes, and prints serialized
+ADS-B messages from avro-files with the OpenSky schema. A sample of such data and the schema is provided in the
+[osky-sample repository](https://github.com/openskynetwork/osky-sample).

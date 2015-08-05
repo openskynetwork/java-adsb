@@ -35,6 +35,7 @@ public class PositionDecoder {
 	private Position last_pos; // lat lon
 	private double last_time;
 	private boolean supplA;
+	private boolean supplC;
 	private int num_reasonable; // number of successive reasonable msgs
 	private Logger logger;
 	
@@ -45,6 +46,7 @@ public class PositionDecoder {
 		last_odd_surface = null;
 		last_pos = null;
 		supplA = false;
+		supplC = false;
 		num_reasonable = 0;
 		logger = LoggerFactory.getLogger(this.getClass());
 	}
@@ -459,13 +461,37 @@ public class PositionDecoder {
 	public Position decodePosition(SurfacePositionMsg msg) {
 		return decodePosition(System.currentTimeMillis()/1000.0, msg);
 	}
-	
+
+	/**
+	 * NIC Supplement A from operational status messages
+	 * @return NIC Supplement A from operational status messages
+	 */
 	public boolean getNICSupplementA() {
 		return supplA;
 	}
 
+	/**
+	 * NIC Supplement A from operational status messages
+	 * @param supplA
+	 */
 	public void setNICSupplementA(boolean supplA) {
 		this.supplA = supplA;
+	}
+	
+	/**
+	 * NIC Supplement C from operational status messages (subtype 1 only)
+	 * @return NIC Supplement C from operational status messages (subtype 1 only)
+	 */
+	public boolean getNICSupplementC() {
+		return supplC;
+	}
+
+	/**
+	 * NIC Supplement C from operational status messages (subtype 1 only)
+	 * @param supplC
+	 */
+	public void setNICSupplementC(boolean supplC) {
+		this.supplC = supplC;
 	}
 	
 	/**
