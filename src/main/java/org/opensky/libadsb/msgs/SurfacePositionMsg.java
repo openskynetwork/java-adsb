@@ -307,7 +307,6 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 */
 	public Position getGlobalPosition(SurfacePositionMsg other) throws MissingInformationException, 
 		PositionStraddleError, BadFormatException {
-		System.out.format("Message: %s\n", tools.toHexString(this.getPayload()));
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 				throw new IllegalArgumentException(
 						String.format("Transmitter of other message (%s) not equal to this (%s).",
