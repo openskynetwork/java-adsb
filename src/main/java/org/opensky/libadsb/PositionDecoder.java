@@ -89,7 +89,7 @@ public class PositionDecoder {
 		if (!msg.hasPosition())
 			return null;
 		
-		if (time <= last_time) {
+		if (time < last_time) {
 			logger.warn("Position messages should be ordered!");
 			return null; // positions should be ordered
 		}
