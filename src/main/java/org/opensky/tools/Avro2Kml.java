@@ -295,10 +295,10 @@ public class Avro2Kml {
 				record = fileReader.next(record);
 				
 				// time filters
-				if (record.getTimeAtServer()<filter_start)
+				if (filter_start != null && record.getTimeAtServer()<filter_start)
 					continue;
 				
-				if (record.getTimeAtServer()>filter_end)
+				if (filter_end != null && record.getTimeAtServer()>filter_end)
 					continue;
 				
 				// cleanup decoders every 100.000 messages to avoid excessive memory usage
