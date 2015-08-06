@@ -273,22 +273,7 @@ public class Avro2Kml {
 			// KML stuff
 			Avro2Kml a2k = new Avro2Kml();
 			OskyKml kml = a2k.new OskyKml();
-//			
-//			// TODO remove
-//			List<ModeSEncodedMessage> msgs = new ArrayList<ModeSEncodedMessage>();
-//			while (fileReader.hasNext())
-//				msgs.add(fileReader.next());
-//			
-//			Collections.sort(msgs, new Comparator<ModeSEncodedMessage>() {
-//			@Override
-//			public int compare(ModeSEncodedMessage o1, ModeSEncodedMessage o2) {
-//				if (o1 == null) return -1;
-//				if (o2 == null) return 1;
-//				return o1.getTimeAtServer().compareTo(o2.getTimeAtServer());
-//			}
-//		});
-//		
-//		for (ModeSEncodedMessage record : msgs) {
+			
 			mainloop:
 			while (fileReader.hasNext()) {
 				// get next record from file
@@ -349,7 +334,7 @@ public class Avro2Kml {
 					flight.serials.add(record.getSensorSerialNumber());
 
 				///////// Airborne Position Messages
-				if (msg instanceof AirbornePositionMsg) {
+				if (msg.getType() == ModeSReply.subtype.ADSB_AIRBORN_POSITION) {
 					airpos = (AirbornePositionMsg) msg;
 					Position rec = record.getSensorLatitude() != null ?
 							new Position(
@@ -378,7 +363,7 @@ public class Avro2Kml {
 					}
 				}
 				///////// Surface Position Messages
-				else if (msg instanceof SurfacePositionMsg) {
+				else if (msg.getType() == ModeSReply.subtype.ADSB_SURFACE_POSITION) {
 					surfacepos = (SurfacePositionMsg) msg;
 					Position rec = record.getSensorLatitude() != null ?
 							new Position(
@@ -405,7 +390,7 @@ public class Avro2Kml {
 					}
 				}
 				///////// Identification Messages
-				else if (msg instanceof IdentificationMsg) {
+				else if (msg.getType() == ModeSReply.subtype.ADSB_IDENTIFICATION) {
 					ident = (IdentificationMsg) msg;
 					flight.callsign = ident.getIdentity();
 				}
