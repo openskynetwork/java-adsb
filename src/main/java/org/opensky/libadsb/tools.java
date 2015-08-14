@@ -59,6 +59,21 @@ public class tools {
 		
 		return true;
 	}
+	
+	/**
+	 * Compares two byte arrays element by element
+	 * @param array1 first array
+	 * @param array2 second array
+	 * @return array1 == array2
+	 */
+	public static boolean areEqual(char[] array1, char[] array2) {
+		if (array1.length != array2.length) return false;
+		
+		for (int i=0; i<array1.length; ++i)
+			if (array1[i] != array2[i]) return false;
+		
+		return true;
+	}
 
 	/**
 	 * Checks whether a byte array just contains elements equal to zero
