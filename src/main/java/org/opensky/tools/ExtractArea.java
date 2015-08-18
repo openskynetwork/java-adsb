@@ -204,17 +204,19 @@ public class ExtractArea {
 				if (filter_end != null && record.getTimeAtServer()>filter_end)
 					continue;
 
-				// cleanup decoders every 100.000 messages to avoid excessive memory usage
+				// cleanup decoders every 1.000.000 messages to avoid excessive memory usage
 				// therefore, remove decoders which have not been used for more than one hour.
-				List<String> to_remove = new ArrayList<String>();
-				for (String key : flights.keySet()) {
-					if (flights.get(key).last<record.getTimeAtServer()-3600) {
-						to_remove.add(key);
+				if (inCount%1000000 == 0) {
+					List<String> to_remove = new ArrayList<String>();
+					for (String key : flights.keySet()) {
+						if (flights.get(key).last<record.getTimeAtServer()-3600) {
+							to_remove.add(key);
+						}
 					}
-				}
 
-				for (String key : to_remove)
-					flights.remove(key);
+					for (String key : to_remove)
+						flights.remove(key);
+				}
 
 				try {
 					msg = Decoder.genericDecoder(record.getRawMessage().toString());
