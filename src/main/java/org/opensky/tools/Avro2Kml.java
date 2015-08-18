@@ -276,6 +276,8 @@ public class Avro2Kml {
 			
 			mainloop:
 			while (fileReader.hasNext()) {
+				msgCount++;
+				
 				// get next record from file
 				record = fileReader.next(record);
 				
@@ -286,25 +288,25 @@ public class Avro2Kml {
 				if (filter_end != null && record.getTimeAtServer()>filter_end)
 					continue;
 				
-				// cleanup decoders every 100.000 messages to avoid excessive memory usage
+				// cleanup decoders every 1.000.000 messages to avoid excessive memory usage
 				// therefore, remove decoders which have not been used for more than one hour.
-				List<String> to_remove = new ArrayList<String>();
-				for (String key : flights.keySet()) {
-					if (flights.get(key).last<record.getTimeAtServer()-3600) {
-						to_remove.add(key);
+				if (msgCount % 1000000 == 0) {
+					List<String> to_remove = new ArrayList<String>();
+					for (String key : flights.keySet()) {
+						if (flights.get(key).last<record.getTimeAtServer()-3600) {
+							to_remove.add(key);
+						}
+					}
+
+					for (String key : to_remove) {
+						// number of flights filter
+						if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
+							break mainloop;
+
+						kml.addFlight(flights.get(key));
+						flights.remove(key);
 					}
 				}
-				
-				for (String key : to_remove) {
-					// number of flights filter
-					if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
-						break mainloop;
-					
-					kml.addFlight(flights.get(key));
-					flights.remove(key);
-				}
-				
-				msgCount++;
 				
 				try {
 					msg = Decoder.genericDecoder(record.getRawMessage().toString());
