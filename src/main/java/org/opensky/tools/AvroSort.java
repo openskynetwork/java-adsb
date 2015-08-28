@@ -138,7 +138,7 @@ public class AvroSort {
 
 			// for msg rate
 			last_time = System.currentTimeMillis();
-			System.err.println("Warning: make sure you have enough main memory.");
+			System.err.println("Warning: make sure you have enough main memory. Otherwise, use AvroSplit first.");
 			while (fileReader.hasNext()) {
 				// count messages
 				msgs_cnt++;
