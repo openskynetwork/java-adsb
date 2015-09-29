@@ -90,7 +90,7 @@ public class PositionDecoder {
 	 * @return true is the distance between the two positions is reasonable
 	 */
 	public static boolean withinReasonableRange(Position receiver, Position sender) {
-		return receiver.distanceTo(sender)>MAX_DIST_TO_SENDER;
+		return receiver.distanceTo(sender)<=MAX_DIST_TO_SENDER;
 	}
 	
 	/**
@@ -256,8 +256,8 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, Position receiver, AirbornePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
-		if (ret != null && receiver != null && withinReasonableRange(receiver, ret)) {
-			ret.setReasonable(false);
+		if (ret != null && receiver != null) {
+			ret.setReasonable(withinReasonableRange(receiver, ret));
 			num_reasonable = 0;
 		}
 		return ret;
@@ -449,8 +449,8 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, Position receiver, SurfacePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
-		if (ret != null && receiver != null && withinReasonableRange(receiver, ret)) {
-			ret.setReasonable(false);
+		if (ret != null && receiver != null) {
+			ret.setReasonable(withinReasonableRange(receiver, ret));
 			num_reasonable = 0;
 		}
 		return ret;
