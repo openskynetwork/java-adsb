@@ -39,6 +39,9 @@ public class PositionDecoder {
 	private int num_reasonable; // number of successive reasonable msgs
 	private Logger logger;
 	
+	// distance to receiver threshold
+	private static final int MAX_DIST_TO_SENDER = 700000; // 700km
+	
 	public PositionDecoder() {
 		last_even_airborne = null;
 		last_odd_airborne = null;
@@ -57,10 +60,10 @@ public class PositionDecoder {
 	 * This function is derived empirically
 	 * @param timeDifference the time between the reception of both messages
 	 * @param distance covered
-	 * @param surface airplane e.g. taxiing?
+	 * @param surface is the airplane e.g. taxiing?
 	 * @return whether distance is realistic
 	 */
-	private boolean withinThreshold (double timeDifference, double distance, boolean surface) {
+	public boolean withinThreshold (double timeDifference, double distance, boolean surface) {
 		double x = abs(timeDifference);
 		double d = abs(distance);
 		
@@ -71,9 +74,23 @@ public class PositionDecoder {
 		if (x < 0.7 && d < 2000) return true;
 		else return d/x < (surface?51.44:514.4)*2.5; // 1000 knots for airborne, 100 for surface
 	}
-	
+
 	private boolean withinThreshold (double timeDifference, double distance) {
 		return withinThreshold(timeDifference, distance, false);
+	}
+	
+	/**
+	 * This function can be used to check whether distance between sender and
+	 * receiver is reasonable. Sometimes transponders report erroneous positions
+	 * and this simply constitutes an additional reasonableness test. The maximum
+	 * distance is an upper bound on the line of sight between airplanes and
+	 * ground receivers.
+	 * @param receiver the position of the receiver
+	 * @param sender the reported position
+	 * @return true is the distance between the two positions is reasonable
+	 */
+	public boolean withinReasonableRange(Position receiver, Position sender) {
+		return receiver.distanceTo(sender)>MAX_DIST_TO_SENDER;
 	}
 	
 	/**
@@ -239,7 +256,7 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, Position receiver, AirbornePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
-		if (ret != null && receiver != null && ret.distanceTo(receiver) > 600000) {
+		if (ret != null && receiver != null && withinReasonableRange(receiver, ret)) {
 			ret.setReasonable(false);
 			num_reasonable = 0;
 		}
@@ -432,7 +449,7 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, Position receiver, SurfacePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
-		if (ret != null && receiver != null && ret.distanceTo(receiver) > 600000) {
+		if (ret != null && receiver != null && withinReasonableRange(receiver, ret)) {
 			ret.setReasonable(false);
 			num_reasonable = 0;
 		}
