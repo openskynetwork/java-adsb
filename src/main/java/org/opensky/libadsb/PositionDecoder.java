@@ -63,7 +63,7 @@ public class PositionDecoder {
 	 * @param surface is the airplane e.g. taxiing?
 	 * @return whether distance is realistic
 	 */
-	public boolean withinThreshold (double timeDifference, double distance, boolean surface) {
+	public static boolean withinThreshold (double timeDifference, double distance, boolean surface) {
 		double x = abs(timeDifference);
 		double d = abs(distance);
 		
@@ -75,7 +75,7 @@ public class PositionDecoder {
 		else return d/x < (surface?51.44:514.4)*2.5; // 1000 knots for airborne, 100 for surface
 	}
 
-	private boolean withinThreshold (double timeDifference, double distance) {
+	private static boolean withinThreshold (double timeDifference, double distance) {
 		return withinThreshold(timeDifference, distance, false);
 	}
 	
@@ -89,7 +89,7 @@ public class PositionDecoder {
 	 * @param sender the reported position
 	 * @return true is the distance between the two positions is reasonable
 	 */
-	public boolean withinReasonableRange(Position receiver, Position sender) {
+	public static boolean withinReasonableRange(Position receiver, Position sender) {
 		return receiver.distanceTo(sender)>MAX_DIST_TO_SENDER;
 	}
 	
