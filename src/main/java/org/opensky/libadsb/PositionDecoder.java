@@ -260,8 +260,8 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, Position receiver, AirbornePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
-		if (ret != null && receiver != null) {
-			ret.setReasonable(ret.isReasonable() && withinReasonableRange(receiver, ret));
+		if (ret != null && receiver != null && !withinReasonableRange(receiver, ret)) {
+			ret.setReasonable(false);
 			num_reasonable = 0;
 		}
 		return ret;
@@ -458,8 +458,8 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, Position receiver, SurfacePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
-		if (ret != null && receiver != null) {
-			ret.setReasonable(ret.isReasonable() && withinReasonableRange(receiver, ret));
+		if (ret != null && receiver != null && !withinReasonableRange(receiver, ret)) {
+			ret.setReasonable(false);
 			num_reasonable = 0;
 		}
 		return ret;
