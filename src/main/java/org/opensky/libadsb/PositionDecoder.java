@@ -232,6 +232,7 @@ public class PositionDecoder {
 		Position ret = global ? global_pos : local_pos;
 		
 		if (ret != null) {
+			// is it a valid coordinate?
 			if (Math.abs(ret.getLongitude()) > 90.0 ||
 					ret.getLatitude() < 0.0 || ret.getLatitude() > 180.0) {
 				reasonable = false;
@@ -429,6 +430,7 @@ public class PositionDecoder {
 		Position ret = global ? global_pos : local_pos;
 		
 		if (ret != null) {
+			// is it a valid coordinate?
 			if (Math.abs(ret.getLongitude()) > 90.0 ||
 					ret.getLatitude() < 0.0 || ret.getLatitude() > 180.0) {
 				reasonable = false;
