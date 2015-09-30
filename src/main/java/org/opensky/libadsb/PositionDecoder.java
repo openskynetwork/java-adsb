@@ -1,6 +1,6 @@
 package org.opensky.libadsb;
 
-import static java.lang.Math.abs;
+import static java.lang.Math.*;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
@@ -231,9 +231,13 @@ public class PositionDecoder {
 
 		Position ret = global ? global_pos : local_pos;
 		
-		if (ret != null)
+		if (ret != null) {
+			if (Math.abs(ret.getLongitude()) > 90.0 ||
+					ret.getLatitude() < 0.0 || ret.getLatitude() > 180.0) {
+				reasonable = false;
+			}
 			ret.setReasonable(reasonable);
-
+		}
 		last_pos = ret;
 		last_time = time;
 		
@@ -257,7 +261,7 @@ public class PositionDecoder {
 	public Position decodePosition(double time, Position receiver, AirbornePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
 		if (ret != null && receiver != null) {
-			ret.setReasonable(withinReasonableRange(receiver, ret));
+			ret.setReasonable(ret.isReasonable() && withinReasonableRange(receiver, ret));
 			num_reasonable = 0;
 		}
 		return ret;
@@ -424,8 +428,13 @@ public class PositionDecoder {
 
 		Position ret = global ? global_pos : local_pos;
 		
-		if (ret != null)
+		if (ret != null) {
+			if (Math.abs(ret.getLongitude()) > 90.0 ||
+					ret.getLatitude() < 0.0 || ret.getLatitude() > 180.0) {
+				reasonable = false;
+			}
 			ret.setReasonable(reasonable);
+		}
 
 		last_pos = ret;
 		last_time = time;
@@ -450,7 +459,7 @@ public class PositionDecoder {
 	public Position decodePosition(double time, Position receiver, SurfacePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
 		if (ret != null && receiver != null) {
-			ret.setReasonable(withinReasonableRange(receiver, ret));
+			ret.setReasonable(ret.isReasonable() && withinReasonableRange(receiver, ret));
 			num_reasonable = 0;
 		}
 		return ret;
