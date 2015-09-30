@@ -3,9 +3,13 @@ package org.opensky.tools;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.io.DatumReader;
@@ -27,8 +31,6 @@ import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
-
-import java.sql.*;
 
 /**
  * OpenSky AVRO to SQLite converter
@@ -95,7 +97,7 @@ public class Avro2SQLite {
 	
 	public void insertFlight (Flight flight, double time, String icao24) {
 		try {
-			String sql = String.format("INSERT INTO flights VALUES (%d, %f, %f, '%s', NULL)",
+			String sql = String.format(Locale.ENGLISH, "INSERT INTO flights VALUES (%d, %f, %f, '%s', NULL)",
 					flight.id, time, time, icao24);
 			stmt.executeUpdate(sql);
 		} catch (Exception e) {
@@ -108,11 +110,11 @@ public class Avro2SQLite {
 		try {
 			String sql;
 			if (last != null) {
-				sql = String.format("UPDATE flights SET last=%f WHERE id = %d", last, flight);
+				sql = String.format(Locale.ENGLISH, "UPDATE flights SET last=%f WHERE id = %d", last, flight);
 				stmt.execute(sql);
 			}
 			if (callsign != null) {
-				sql = String.format("UPDATE flights SET callsign='%s' WHERE id = %d", callsign, flight);
+				sql = String.format(Locale.ENGLISH, "UPDATE flights SET callsign='%s' WHERE id = %d", callsign, flight);
 				stmt.execute(sql);
 			}
 		} catch (Exception e) {
@@ -123,7 +125,7 @@ public class Avro2SQLite {
 	
 	public void insertPosition (long flight, double time, Position position, Double radius) {
 		try {
-			String sql = String.format("INSERT INTO positions VALUES (%d, %f, %s, %s, %s, %s)",
+			String sql = String.format(Locale.ENGLISH, "INSERT INTO positions VALUES (%d, %f, %s, %s, %s, %s)",
 					flight, time,
 					position != null && position.getLongitude() != null ? position.getLongitude().toString() : "NULL",
 					position != null && position.getLatitude() != null ? position.getLatitude().toString() : "NULL",
@@ -138,7 +140,7 @@ public class Avro2SQLite {
 	
 	public void insertVelocity (long flight, double time, Double velocity, Double heading, Double vertical_rate) {
 		try {
-			String sql = String.format("INSERT INTO velocities VALUES (%d, %f, %s, %s, %s)",
+			String sql = String.format(Locale.ENGLISH, "INSERT INTO velocities VALUES (%d, %f, %s, %s, %s)",
 					flight, time,
 					velocity != null ? velocity.toString() : "NULL",
 					heading != null ? heading.toString() : "NULL",
