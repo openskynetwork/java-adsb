@@ -179,6 +179,7 @@ public class Avro2Kml {
 		// define command line options
 		Options opts = new Options();
 		opts.addOption("h", "help", false, "print this message" );
+		opts.addOption("0", "nopos", false, "do not include flight without positions" );
 		opts.addOption("i", "icao24", true, "filter by icao 24-bit address (hex)");
 		opts.addOption("s", "start", true, "only messages received after this time (unix timestamp)");
 		opts.addOption("e", "end", true, "only messages received before this time (unix timestamp)");
@@ -192,6 +193,7 @@ public class Avro2Kml {
 		Long filter_max = null;
 		Double filter_start = null, filter_end = null;
 		String file = null, out = null;
+		boolean option_nopos = true;
 		try {
 			cmd = parser.parse(opts, args);
 			
@@ -201,6 +203,7 @@ public class Avro2Kml {
 				if (cmd.hasOption("s")) filter_start = Double.parseDouble(cmd.getOptionValue("s"));
 				if (cmd.hasOption("e")) filter_end = Double.parseDouble(cmd.getOptionValue("e"));
 				if (cmd.hasOption("n")) filter_max = Long.parseLong(cmd.getOptionValue("n"));
+				if (cmd.hasOption("0")) option_nopos = false;
 			} catch (NumberFormatException e) {
 				throw new ParseException("Invalid arguments: "+e.getMessage());
 			}
@@ -303,7 +306,8 @@ public class Avro2Kml {
 						if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
 							break mainloop;
 
-						kml.addFlight(flights.get(key));
+						if (option_nopos | flights.get(key).coords.size() > 0)
+							kml.addFlight(flights.get(key));
 						flights.remove(key);
 					}
 				}
@@ -403,7 +407,8 @@ public class Avro2Kml {
 				// number of flights filter
 				if (filter_max != null && kml.getNumberOfFlights()>=filter_max)
 					break;
-				kml.addFlight(flights.get(key));
+				if (option_nopos | flights.get(key).coords.size() > 0)
+					kml.addFlight(flights.get(key));
 			}
 			
 			fileReader.close();
