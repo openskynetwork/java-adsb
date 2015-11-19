@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
-import org.opensky.libadsb.msgs.ModeSReply.subtype;
 
 /**
  *  This file is part of org.opensky.libadsb.

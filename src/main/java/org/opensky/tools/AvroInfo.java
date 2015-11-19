@@ -3,11 +3,8 @@ package org.opensky.tools;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
@@ -21,12 +18,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.opensky.example.ModeSEncodedMessage;
-import org.opensky.libadsb.Decoder;
-import org.opensky.libadsb.Position;
-import org.opensky.libadsb.PositionDecoder;
-import org.opensky.libadsb.tools;
-import org.opensky.libadsb.msgs.AirbornePositionMsg;
-import org.opensky.libadsb.msgs.ModeSReply;
 
 /**
  * Prints useful information about OpenSky avro files
