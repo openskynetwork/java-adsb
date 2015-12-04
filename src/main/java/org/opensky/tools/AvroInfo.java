@@ -18,6 +18,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.opensky.example.ModeSEncodedMessage;
+import org.opensky.libadsb.msgs.ModeSReply;
 
 /**
  * Prints useful information about OpenSky avro files
@@ -45,12 +46,15 @@ public class AvroInfo {
 		// define command line options
 		Options opts = new Options();
 		opts.addOption("h", "help", false, "print this message" );
+		opts.addOption("c", "count", false, "count message formats" );
+		opts.addOption("p", "parity", false, "ignore messages with bad parity" );
 		
 		// parse command line options
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd;
 		File avro = null;
 		String file = null;
+		boolean option_count = false, option_parity = false;
 		try {
 			cmd = parser.parse(opts, args);
 			
@@ -60,6 +64,9 @@ public class AvroInfo {
 				System.exit(0);
 			}
 
+			if (cmd.hasOption("c")) option_count = true;
+			if (cmd.hasOption("p")) option_parity = true;
+			
 			// get filename
 			if (cmd.getArgList().size() != 1)
 				throw new ParseException("No avro file given or invalid arguments.");
@@ -116,9 +123,26 @@ public class AvroInfo {
 			
 			HashMap<Integer, Long> sensors = new HashMap<Integer, Long>();
 			int serial; Long serial_cnt;
+			long[] adsb_cnt = new long[32];
+			long[] modes_cnt = new long[32];
+			ModeSReply msg;
 			while (fileReader.hasNext()) {
 				// get next record from file
 				record = fileReader.next(record);
+				
+				if (option_parity || option_count) {
+					try {
+						msg = new ModeSReply(record.getRawMessage().toString());
+						if (option_parity && !msg.checkParity()) continue;
+						modes_cnt[msg.getDownlinkFormat()]++;
+						if (msg.getDownlinkFormat() == 17 || msg.getDownlinkFormat() == 18) {
+							adsb_cnt[Short.parseShort(record.getRawMessage().toString().substring(8, 10), 16)>>3]++;
+						}
+					} catch (Exception e) {
+						System.out.println("Caught exception: "+e.getMessage());
+					}
+				}
+				
 				msgCount++;
 				
 				if (record.getTimeAtServer() < min_time)
@@ -138,6 +162,14 @@ public class AvroInfo {
 			for (int key : sensors.keySet())
 				System.out.println("\t"+key+": "+sensors.get(key));
 			fileReader.close();
+			
+			System.out.println("Counts per Mode S downlink format:");
+			for (int i = 0; i<modes_cnt.length; i++)
+				if (modes_cnt[i]>0) System.out.println("    Format "+i+": "+modes_cnt[i]);
+
+			System.out.println("Counts per ADS-B format type code:");
+			for (int i = 0; i<adsb_cnt.length; i++)
+				if (adsb_cnt[i]>0) System.out.println("    Code "+i+": "+adsb_cnt[i]);
 			
 		} catch (IOException e) {
 			// error while trying to read file
