@@ -40,7 +40,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	private short north_south_velocity; // in kn
 	private boolean vertical_source; // 0 = geometric, 1 = barometric
 	private boolean vertical_rate_down; // 0 = up, 1 = down
-	private short vertical_rate; // in ft/s
+	private short vertical_rate; // in ft/min
 	private boolean vertical_rate_info_available;
 	private short geo_minus_baro; // in ft
 	private boolean geo_minus_baro_available;
