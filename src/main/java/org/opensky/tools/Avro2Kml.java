@@ -154,7 +154,7 @@ public class Avro2Kml {
 			
 			placemark.createAndSetLineString()
 				.withCoordinates(flight.coords)
-				.withAltitudeMode(AltitudeMode.fromValue(AltitudeMode.RELATIVE_TO_GROUND.value()))
+				.withAltitudeMode(AltitudeMode.fromValue(AltitudeMode.ABSOLUTE.value()))
 				.withId(flight.icao24)
 				.withExtrude(false);
 			
