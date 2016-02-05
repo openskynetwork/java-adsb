@@ -79,6 +79,7 @@
 							</archive>
 							<finalName>libadsb-${version}-fat</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
+							<attach>false</attach>
 							<descriptorRefs>
 								<descriptorRef>jar-with-dependencies</descriptorRef>
 							</descriptorRefs>
