@@ -34,7 +34,7 @@ public class ModeSReply implements Serializable {
 	 * Attributes
 	 */
 	private byte downlink_format; // 0-31
-	private byte capabilities; // three bits after the downlink format
+	private byte first_field; // the 3 bits after downlink format
 	private byte[] icao24; // 3 bytes
 	private byte[] payload; // 3 or 10 bytes
 	private byte[] parity; // 3 bytes
@@ -43,8 +43,17 @@ public class ModeSReply implements Serializable {
 	 * Possible subtypes used for faster casting in top-down decoders
 	 */
 	public static enum subtype {
-		MODES_REPLY,
+		MODES_REPLY, // unknown mode s reply
+		SHORT_ACAS,
+		ALTITUDE_REPLY,
+		IDENTIFY_REPLY,
+		ALL_CALL_REPLY,
+		LONG_ACAS,
 		EXTENDED_SQUITTER,
+		MILITARY_EXTENDED_SQUITTER,
+		COMM_B_ALTITUDE_REPLY,
+		COMM_B_IDENTIFY_REPLY,
+		COMM_D_ELM,
 		// ADS-B subtypes
 		ADSB_AIRBORN_POSITION,
 		ADSB_SURFACE_POSITION,
@@ -112,8 +121,8 @@ public class ModeSReply implements Serializable {
 
 	/**
 	 * We assume the following message format:
-	 * | DF | CA | Payload | PI/AP |
-	 *   5    3    3/10      3
+	 * | DF | FF | Payload | PI/AP |
+	 *   5    3    24/80      24
 	 * 
 	 * @param raw_message Mode S message in hex representation
 	 * @throws BadFormatException if message has invalid length or payload does
@@ -126,15 +135,21 @@ public class ModeSReply implements Serializable {
 			throw new BadFormatException("Raw message has invalid length", raw_message);
 
 		downlink_format = (byte) (Short.parseShort(raw_message.substring(0, 2), 16));
-		capabilities = (byte) (downlink_format & 0x7);
+		first_field = (byte) (downlink_format & 0x7);
 		downlink_format = (byte) (downlink_format>>>3 & 0x1F);
 
 		byte[] payload = new byte[(length-8)/2];
 		byte[] icao24 = new byte[3];
 		byte[] parity = new byte[3];
-
-		// decode based on format
-		// TODO
+		
+		// extract payload
+		for (int i=2; i<length-6; i+=2)
+			payload[(i-2)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
+		
+		// extract parity field
+		for (int i=length-6; i<length; i+=2)
+			parity[(i-length+6)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
+		
 		switch (downlink_format) {
 		case 0: // Short air-air (ACAS)
 		case 4: // Short altitude reply
@@ -143,27 +158,10 @@ public class ModeSReply implements Serializable {
 		case 20: // Long Comm-B, altitude reply
 		case 21: // Long Comm-B, identity reply
 		case 24: // Long Comm-D (ELM)
-			// here we assume that AP is already the icao24
-			// i.e. parity is extracted. Therefore we leave
-			// parity 0
-			for (int i=length-6; i<length; i+=2)
-				icao24[(i-length+6)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
-
-			// extract payload (little endian)
-			for (int i=2; i<length-6; i+=2)
-				payload[(i-2)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
 			break;
-		case 11: // Short all-call reply
-		case 17: case 18: // Extended squitter
-			// extract payload (little endian)
-			for (int i=2; i<length-6; i+=2)
-				payload[(i-2)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
-
+		case 11: case 17: case 18: // Extended squitter
 			for (int i=0; i<3; i++)
 				icao24[i] = payload[i];
-
-			for (int i=length-6; i<length; i+=2)
-				parity[(i-length+6)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
 			break;
 		default: // unkown downlink format
 			// leave everything 0
@@ -203,12 +201,13 @@ public class ModeSReply implements Serializable {
 	public byte getDownlinkFormat() {
 		return downlink_format;
 	}
-
+	
 	/**
-	 * @return byte containing the three bytes after the DF
+	 * Note: Should only be used by subtype classes
+	 * @return the first field (three bits after downlink format)
 	 */
-	public byte getCapabilities() {
-		return capabilities;
+	protected byte getFirstField() {
+		return first_field;
 	}
 
 	/**
@@ -233,12 +232,12 @@ public class ModeSReply implements Serializable {
 	}
 
 	/**
-	 * @return recalculated parity as 3-byte array
+	 * @return calculates Mode S parity as 3-byte array
 	 */
 	public byte[] calcParity() {
 		byte[] message = new byte[payload.length+1];
 
-		message[0] = (byte) (downlink_format<<3 | capabilities);
+		message[0] = (byte) (downlink_format<<3 | first_field);
 		for (byte b = 0; b < payload.length; ++b)
 			message[b+1] = payload[b];
 
@@ -246,7 +245,7 @@ public class ModeSReply implements Serializable {
 	}
 
 	/**
-	 * @return true if parity in message matched recalculated parity
+	 * @return true if parity in message matched calculated parity
 	 */
 	public boolean checkParity() {
 		return tools.areEqual(calcParity(), getParity());
@@ -259,7 +258,6 @@ public class ModeSReply implements Serializable {
 		return super.toString()+"\n"+
 				"Mode S Reply:\n"+
 				"\tDownlink format:\t"+getDownlinkFormat()+"\n"+
-				"\tCapabilities:\t\t"+getCapabilities()+"\n"+
 				"\tICAO 24-bit address:\t"+tools.toHexString(getIcao24())+"\n"+
 				"\tPayload:\t\t"+tools.toHexString(getPayload())+"\n"+
 				"\tParity:\t\t\t"+tools.toHexString(getParity())+"\n"+

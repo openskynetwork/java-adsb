@@ -29,6 +29,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 public class ExtendedSquitter extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -7877955448285410779L;
+	
 	private byte capabilities;
 	private byte[] message;
 	private byte format_type_code;
@@ -47,7 +48,7 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 		}
 		
 		byte[] payload = getPayload();
-		capabilities = (byte) (payload[0] & 0x7);
+		capabilities = getFirstField();
 		
 		// extract ADS-B message
 		message = new byte[7];
