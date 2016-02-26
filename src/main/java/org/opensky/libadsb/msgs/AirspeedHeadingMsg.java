@@ -24,7 +24,7 @@ import org.opensky.libadsb.exceptions.MissingInformationException;
 
 /**
  * Decoder for ADS-B airspeed and heading messages
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable {
 	

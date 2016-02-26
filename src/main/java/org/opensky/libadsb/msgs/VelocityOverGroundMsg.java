@@ -24,7 +24,7 @@ import org.opensky.libadsb.exceptions.MissingInformationException;
 
 /**
  * Decoder for ADS-B velocity messages
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializable {
 	

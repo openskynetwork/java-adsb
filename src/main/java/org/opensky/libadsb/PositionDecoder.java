@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * Please refer to "Analysis of anomalies in ADS-B and its GPS data"
  * by Busyairah et al.
  * 
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  *
  */
 public class PositionDecoder {

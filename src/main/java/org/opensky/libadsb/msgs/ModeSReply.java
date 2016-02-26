@@ -25,7 +25,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for Mode S replies
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class ModeSReply implements Serializable {
 	private static final long serialVersionUID = 5369519167589262290L;

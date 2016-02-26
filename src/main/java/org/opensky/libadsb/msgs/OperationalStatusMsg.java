@@ -24,7 +24,7 @@ import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 
 /**
  * Decoder for ADS-B operational status messages (Page N-50, DO-260B)
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class OperationalStatusMsg extends ExtendedSquitter implements Serializable {
 

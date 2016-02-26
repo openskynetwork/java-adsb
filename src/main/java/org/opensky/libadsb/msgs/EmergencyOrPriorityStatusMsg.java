@@ -23,7 +23,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for ADS-B emergency and priority status messages
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Serializable {
 	

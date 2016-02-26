@@ -23,7 +23,7 @@ import org.opensky.libadsb.msgs.ModeSReply;
 /**
  * Prints useful information about OpenSky avro files
  * 
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  *
  */
 public class AvroInfo {
@@ -129,6 +129,8 @@ public class AvroInfo {
 			while (fileReader.hasNext()) {
 				// get next record from file
 				record = fileReader.next(record);
+				
+				//System.out.println(record.toString());
 				
 				if (option_parity || option_count) {
 					try {

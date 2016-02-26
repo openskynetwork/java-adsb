@@ -22,7 +22,7 @@ package org.opensky.libadsb.exceptions;
  * is actually not available. The programmer has to check the subtype codes
  * to avoid this exception.
  * 
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class BadFormatException extends Exception {
 	private static final long serialVersionUID = 5630832543039853589L;

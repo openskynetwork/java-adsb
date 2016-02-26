@@ -38,7 +38,7 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 /**
  * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
  * comma-separated timestamp and message.
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class ExampleDecoder {
 	// tmp variables for the different message types

@@ -23,8 +23,8 @@ import org.opensky.libadsb.exceptions.BadFormatException;
  */
 
 /**
- * Decoder for Mode S extended squitters
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * Decoder for Mode S all-call replies
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class AllCallReply extends ModeSReply implements Serializable {
 

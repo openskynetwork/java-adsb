@@ -28,7 +28,7 @@ import org.opensky.example.ModeSEncodedMessage;
  * Warning: make sure you have enough RAM
  * 
  * Outputs avro file with sorted entries.
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  *
  */
 public class AvroSort {

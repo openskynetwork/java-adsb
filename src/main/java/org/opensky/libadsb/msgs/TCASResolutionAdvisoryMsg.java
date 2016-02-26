@@ -24,7 +24,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 /**
  * Decoder for 1090ES TCAS Resolution Advisory Messages.<br>
  * Note: This format only exists in ADS-B versions >= 2 
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Serializable {
 	

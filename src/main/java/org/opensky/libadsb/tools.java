@@ -19,7 +19,7 @@ package org.opensky.libadsb;
 
 /**
  * Some useful function when working with libadsb
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class tools {
 	/**

@@ -27,7 +27,7 @@ import org.opensky.libadsb.exceptions.PositionStraddleError;
 
 /**
  * Decoder for ADS-B airborne position messages
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class AirbornePositionMsg extends ExtendedSquitter implements Serializable {
 

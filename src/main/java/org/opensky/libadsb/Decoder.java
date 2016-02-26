@@ -30,7 +30,7 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 /**
  * General decoder for ADS-B messages
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class Decoder {
 

@@ -17,7 +17,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
  * Container class for WGS84 positions
  * 
  * @author Markus Fuchs <fuchs@sero-systems.de>
- * @author Matthias Schäfer <schaefer@sero-systems.de>
+ * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class Position implements Serializable {
 	private static final long serialVersionUID = 1562401753853965728L;
