@@ -420,11 +420,15 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	}
 	
 	public String toString() {
-		return super.toString()+"\n"+
-				"Position:\n"+
-				"\tFormat:\t\t"+(isOddFormat()?"odd":"even")+
-				"\tHas position:\t"+(hasPosition()?"yes":"no")+
-				"\tHas altitude:\t"+(hasAltitude()?"yes":"no");
+		try {
+			return super.toString()+"\n"+
+					"Position:\n"+
+					"\tFormat:\t\t"+(isOddFormat()?"odd":"even")+
+					"\n\tHas position:\t"+(hasPosition()?"yes":"no")+
+					"\n\tAltitude:\t"+(hasAltitude()?getAltitude():"unkown");
+		} catch (MissingInformationException e) {
+			return "Position: Missing information!";
+		}
 	}
 
 }

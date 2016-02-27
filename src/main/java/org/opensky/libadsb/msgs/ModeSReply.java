@@ -251,8 +251,7 @@ public class ModeSReply implements Serializable {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return super.toString()+"\n"+
-				"Mode S Reply:\n"+
+		return "Mode S Reply:\n"+
 				"\tDownlink format:\t"+getDownlinkFormat()+"\n"+
 				"\tICAO 24-bit address:\t"+tools.toHexString(getIcao24())+"\n"+
 				"\tPayload:\t\t"+tools.toHexString(getPayload())+"\n"+
