@@ -18,6 +18,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.opensky.example.ModeSEncodedMessage;
+import org.opensky.libadsb.Decoder;
 import org.opensky.libadsb.msgs.ModeSReply;
 
 /**
@@ -48,13 +49,14 @@ public class AvroInfo {
 		opts.addOption("h", "help", false, "print this message" );
 		opts.addOption("c", "count", false, "count message formats" );
 		opts.addOption("p", "parity", false, "ignore messages with bad parity" );
+		opts.addOption("v", "verbose", false, "print every message" );
 		
 		// parse command line options
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd;
 		File avro = null;
 		String file = null;
-		boolean option_count = false, option_parity = false;
+		boolean option_count = false, option_parity = false, verbose = false;
 		try {
 			cmd = parser.parse(opts, args);
 			
@@ -66,6 +68,7 @@ public class AvroInfo {
 
 			if (cmd.hasOption("c")) option_count = true;
 			if (cmd.hasOption("p")) option_parity = true;
+			if (cmd.hasOption("v")) verbose = true;
 			
 			// get filename
 			if (cmd.getArgList().size() != 1)
@@ -144,6 +147,9 @@ public class AvroInfo {
 						System.out.println("Caught exception: "+e.getMessage());
 					}
 				}
+				
+				if (verbose)
+					System.out.println(Decoder.genericDecoder(record.getRawMessage().toString()).toString());
 				
 				msgCount++;
 				
