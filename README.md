@@ -1,7 +1,13 @@
 java-adsb
 =========
 
-This is an ADS-B decoding library for Java. It also supports Mode S messages. It is part of the OpenSky Network project (http://www.opensky-network.org).
+This is a Mode S and ADS-B decoding library for Java. It is a product of the OpenSky Network project (http://www.opensky-network.org).
+
+It supports the following Mode S downlink formats:
+* Short altitude reply (DF 4)
+* Short identify reply (DF 5)
+* All-call reply (DF 11)
+* Extended Squitter (DF 17, 18)
 
 Currently it supports the following ADS-B formats:
 * Identification messages
