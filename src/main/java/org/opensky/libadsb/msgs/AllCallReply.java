@@ -74,7 +74,7 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	
 	public String toString() {
 		return super.toString()+"\n"+
-				"Extended Squitter:\n"+
+				"All-call Reply:\n"+
 				"\tCapabilities:\t\t"+getCapabilities()+"\n"+
 				"\tInterrogator:\t\t"+tools.toHexString(getInterrogatorID());
 	}

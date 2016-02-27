@@ -138,18 +138,19 @@ public class ModeSReply implements Serializable {
 		first_field = (byte) (downlink_format & 0x7);
 		downlink_format = (byte) (downlink_format>>>3 & 0x1F);
 
-		byte[] payload = new byte[(length-8)/2];
-		byte[] icao24 = new byte[3];
-		byte[] parity = new byte[3];
 		
 		// extract payload
+		payload = new byte[(length-8)/2];
 		for (int i=2; i<length-6; i+=2)
 			payload[(i-2)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
 		
 		// extract parity field
+		parity = new byte[3];
 		for (int i=length-6; i<length; i+=2)
 			parity[(i-length+6)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
-		
+
+		// extract ICAO24 address
+		icao24 = new byte[3];
 		switch (downlink_format) {
 		case 0: // Short air-air (ACAS)
 		case 4: // Short altitude reply
@@ -158,8 +159,13 @@ public class ModeSReply implements Serializable {
 		case 20: // Long Comm-B, altitude reply
 		case 21: // Long Comm-B, identity reply
 		case 24: // Long Comm-D (ELM)
+			byte[] crc = this.calcParity();
+			for (int i=0; i<3; i++)
+				icao24[i] = (byte)(0xff & ((int)parity[i]^(int)crc[i]));
 			break;
-		case 11: case 17: case 18: // Extended squitter
+			
+		case 11: // all call replies
+		case 17: case 18: // Extended squitter
 			for (int i=0; i<3; i++)
 				icao24[i] = payload[i];
 			break;
@@ -167,17 +173,6 @@ public class ModeSReply implements Serializable {
 			// leave everything 0
 		}
 
-		// check format invariants
-		if (icao24.length != 3)
-			throw new BadFormatException("ICAO address too short/long", raw_message);
-		if (payload.length != 3 && payload.length != 10)
-			throw new BadFormatException("Payload length does not match specification", raw_message);
-		if (parity.length != 3)
-			throw new BadFormatException("Parity too short/long", raw_message);
-
-		this.icao24 = icao24;
-		this.payload = payload;
-		this.parity = parity;
 		setType(subtype.MODES_REPLY);
 	}
 
@@ -218,7 +213,8 @@ public class ModeSReply implements Serializable {
 	}
 
 	/**
-	 * @return payload as 4- or 11-byte array
+	 * @return payload as 3- or 10-byte array containing the Mode S
+	 * reply without the first and the last three bytes. 
 	 */
 	public byte[] getPayload() {
 		return payload;
