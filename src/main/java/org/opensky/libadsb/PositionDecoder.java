@@ -94,7 +94,6 @@ public class PositionDecoder {
 	}
 	
 	/**
-	 * Note: positions must be ordered in time
 	 * @param time time of applicability/reception of position report
 	 * @param msg airborne position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
@@ -251,13 +250,12 @@ public class PositionDecoder {
 	}
 	
 	/**
-	 * Note: positions must be ordered in time
-	 * @param time time of applicability/reception of position report
+	 * @param time time of applicability/reception of position report (seconds)
 	 * @param receiver position of the receiver to check if received position was more than 600km away
 	 * @param msg airborne position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
-	 * @return
+	 * @return decoded position
 	 */
 	public Position decodePosition(double time, Position receiver, AirbornePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
@@ -273,16 +271,18 @@ public class PositionDecoder {
 	 * @param msg airborne position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
-	 * @return
+	 * @return decoded position
 	 */
 	public Position decodePosition(Position receiver, AirbornePositionMsg msg) {
 		return decodePosition(System.currentTimeMillis()/1000.0, receiver, msg);
 	}
 	
 	/**
-	 * Note: use this method for live decoding only! Assumes that time of applicability
-	 * equals current time! Using this function for older messages might result in false
-	 * positions! Prefer using decodePosition with proper time of applicability.
+	 * Use this method for live decoding only! It assumes that time of applicability
+	 * equals current time! Using this function for older messages might result in
+	 * false positions! Prefer using one of the other decodePosition methods with explicit
+	 * handling of reception times. We assume in general that positions are passed to this
+	 * decoder ordered in time, i.e. as they are received.
 	 * @param msg airborne position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
@@ -292,8 +292,7 @@ public class PositionDecoder {
 	}
 
 	/**
-	 * Note: positions must be ordered in time
-	 * @param time time of applicability/reception of position report
+	 * @param time time of applicability/reception of position report (seconds)
 	 * @param msg surface position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
@@ -450,13 +449,12 @@ public class PositionDecoder {
 	}
 	
 	/**
-	 * Note: positions must be ordered in time
-	 * @param time time of applicability/reception of position report
+	 * @param time time of applicability/reception of position report (seconds)
 	 * @param receiver position of the receiver to check if received position was more than 600km away
 	 * @param msg surface position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
-	 * @return
+	 * @return decoded position
 	 */
 	public Position decodePosition(double time, Position receiver, SurfacePositionMsg msg) {
 		Position ret = decodePosition(time, msg);
@@ -472,7 +470,7 @@ public class PositionDecoder {
 	 * @param msg airborne position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
-	 * @return
+	 * @return decoded position
 	 */
 	public Position decodePosition(Position receiver, SurfacePositionMsg msg) {
 		return decodePosition(System.currentTimeMillis()/1000.0, receiver, msg);
@@ -523,7 +521,8 @@ public class PositionDecoder {
 	}
 	
 	/**
-	 * @return the time when the last position was decoded
+	 * Returns time when the last position was decoded
+	 * @return the time in seconds
 	 */
 	public double getLastUsedTime() {
 		return last_time;

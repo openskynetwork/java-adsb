@@ -158,7 +158,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	}
 
 	/**
-	 * @see getSurveillanceStatusDescription()
+	 * @see #getSurveillanceStatusDescription()
 	 * @return the surveillance status
 	 */
 	public byte getSurveillanceStatus() {

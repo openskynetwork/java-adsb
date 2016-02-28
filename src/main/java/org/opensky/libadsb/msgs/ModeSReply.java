@@ -39,8 +39,9 @@ public class ModeSReply implements Serializable {
 	private byte[] payload; // 3 or 10 bytes
 	private byte[] parity; // 3 bytes
 	
-	/*
-	 * Possible subtypes used for faster casting in top-down decoders
+	/**
+	 * Indicator set by all specializations of this class to tell
+	 * users which message format is encapsulated in this Mode S message.
 	 */
 	public static enum subtype {
 		MODES_REPLY, // unknown mode s reply
@@ -120,9 +121,8 @@ public class ModeSReply implements Serializable {
 	 */
 
 	/**
-	 * We assume the following message format:
-	 * | DF | FF | Payload | PI/AP |
-	 *   5    3    24/80      24
+	 * We assume the following message format:<br>
+	 * | DF (5) | FF (3) | Payload (24/80) | PI/AP (24) |
 	 * 
 	 * @param raw_message Mode S message in hex representation
 	 * @throws BadFormatException if message has invalid length or payload does

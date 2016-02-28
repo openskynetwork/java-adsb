@@ -18,12 +18,14 @@ package org.opensky.libadsb;
  */
 
 /**
- * Some useful function when working with libadsb
+ * Some useful functions when working with libadsb. Mostly we need these
+ * functions since the library often works with arrays of bytes which are
+ * not really readable for humans or basic operations are missing.
  * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class tools {
 	/**
-	 * Converts a byte into a hex string (e.g. 164=a4)
+	 * Converts a byte into a hex string (e.g. 164 -> "a4")
 	 * @param b input byte
 	 * @return hex representation of input byte
 	 */

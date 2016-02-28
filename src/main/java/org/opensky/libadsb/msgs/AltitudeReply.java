@@ -55,19 +55,21 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	}
 
 	/**
-	 * The coding is:<br>
-	 * 0 signifies no alert and no SPI, aircraft is airborne<br>
-	 * 1 signifies no alert and no SPI, aircraft is on the ground<br>
-	 * 2 signifies alert, no SPI, aircraft is airborne<br>
-	 * 3 signifies alert, no SPI, aircraft is on the ground<br>
-	 * 4 signifies alert and SPI, aircraft is airborne or on the ground<br>
-	 * 5 signifies no alert and SPI, aircraft is airborne or on the ground<br>
-	 * 6 reserved<br>
-	 * 7 not assigned
-	 * @return The 3 bits flight status. 
-	 * @see {@link #hasAlert() hasAlert},
-	 * {@link #hasSPI() hasSPI},
-	 * {@link #isOnGround() isOnGround}
+	 * Indicates alerts, whether SPI is enabled, and if the plane is on ground.
+	 * @return The 3 bits flight status. The coding is:<br>
+	 * <ul>
+	 * <li>0 signifies no alert and no SPI, aircraft is airborne</li>
+	 * <li>1 signifies no alert and no SPI, aircraft is on the ground</li>
+	 * <li>2 signifies alert, no SPI, aircraft is airborne</li>
+	 * <li>3 signifies alert, no SPI, aircraft is on the ground</li>
+	 * <li>4 signifies alert and SPI, aircraft is airborne or on the ground</li>
+	 * <li>5 signifies no alert and SPI, aircraft is airborne or on the ground</li>
+	 * <li>6 reserved</li>
+	 * <li>7 not assigned</li>
+	 * </ul>
+	 * @see #hasAlert()
+	 * @see #hasSPI()
+	 * @see #isOnGround()
 	 */
 	public byte getFlightStatus() {
 		return flight_status;
@@ -96,18 +98,20 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	}
 
 	/**
-	 * Coding:<br>
-     * 0 signifies no downlink request<br>
-	 * 1 signifies request to send Comm-B message<br>
-	 * 2 reserved for ACAS<br>
-	 * 3 reserved for ACAS<br>
-	 * 4 signifies Comm-B broadcast message 1 available<br>
-	 * 5 signifies Comm-B broadcast message 2 available<br>
-	 * 6 reserved for ACAS<br>
-	 * 7 reserved for ACAS<br>
-	 * 8-15 not assigned<br>
-	 * 16-31 see downlink ELM protocol (3.1.2.7.7.1)
-	 * @return The 5 bits downlink request.
+	 * indicator for downlink requests
+	 * @return the 5 bits downlink request. The coding is:<br>
+     * <ul>
+     * <li>0 signifies no downlink request</li>
+	 * <li>1 signifies request to send Comm-B message</li>
+	 * <li>2 reserved for ACAS</li>
+	 * <li>3 reserved for ACAS</li>
+	 * <li>4 signifies Comm-B broadcast message 1 available</li>
+	 * <li>5 signifies Comm-B broadcast message 2 available</li>
+	 * <li>6 reserved for ACAS</li>
+	 * <li>7 reserved for ACAS</li>
+	 * <li>8-15 not assigned</li>
+	 * <li>16-31 see downlink ELM protocol (3.1.2.7.7.1)</li>
+     * </ul>
 	 */
 	public byte getDownlinkRequest() {
 		return downlink_request;
@@ -121,7 +125,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	}
 	
 	/**
-	 * Note: this is not the same identifier as the one contained in all-call replies.
+	 * Note that this is not the same identifier as the one contained in all-call replies.
 	 * 
 	 * @return the 4-bit interrogator identifier subfield of the
 	 * utility message which reports the identifier of the

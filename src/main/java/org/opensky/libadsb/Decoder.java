@@ -38,8 +38,10 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 public class Decoder {
 
 	/**
-	 * A top-down ADS-B decoder. Use .getType() to check for the message type.
-	 * @param raw_message The Mode S message in hex representation
+	 * A easy-to-use top-down ADS-B decoder. Use msg.getType() to
+	 * check the message type and then cast to the appropriate class.
+	 * @param raw_message the Mode S message in hex representation
+	 * @return an instance of the most specialized ModeSReply possible
 	 */
 	public static ModeSReply genericDecoder (String raw_message) throws Exception {
 		ModeSReply modes = new ModeSReply(raw_message);
