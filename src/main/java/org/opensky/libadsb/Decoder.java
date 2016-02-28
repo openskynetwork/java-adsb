@@ -4,6 +4,8 @@ import org.opensky.libadsb.msgs.AirbornePositionMsg;
 import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
 import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
+import org.opensky.libadsb.msgs.CommBAltitudeReply;
+import org.opensky.libadsb.msgs.CommBIdentifyReply;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
@@ -96,6 +98,12 @@ public class Decoder {
 			}
 
 			return es1090; // unknown extended squitter
+		}
+		else if (modes.getDownlinkFormat() == 20) {
+			return new CommBAltitudeReply(raw_message);
+		}
+		else if (modes.getDownlinkFormat() == 21) {
+			return new CommBIdentifyReply(raw_message);
 		}
 
 		return modes; // unknown mode s reply

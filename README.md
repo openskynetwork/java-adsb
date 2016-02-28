@@ -7,7 +7,9 @@ It supports the following Mode S downlink formats:
 * Short altitude reply (DF 4)
 * Short identify reply (DF 5)
 * All-call reply (DF 11)
-* Extended Squitter (DF 17, 18)
+* Extended Squitter (DF 17, 18; see below)
+* Comm-B altitude reply (DF 20)
+* Comm-B identify reply (DF 21)
 
 Currently it supports the following ADS-B formats:
 * Identification messages
