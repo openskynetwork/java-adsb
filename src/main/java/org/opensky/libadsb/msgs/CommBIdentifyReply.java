@@ -207,7 +207,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	
 	public String toString() {
 		return super.toString()+"\n"+
-				"Identify Reply:\n"+
+				"Comm-B Identify Reply:\n"+
 				"\tFlight status:\t\t"+getFlightStatus()+"\n"+
 				"\tDownlink request:\t\t"+getDownlinkRequest()+"\n"+
 				"\tUtility Message:\t\t"+getUtilityMsg()+"\n"+

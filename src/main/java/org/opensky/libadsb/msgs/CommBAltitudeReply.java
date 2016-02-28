@@ -224,7 +224,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	
 	public String toString() {
 		return super.toString()+"\n"+
-				"Altitude Reply:\n"+
+				"Comm-B Altitude Reply:\n"+
 				"\tFlight status:\t\t"+getFlightStatus()+"\n"+
 				"\tDownlink request:\t\t"+getDownlinkRequest()+"\n"+
 				"\tUtility Message:\t\t"+getUtilityMsg()+"\n"+
