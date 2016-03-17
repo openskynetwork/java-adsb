@@ -76,6 +76,30 @@ public class tools {
 		
 		return true;
 	}
+	
+	/**
+	 * @param byte1 first byte
+	 * @param byte2 second byte
+	 * @return byte1 xor byte2 (bitwise)
+	 */
+	public static byte xor(byte byte1, byte byte2) {
+		return (byte)(0xff&(byte1^byte2));
+	}
+	
+	/**
+	 * @param array1 first array
+	 * @param array2 second array
+	 * @return array1 xor array2 (bitwise)
+	 */
+	public static byte[] xor(byte[] array1, byte[] array2) {
+		assert(array1.length != array2.length);
+		
+		byte[] res = new byte[array1.length];
+		for (int i=0; i<array1.length; ++i)
+			res[i] = xor(array1[i], array2[i]);
+		
+		return res;
+	}
 
 	/**
 	 * Checks whether a byte array just contains elements equal to zero

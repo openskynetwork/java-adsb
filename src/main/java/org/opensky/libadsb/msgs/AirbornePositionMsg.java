@@ -48,13 +48,21 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public AirbornePositionMsg(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ExtendedSquitter(raw_message));
+	}
+	
+	/**
+	 * @param squitter extended squitter containing the airborne position msg
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public AirbornePositionMsg(ExtendedSquitter squitter) throws BadFormatException {
+		super(squitter);
 		setType(subtype.ADSB_AIRBORN_POSITION);
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 9 && getFormatTypeCode() <= 18) ||
 				(getFormatTypeCode() >= 20 && getFormatTypeCode() <= 22))) 
-			throw new BadFormatException("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").", raw_message);
+			throw new BadFormatException("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").");
 
 		byte[] msg = getMessage();
 

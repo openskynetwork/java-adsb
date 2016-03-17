@@ -2,6 +2,7 @@ package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
+import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
 import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 
@@ -43,14 +44,24 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	
 	/**
 	 * @param raw_message The full Mode S message in hex representation
-	 * @throws Exception if message has the wrong typecode
+	 * @throws BadFormatException if message has the wrong typecode
+	 * @throws UnspecifiedFormatError if message has the wrong subtype
 	 */
-	public OperationalStatusMsg(String raw_message) throws Exception {
-		super(raw_message);
+	public OperationalStatusMsg(String raw_message) throws BadFormatException, UnspecifiedFormatError {
+		this(new ExtendedSquitter(raw_message));
+	}
+	
+	/**
+	 * @param squitter extended squitter which contains this message
+	 * @throws BadFormatException  if message has the wrong typecode
+	 * @throws UnspecifiedFormatError if message has the wrong subtype
+	 */
+	public OperationalStatusMsg(ExtendedSquitter squitter) throws BadFormatException, UnspecifiedFormatError {
+		super(squitter);
 		setType(subtype.ADSB_STATUS);
 		
 		if (getFormatTypeCode() != 31) {
-			throw new Exception("Operational status messages must have typecode 31.");
+			throw new BadFormatException("Operational status messages must have typecode 31.");
 		}
 		
 		byte[] msg = this.getMessage();

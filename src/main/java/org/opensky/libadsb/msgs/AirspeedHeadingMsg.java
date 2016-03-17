@@ -50,18 +50,26 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public AirspeedHeadingMsg(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ExtendedSquitter(raw_message));
+	}
+	
+	/**
+	 * @param squitter extended squitter containing the airspeed and heading msg
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public AirspeedHeadingMsg(ExtendedSquitter squitter) throws BadFormatException {
+		super(squitter);
 		setType(subtype.ADSB_AIRSPEED);
 		
 		if (this.getFormatTypeCode() != 19) {
-			throw new BadFormatException("Airspeed and heading messages must have typecode 19.", raw_message);
+			throw new BadFormatException("Airspeed and heading messages must have typecode 19.");
 		}
 		
 		byte[] msg = this.getMessage();
 		
 		msg_subtype = (byte) (msg[0]&0x7);
 		if (msg_subtype != 3 && msg_subtype != 4) {
-			throw new BadFormatException("Airspeed and heading messages have subtype 3 or 4.", raw_message);
+			throw new BadFormatException("Airspeed and heading messages have subtype 3 or 4.");
 		}
 		
 		intent_change = (msg[1]&0x80)>0;

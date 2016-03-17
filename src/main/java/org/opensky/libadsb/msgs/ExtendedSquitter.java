@@ -40,11 +40,20 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	 * contains wrong values.
 	 */
 	public ExtendedSquitter(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ModeSReply(raw_message));
+	}
+	
+	/**
+	 * @param reply Mode S reply containing this extended squitter
+	 * @throws BadFormatException if message is not extended squitter or 
+	 * contains wrong values.
+	 */
+	public ExtendedSquitter(ModeSReply reply) throws BadFormatException {
+		super(reply);
 		setType(subtype.EXTENDED_SQUITTER);
 		
 		if (getDownlinkFormat() != 17 && getDownlinkFormat() != 18) {
-			throw new BadFormatException("Message is not an extended squitter!", raw_message);
+			throw new BadFormatException("Message is not an extended squitter!");
 		}
 		
 		byte[] payload = getPayload();
@@ -56,6 +65,19 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 			message[i] = payload[i+3];
 		
 		format_type_code = (byte) ((message[0] >>> 3) & 0x1F);
+	}
+	
+	/**
+	 * Copy constructor for subclasses
+	 * 
+	 * @param squitter instance of ExtendedSquitter to copy from
+	 */
+	public ExtendedSquitter(ExtendedSquitter squitter) {
+		super(squitter);
+		
+		capabilities = squitter.getCapabilities();
+		message = squitter.getMessage();
+		format_type_code = squitter.getFormatTypeCode();
 	}
 
 	/**

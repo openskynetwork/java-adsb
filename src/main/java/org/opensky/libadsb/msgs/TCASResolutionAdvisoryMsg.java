@@ -42,17 +42,25 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public TCASResolutionAdvisoryMsg(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ExtendedSquitter(raw_message));
+	}
+	
+	/**
+	 * @param squitter extended squitter which contains this TCAS resolution advisory msg
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public TCASResolutionAdvisoryMsg(ExtendedSquitter squitter) throws BadFormatException {
+		super(squitter);
 		setType(subtype.ADSB_TCAS);
 		
 		if (this.getFormatTypeCode() != 28)
-			throw new BadFormatException("TCAS RA reports must have typecode 28.", raw_message);
+			throw new BadFormatException("TCAS RA reports must have typecode 28.");
 		
 		byte[] msg = this.getMessage();
 		
 		msg_subtype = (byte) (msg[0]&0x7);
 		if (msg_subtype != 2)
-			throw new BadFormatException("TCAS RA reports have subtype 2.", raw_message);
+			throw new BadFormatException("TCAS RA reports have subtype 2.");
 		
 		active_ra = (short) (((msg[2]>>>2) | (msg[1]<<6)) & 0x3FFF);
 		racs_record = (byte) ((((msg[2]&0x3)<<2) | (msg[3]>>>6)) & 0xF);

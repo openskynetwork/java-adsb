@@ -42,20 +42,26 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	private int cpr_encoded_lon;
 	private boolean nic_supplA;
 	private boolean nic_supplC;
-	
-	
 
 	/**
 	 * @param raw_message raw ADS-B surface position message as hex string
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public SurfacePositionMsg(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ExtendedSquitter(raw_message));
+	}
+	
+	/**
+	 * @param squitter extended squitter which contains this surface position msg
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public SurfacePositionMsg(ExtendedSquitter squitter) throws BadFormatException {
+		super(squitter);
 		setType(subtype.ADSB_SURFACE_POSITION);
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 5 && getFormatTypeCode() <= 8)))
-			throw new BadFormatException("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").", raw_message);
+			throw new BadFormatException("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").");
 
 		byte[] msg = getMessage();
 

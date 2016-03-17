@@ -50,18 +50,26 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public VelocityOverGroundMsg(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ExtendedSquitter(raw_message));
+	}
+	
+	/**
+	 * @param squitter extended squitter which contains this velocity over ground msg
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public VelocityOverGroundMsg(ExtendedSquitter squitter) throws BadFormatException {
+		super(squitter);
 		setType(subtype.ADSB_VELOCITY);
 		
 		if (this.getFormatTypeCode() != 19) {
-			throw new BadFormatException("Velocity messages must have typecode 19.", raw_message);
+			throw new BadFormatException("Velocity messages must have typecode 19.");
 		}
 		
 		byte[] msg = this.getMessage();
 		
 		msg_subtype = (byte) (msg[0]&0x7);
 		if (msg_subtype != 1 && msg_subtype != 2) {
-			throw new BadFormatException("Ground speed messages have subtype 1 or 2.", raw_message);
+			throw new BadFormatException("Ground speed messages have subtype 1 or 2.");
 		}
 		
 		intent_change = (msg[1]&0x80)>0;

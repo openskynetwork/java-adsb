@@ -39,20 +39,26 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	 * contains wrong values.
 	 */
 	public AllCallReply(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ModeSReply(raw_message));
+	}
+	
+	/**
+	 * @param reply Mode S reply containing this all-call reply
+	 * @throws BadFormatException if message is not all-call reply or 
+	 * contains wrong values.
+	 */
+	public AllCallReply(ModeSReply reply) throws BadFormatException {
+		super(reply);
 		setType(subtype.ALL_CALL_REPLY);
 		
 		if (getDownlinkFormat() != 11) {
-			throw new BadFormatException("Message is not an all-call reply!", raw_message);
+			throw new BadFormatException("Message is not an all-call reply!");
 		}
 		
 		capabilities = getFirstField();
 		
 		// extract interrogator ID
-		interrogator = getParity();
-		byte[] crc = calcParity();
-		for (int i=0; i<3; i++)
-			interrogator[i] = (byte)(0xff & ((int)interrogator[i]^(int)crc[i]));
+		interrogator = tools.xor(calcParity(), getParity());
 	}
 
 	/**

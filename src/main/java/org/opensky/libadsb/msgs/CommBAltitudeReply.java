@@ -42,11 +42,20 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	 * contains wrong values.
 	 */
 	public CommBAltitudeReply(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new CommBAltitudeReply(raw_message));
+	}
+	
+	/**
+	 * @param reply Mode S reply which contains this comm-b altitude reply
+	 * @throws BadFormatException if message is not comm-b altitude reply or 
+	 * contains wrong values.
+	 */
+	public CommBAltitudeReply(ModeSReply reply) throws BadFormatException {
+		super(reply);
 		setType(subtype.COMM_B_ALTITUDE_REPLY);
 		
 		if (getDownlinkFormat() != 20) {
-			throw new BadFormatException("Message is not an altitude reply!", raw_message);
+			throw new BadFormatException("Message is not an altitude reply!");
 		}
 		
 		byte[] payload = getPayload();

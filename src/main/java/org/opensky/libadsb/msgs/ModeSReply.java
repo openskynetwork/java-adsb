@@ -159,9 +159,7 @@ public class ModeSReply implements Serializable {
 		case 20: // Long Comm-B, altitude reply
 		case 21: // Long Comm-B, identity reply
 		case 24: // Long Comm-D (ELM)
-			byte[] crc = this.calcParity();
-			for (int i=0; i<3; i++)
-				icao24[i] = (byte)(0xff & ((int)parity[i]^(int)crc[i]));
+			icao24 = tools.xor(calcParity(), parity);
 			break;
 			
 		case 11: // all call replies
@@ -174,6 +172,20 @@ public class ModeSReply implements Serializable {
 		}
 
 		setType(subtype.MODES_REPLY);
+	}
+	
+	/**
+	 * Copy constructor for subclasses
+	 * 
+	 * @param reply instance of ModeSReply to copy from
+	 */
+	public ModeSReply (ModeSReply reply) {
+		downlink_format = reply.getDownlinkFormat();
+		first_field = reply.getFirstField();
+		icao24 = reply.getIcao24();
+		payload = reply.getPayload();
+		parity = reply.getParity();
+		type = reply.getType();
 	}
 
 	/**

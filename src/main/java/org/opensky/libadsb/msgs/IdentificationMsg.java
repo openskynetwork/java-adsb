@@ -61,11 +61,19 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 	 * @throws BadFormatException if message has the wrong typecode
 	 */
 	public IdentificationMsg(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ExtendedSquitter(raw_message));
+	}
+
+	/**
+	 * @param squitter extended squitter which contains this identification msg
+	 * @throws BadFormatException if message has the wrong typecode
+	 */
+	public IdentificationMsg(ExtendedSquitter squitter) throws BadFormatException {
+		super(squitter);
 		setType(subtype.ADSB_IDENTIFICATION);
 		
 		if (getFormatTypeCode() < 1 || getFormatTypeCode() > 4) {
-			throw new BadFormatException("Identification messages must have typecode of 1-4.", raw_message);
+			throw new BadFormatException("Identification messages must have typecode of 1-4.");
 		}
 		
 		byte[] msg = this.getMessage();

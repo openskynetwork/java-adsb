@@ -40,11 +40,20 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	 * contains wrong values.
 	 */
 	public IdentifyReply(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ModeSReply(raw_message));
+	}
+	
+	/**
+	 * @param reply Mode S reply which contains this identify reply
+	 * @throws BadFormatException if message is not identify reply or 
+	 * contains wrong values.
+	 */
+	public IdentifyReply(ModeSReply reply) throws BadFormatException {
+		super(reply);
 		setType(subtype.IDENTIFY_REPLY);
 		
 		if (getDownlinkFormat() != 5) {
-			throw new BadFormatException("Message is not an identify reply!", raw_message);
+			throw new BadFormatException("Message is not an identify reply!");
 		}
 		
 		byte[] payload = getPayload();

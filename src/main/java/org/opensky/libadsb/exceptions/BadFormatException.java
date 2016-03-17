@@ -35,6 +35,12 @@ public class BadFormatException extends Exception {
 		this.msg = message;
 		this.reason = reason;
 	}
+	
+	public BadFormatException(String reason) {
+		super(reason);
+		this.msg = "[unknown]"; // unknown
+		this.reason = reason;
+	}
 
 	@Override
 	public String getMessage() {

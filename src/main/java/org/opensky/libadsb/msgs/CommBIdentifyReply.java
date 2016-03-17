@@ -42,11 +42,20 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	 * contains wrong values.
 	 */
 	public CommBIdentifyReply(String raw_message) throws BadFormatException {
-		super(raw_message);
-		setType(subtype.COMM_B_ALTITUDE_REPLY);
+		this(new ModeSReply(raw_message));
+	}
+	
+	/**
+	 * @param reply Mode S reply which contains this comm-b identify reply
+	 * @throws BadFormatException if message is not comm-b identify reply or 
+	 * contains wrong values.
+	 */
+	public CommBIdentifyReply(ModeSReply reply) throws BadFormatException {
+		super(reply);
+		setType(subtype.COMM_B_IDENTIFY_REPLY);
 		
 		if (getDownlinkFormat() != 21) {
-			throw new BadFormatException("Message is not a comm-b identify reply!", raw_message);
+			throw new BadFormatException("Message is not a comm-b identify reply!");
 		}
 		
 		byte[] payload = getPayload();

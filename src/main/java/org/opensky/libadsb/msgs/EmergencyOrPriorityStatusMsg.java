@@ -37,18 +37,26 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	 * @throws BadFormatException if message has wrong format
 	 */
 	public EmergencyOrPriorityStatusMsg(String raw_message) throws BadFormatException {
-		super(raw_message);
+		this(new ExtendedSquitter(raw_message));
+	}
+	
+	/**
+	 * @param squitter extended squitter which contains this emergency or priority status msg
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public EmergencyOrPriorityStatusMsg(ExtendedSquitter squitter) throws BadFormatException {
+		super(squitter);
 		setType(subtype.ADSB_EMERGENCY);
 		
 		if (this.getFormatTypeCode() != 28) {
-			throw new BadFormatException("Emergency and Priority Status messages must have typecode 28.", raw_message);
+			throw new BadFormatException("Emergency and Priority Status messages must have typecode 28.");
 		}
 		
 		byte[] msg = this.getMessage();
 		
 		msgsubtype = (byte) (msg[0]&0x7);
 		if (msgsubtype != 1) {
-			throw new BadFormatException("Emergency and priority status reports have subtype 1.", raw_message);
+			throw new BadFormatException("Emergency and priority status reports have subtype 1.");
 		}
 		
 		emergency_state = (byte) ((msg[1]&0xFF)>>>5);
