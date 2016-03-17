@@ -26,10 +26,17 @@ import org.opensky.libadsb.Position;
 import org.opensky.libadsb.PositionDecoder;
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 import org.opensky.libadsb.msgs.AirbornePositionMsg;
 import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
+import org.opensky.libadsb.msgs.AllCallReply;
+import org.opensky.libadsb.msgs.AltitudeReply;
+import org.opensky.libadsb.msgs.CommBAltitudeReply;
+import org.opensky.libadsb.msgs.CommBIdentifyReply;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
+import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
+import org.opensky.libadsb.msgs.IdentifyReply;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
@@ -38,22 +45,21 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 /**
  * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
- * comma-separated timestamp and message.
+ * comma-separated timestamp and message. Example input:
+ * 
+ * 1,8d4b19f39911088090641010b9b0
+ * 2,8d4ca513587153a8184a2fb5adeb
+ * 3,8d3413c399014e23c80f947ce87c
+ * 4,5d4ca88c079afe
+ * 5,a0001838ca3e51f0a8000047a36a
+ * 6,8d47a36a58c38668ffb55f000000
+ * 7,5d506c28000000
+ * 8,a8000102fe81c1000000004401e3
+ * 9,a0001839000000000000004401e3
+ * 
  * @author Matthias Schäfer <schaefer@opensky-network.org>
  */
 public class ExampleDecoder {
-	// tmp variables for the different message types
-	private ModeSReply msg;
-	private IdentificationMsg ident;
-	private EmergencyOrPriorityStatusMsg status;
-	private AirspeedHeadingMsg airspeed;
-	private AirbornePositionMsg airpos;
-	private OperationalStatusMsg opstat;
-	private SurfacePositionMsg surfpos;
-	private TCASResolutionAdvisoryMsg tcas;
-	private VelocityOverGroundMsg veloc;
-	private String icao24;
-
 	// we store the position decoder for each aircraft
 	HashMap<String, PositionDecoder> decs;
 	private PositionDecoder dec;
@@ -63,17 +69,22 @@ public class ExampleDecoder {
 	}
 
 	public void decodeMsg(double timestamp, String raw) throws Exception {
+		ModeSReply msg;
 		try {
 			msg = Decoder.genericDecoder(raw);
 		} catch (BadFormatException e) {
 			System.out.println("Malformed message! Skipping it...");
 			return;
+		} catch (UnspecifiedFormatError e) {
+			System.out.println("Unspecified message! Skipping it...");
+			return;
 		}
+		
+		String icao24 = tools.toHexString(msg.getIcao24());
 
 		// check for erroneous messages; some receivers set
 		// parity field to the result of the CRC polynomial division
 		if (tools.isZero(msg.getParity()) || msg.checkParity()) { // CRC is ok
-			icao24 = tools.toHexString(msg.getIcao24());
 			
 			// cleanup decoders every 100.000 messages to avoid excessive memory usage
 			// therefore, remove decoders which have not been used for more than one hour.
@@ -89,7 +100,7 @@ public class ExampleDecoder {
 
 			switch (msg.getType()) {
 			case ADSB_AIRBORN_POSITION:
-				airpos = (AirbornePositionMsg) msg;
+				AirbornePositionMsg airpos = (AirbornePositionMsg) msg;
 				System.out.print("["+icao24+"]: ");
 
 				// decode the position if possible
@@ -112,7 +123,7 @@ public class ExampleDecoder {
 				System.out.println("          Altitude is "+ (airpos.hasAltitude() ? airpos.getAltitude() : "unknown") +" m");
 				break;
 			case ADSB_SURFACE_POSITION:
-				surfpos = (SurfacePositionMsg) msg;
+				SurfacePositionMsg surfpos = (SurfacePositionMsg) msg;
 
 				System.out.print("["+icao24+"]: ");
 
@@ -137,13 +148,13 @@ public class ExampleDecoder {
 				System.out.println("          Airplane is on the ground.");
 				break;
 			case ADSB_EMERGENCY:
-				status = (EmergencyOrPriorityStatusMsg) msg;
+				EmergencyOrPriorityStatusMsg status = (EmergencyOrPriorityStatusMsg) msg;
 				System.out.println("["+icao24+"]: "+status.getEmergencyStateText());
 				System.out.println("          Mode A code is "+status.getModeACode()[0]+
 						status.getModeACode()[1]+status.getModeACode()[2]+status.getModeACode()[3]);
 				break;
 			case ADSB_AIRSPEED:
-				airspeed = (AirspeedHeadingMsg) msg;
+				AirspeedHeadingMsg airspeed = (AirspeedHeadingMsg) msg;
 				System.out.println("["+icao24+"]: Airspeed is "+
 						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" m/s" : "unkown"));
 				if (airspeed.hasHeadingInfo())
@@ -154,12 +165,12 @@ public class ExampleDecoder {
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
 				break;
 			case ADSB_IDENTIFICATION:
-				ident = (IdentificationMsg) msg;
+				IdentificationMsg ident = (IdentificationMsg) msg;
 				System.out.println("["+icao24+"]: Callsign is "+new String(ident.getIdentity()));
 				System.out.println("          Category: "+ident.getCategoryDescription());
 				break;
 			case ADSB_STATUS:
-				opstat = (OperationalStatusMsg) msg;
+				OperationalStatusMsg opstat = (OperationalStatusMsg) msg;
 				PositionDecoder dec;
 				if (decs.containsKey(icao24))
 					dec = decs.get(icao24);
@@ -174,24 +185,67 @@ public class ExampleDecoder {
 				System.out.println("          Has ADS-B IN function: "+opstat.has1090ESIn());
 				break;
 			case ADSB_TCAS:
-				tcas = (TCASResolutionAdvisoryMsg) msg;
+				TCASResolutionAdvisoryMsg tcas = (TCASResolutionAdvisoryMsg) msg;
 				System.out.println("["+icao24+"]: TCAS Resolution Advisory completed: "+tcas.hasRATerminated());
 				System.out.println("          Threat type is "+tcas.getThreatType());
 				if (tcas.getThreatType() == 1) // it's a icao24 address
 					System.out.println("          Threat identity is 0x"+String.format("%06x", tcas.getThreatIdentity()));
 				break;
 			case ADSB_VELOCITY:
-				veloc = (VelocityOverGroundMsg) msg;
+				VelocityOverGroundMsg veloc = (VelocityOverGroundMsg) msg;
 				System.out.println("["+icao24+"]: Velocity is "+(veloc.hasVelocityInfo() ? veloc.getVelocity() : "unknown")+" m/s");
 				System.out.println("          Heading is "+(veloc.hasVelocityInfo() ? veloc.getHeading() : "unknown")+" degrees");
 				System.out.println("          Vertical rate is "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" m/s");
 				break;
+			case EXTENDED_SQUITTER:
+				System.out.println("["+icao24+"]: Unknown extended squitter with type code "+((ExtendedSquitter)msg).getFormatTypeCode()+"!");
+				break;
 			default:
-				System.out.println("["+icao24+"]: Unknown message with downlink format "+msg.getDownlinkFormat());
+					
 			}
 		}
-		else { // CRC failed
-			System.out.println("Message seems to contain biterrors.");
+		else if (msg.getDownlinkFormat() != 17) { // CRC failed
+			switch (msg.getType()) {
+			case MODES_REPLY:
+				System.out.println("["+icao24+"]: Unknown message with DF "+msg.getDownlinkFormat());
+				break;
+			case SHORT_ACAS:
+				System.out.println("["+icao24+"]: Short ACAS message");
+				break;
+			case ALTITUDE_REPLY:
+				AltitudeReply alti = (AltitudeReply)msg;
+				System.out.println("["+icao24+"]: Short altitude reply: "+alti.getAltitude()+"m");
+				break;
+			case IDENTIFY_REPLY:
+				IdentifyReply identify = (IdentifyReply)msg;
+				System.out.println("["+icao24+"]: Short identify reply: "+identify.getIdentity());
+				break;
+			case ALL_CALL_REPLY:
+				AllCallReply allcall = (AllCallReply)msg;
+				System.out.println("["+icao24+"]: All-call reply for "+tools.toHexString(allcall.getInterrogatorID()));
+				break;
+			case LONG_ACAS:
+				System.out.println("["+icao24+"]: Long ACAS message");
+				break;
+			case MILITARY_EXTENDED_SQUITTER:
+				System.out.println("["+icao24+"]: Military extended squitter.");
+				break;
+			case COMM_B_ALTITUDE_REPLY:
+				CommBAltitudeReply commBaltitude = (CommBAltitudeReply)msg;
+				System.out.println("["+icao24+"]: Long altitude reply: "+commBaltitude.getAltitude()+"m");
+				break;
+			case COMM_B_IDENTIFY_REPLY:
+				CommBIdentifyReply commBidentify = (CommBIdentifyReply)msg;
+				System.out.println("["+icao24+"]: Long identify reply: "+commBidentify.getIdentity());
+				break;
+			case COMM_D_ELM:
+				System.out.println("["+icao24+"]: Comm-D ELM message");
+				break;
+			default:
+			}
+		}
+		else {
+			System.out.println("Message contains biterrors.");
 		}
 	}
 	
