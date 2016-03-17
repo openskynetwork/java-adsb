@@ -107,7 +107,6 @@ public class PositionDecoder {
 		
 		if (time < last_time) {
 			logger.warn("Position messages should be ordered!");
-			return null; // positions should be ordered
 		}
 		
 		// decide whether to use global or local position decoding
@@ -304,7 +303,6 @@ public class PositionDecoder {
 		
 		if (time <= last_time) {
 			logger.warn("Position messages should be ordered!");
-			return null; // positions should be ordered
 		}
 		
 		// decide whether to use global or local position decoding
