@@ -107,7 +107,6 @@ public class PositionDecoder {
 		
 		if (time < last_time) {
 			logger.warn("Position messages should be ordered!");
-			return null; // positions should be ordered
 		}
 		
 		// decide whether to use global or local position decoding
@@ -232,8 +231,7 @@ public class PositionDecoder {
 		
 		if (ret != null) {
 			// is it a valid coordinate?
-			if (Math.abs(ret.getLongitude()) > 90.0 ||
-					ret.getLatitude() < 0.0 || ret.getLatitude() > 180.0) {
+			if (Math.abs(ret.getLongitude()) > 180.0 || Math.abs(ret.getLatitude()) > 90.0) {
 				reasonable = false;
 			}
 			ret.setReasonable(reasonable);
@@ -305,7 +303,6 @@ public class PositionDecoder {
 		
 		if (time <= last_time) {
 			logger.warn("Position messages should be ordered!");
-			return null; // positions should be ordered
 		}
 		
 		// decide whether to use global or local position decoding
