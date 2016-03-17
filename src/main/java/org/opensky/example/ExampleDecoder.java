@@ -19,6 +19,7 @@ package org.opensky.example;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 import org.opensky.libadsb.Decoder;
 import org.opensky.libadsb.Position;
@@ -193,5 +194,15 @@ public class ExampleDecoder {
 			System.out.println("Message seems to contain biterrors.");
 		}
 	}
-
+	
+	public static void main(String[] args) throws Exception {
+		// iterate over STDIN
+		Scanner sc = new Scanner(System.in, "UTF-8");
+		ExampleDecoder dec = new ExampleDecoder();
+		while(sc.hasNext()) {
+		  String[] values = sc.nextLine().split(",");
+		  dec.decodeMsg(Double.parseDouble(values[0]), values[1]);
+		}
+		sc.close();
+	}
 }
