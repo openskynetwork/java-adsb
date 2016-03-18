@@ -54,11 +54,11 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
 					<encoding>UTF-8</encoding>
-					<compilerArgument></compilerArgument>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -77,7 +77,7 @@
 									<mainClass>org.opensky.example.OskySampleReader</mainClass>
 								</manifest>
 							</archive>
-							<finalName>libadsb-${version}-fat</finalName>
+							<finalName>libadsb-${project.version}-fat</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
 							<attach>false</attach>
 							<descriptorRefs>
