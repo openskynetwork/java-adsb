@@ -34,6 +34,18 @@ be two jar files
 * `libadsb-1.0.jar` contains libadsb, only. You should use this in your projects
 * `libadsb-1.0-fat.jar` is packaged with all dependencies to read AVRO files. You should use it to decode OpenSky Avro dumps.
 
+#### Maven Central
+
+We have also published this project on Maven Central. Just include the following dependency in your project:
+
+```
+<dependency>
+  <groupId>org.opensky-network</groupId>
+  <artifactId>libadsb</artifactId>
+  <version>1.1</version>
+</dependency>
+```
+
 ### Example decoding of position message
 ```java
 import org.opensky.libadsb.*;
