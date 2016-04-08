@@ -25,7 +25,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for Mode S replies
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class ModeSReply implements Serializable {
 	private static final long serialVersionUID = 5369519167589262290L;
@@ -72,7 +72,7 @@ public class ModeSReply implements Serializable {
 	 */
 
 	/**
-	 * polynomial for the cyclic redundancy check<br />
+	 * polynomial for the cyclic redundancy check<br>
 	 * Note: we assume that the degree of the polynomial
 	 * is divisible by 8 (holds for Mode S) and the msb is left out
 	 */
@@ -83,7 +83,8 @@ public class ModeSReply implements Serializable {
 	};
 
 	/**
-	 * @return calculated parity field as 3-byte array. We used the implementation from<br />
+	 * @param msg raw message as byte array
+	 * @return calculated parity field as 3-byte array. We used the implementation from<br>
 	 *         http://www.eurocontrol.int/eec/gallery/content/public/document/eec/report/1994/022_CRC_calculations_for_Mode_S.pdf
 	 */
 	public static byte[] calcParity(byte[] msg) {

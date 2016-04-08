@@ -23,7 +23,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for ADS-B identification messages
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class IdentificationMsg extends ExtendedSquitter implements Serializable {
 

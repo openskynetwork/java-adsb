@@ -35,7 +35,7 @@ import org.opensky.libadsb.msgs.SurfacePositionMsg;
  * Note: We assume, that messages are ordered by time in avro file
  * 
  * Generates KML file with flights from avro file.
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  *
  */
 public class ExtractArea {

@@ -24,7 +24,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for Mode S extended squitters
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class ExtendedSquitter extends ModeSReply implements Serializable {
 

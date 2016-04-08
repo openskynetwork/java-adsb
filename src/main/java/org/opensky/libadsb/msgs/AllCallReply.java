@@ -24,7 +24,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for Mode S all-call replies
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class AllCallReply extends ModeSReply implements Serializable {
 

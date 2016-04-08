@@ -27,7 +27,7 @@ import org.opensky.libadsb.exceptions.PositionStraddleError;
 
 /**
  * Decoder for ADS-B surface position messages
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class SurfacePositionMsg extends ExtendedSquitter implements Serializable {
 
@@ -230,7 +230,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	
 	/**
 	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north
-	 * @throws Exception if no valid heading info is available
+	 * @throws MissingInformationException if no valid heading info is available
 	 */
 	public double getHeading() throws MissingInformationException {
 		if (!heading_status)

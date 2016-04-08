@@ -27,7 +27,7 @@ import org.opensky.libadsb.exceptions.PositionStraddleError;
 
 /**
  * Decoder for ADS-B airborne position messages
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class AirbornePositionMsg extends ExtendedSquitter implements Serializable {
 
@@ -100,7 +100,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @return horizontal containment radius limit in meters. A return value of -1 means "unkown".
 	 *         Set NIC supplement A from Operational Status Message for better precision.
 	 *         Otherwise, we'll be pessimistic.
-	 *         Note: For ADS-B versions < 2, this is inaccurate for NIC class 6, since there was
+	 *         Note: For ADS-B versions &lt; 2, this is inaccurate for NIC class 6, since there was
 	 *         no NIC supplement B in earlier versions.
 	 */
 	public double getHorizontalContainmentRadiusLimit() {

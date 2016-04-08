@@ -57,7 +57,7 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
  * 8,a8000102fe81c1000000004401e3
  * 9,a0001839000000000000004401e3
  * 
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class ExampleDecoder {
 	// we store the position decoder for each aircraft

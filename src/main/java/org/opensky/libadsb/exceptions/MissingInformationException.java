@@ -22,7 +22,7 @@ package org.opensky.libadsb.exceptions;
  * is actually not available. The programmer has to check the subtype codes
  * to avoid this exception.
  * 
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class MissingInformationException extends Exception {
 	private static final long serialVersionUID = -4600948683278132312L;

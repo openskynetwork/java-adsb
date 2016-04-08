@@ -21,11 +21,11 @@ package org.opensky.libadsb;
  * Some useful functions when working with libadsb. Mostly we need these
  * functions since the library often works with arrays of bytes which are
  * not really readable for humans or basic operations are missing.
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class tools {
 	/**
-	 * Converts a byte into a hex string (e.g. 164 -> "a4")
+	 * Converts a byte into a hex string (e.g. 164 -&gt; "a4")
 	 * @param b input byte
 	 * @return hex representation of input byte
 	 */
@@ -103,6 +103,7 @@ public class tools {
 
 	/**
 	 * Checks whether a byte array just contains elements equal to zero
+	 * @param  bytes input byte array
 	 * @return true if all bytes of the array are 0
 	 */
 	public static boolean isZero(byte[] bytes) {
