@@ -253,6 +253,10 @@ public class ModeSReply implements Serializable {
 	}
 
 	/**
+	 * Important note: use this method for extended
+	 * squitter/ADS-B messages (DF 17, 18) only! Other messages may have
+	 * their parity field XORed with an ICAO24 transponder address
+	 * or an interrogator ID.
 	 * @return true if parity in message matched calculated parity
 	 */
 	public boolean checkParity() {
