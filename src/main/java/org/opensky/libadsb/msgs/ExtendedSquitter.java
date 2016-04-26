@@ -81,7 +81,7 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	}
 
 	/**
-	 * @return The emitter's capabilities (see ICAO Annex 10 V4)
+	 * @return The emitter's capabilities (see ICAO Annex 10 V4; 3.1.2.5.2.2.1)
 	 */
 	public byte getCapabilities() {
 		return capabilities;
