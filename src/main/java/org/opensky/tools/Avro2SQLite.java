@@ -37,7 +37,7 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
  * Note: We assume, that messages are more or less ordered by time
  * 
  * Generates SQlite DB with flights from avro file.
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  *
  */
 public class Avro2SQLite {

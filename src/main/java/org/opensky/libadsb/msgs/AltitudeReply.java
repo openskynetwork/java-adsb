@@ -23,7 +23,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for Mode S surveillance altitude replies (DF 4)
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class AltitudeReply extends ModeSReply implements Serializable {
 
@@ -100,7 +100,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 
 	/**
 	 * @return whether flight status indicates that aircraft is
-	 * airborne or on the ground; For flight status >= 4, this flag is unknown
+	 * airborne or on the ground; For flight status &gt;= 4, this flag is unknown
 	 */
 	public boolean isOnGround() {
 		return flight_status==1 || flight_status==3;

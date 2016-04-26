@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * Please refer to "Analysis of anomalies in ADS-B and its GPS data"
  * by Busyairah et al.
  * 
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  *
  */
 public class PositionDecoder {
@@ -96,7 +96,7 @@ public class PositionDecoder {
 	/**
 	 * @param time time of applicability/reception of position report
 	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 */
 	public Position decodePosition(double time, AirbornePositionMsg msg) {
@@ -251,7 +251,7 @@ public class PositionDecoder {
 	 * @param time time of applicability/reception of position report (seconds)
 	 * @param receiver position of the receiver to check if received position was more than 600km away
 	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 * @return decoded position
 	 */
@@ -267,7 +267,7 @@ public class PositionDecoder {
 	/**
 	 * @param receiver position of the receiver to be included in the reasonableness test
 	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 * @return decoded position
 	 */
@@ -282,7 +282,7 @@ public class PositionDecoder {
 	 * handling of reception times. We assume in general that positions are passed to this
 	 * decoder ordered in time, i.e. as they are received.
 	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 */
 	public Position decodePosition(AirbornePositionMsg msg) {
@@ -292,7 +292,7 @@ public class PositionDecoder {
 	/**
 	 * @param time time of applicability/reception of position report (seconds)
 	 * @param msg surface position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 */
 	public Position decodePosition(double time, SurfacePositionMsg msg) {
@@ -449,7 +449,7 @@ public class PositionDecoder {
 	 * @param time time of applicability/reception of position report (seconds)
 	 * @param receiver position of the receiver to check if received position was more than 600km away
 	 * @param msg surface position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 * @return decoded position
 	 */
@@ -465,7 +465,7 @@ public class PositionDecoder {
 	/**
 	 * @param receiver position of the receiver to be included in the reasonableness test
 	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 * @return decoded position
 	 */
@@ -478,7 +478,7 @@ public class PositionDecoder {
 	 * equals current time! Using this function for older messages might result in false
 	 * positions! Prefer using decodePosition with proper time of applicability.
 	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable<br />
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 */
 	public Position decodePosition(SurfacePositionMsg msg) {
@@ -495,7 +495,7 @@ public class PositionDecoder {
 
 	/**
 	 * NIC Supplement A from operational status messages
-	 * @param supplA
+	 * @param supplA NIC Supplement A from operational status messages
 	 */
 	public void setNICSupplementA(boolean supplA) {
 		this.supplA = supplA;
@@ -511,7 +511,7 @@ public class PositionDecoder {
 
 	/**
 	 * NIC Supplement C from operational status messages (subtype 1 only)
-	 * @param supplC
+	 * @param supplC NIC Supplement C from operational status messages (subtype 1 only)
 	 */
 	public void setNICSupplementC(boolean supplC) {
 		this.supplC = supplC;

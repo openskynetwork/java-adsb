@@ -30,7 +30,7 @@ import org.opensky.libadsb.msgs.ModeSReply;
  * This tool is useful if you have messages from the same flight distributed
  * to multiple files or if you have one big file and want to have smaller files.
  * 
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  *
  */
 public class AvroSplit {

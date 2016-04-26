@@ -45,7 +45,7 @@ import de.micromata.opengis.kml.v_2_2_0.TimeSpan;
  * Note: We assume, that messages are more or less ordered by time
  * 
  * Generates KML file with flights from avro file.
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  *
  */
 public class Avro2Kml {

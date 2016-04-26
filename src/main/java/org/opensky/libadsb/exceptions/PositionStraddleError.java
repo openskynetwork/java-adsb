@@ -21,7 +21,7 @@ package org.opensky.libadsb.exceptions;
  * Exception which is thrown when incompatible positions are used
  * for CPR decoding.
  * 
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class PositionStraddleError extends Exception {
 	private static final long serialVersionUID = 6482688479919911669L;

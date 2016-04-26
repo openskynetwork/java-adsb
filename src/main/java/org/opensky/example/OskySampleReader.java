@@ -17,7 +17,7 @@ import org.apache.avro.specific.SpecificDatumReader;
  * OpenSky Network. As raw data can be quite big the decoder expects you to
  * provide the maximum number of message to be decoded. All information is 
  * printed to stdout.
- * @author Markus Fuchs <fuchs@sero-systems.de>
+ * @author Markus Fuchs (fuchs@sero-systems.de)
  */
 public class OskySampleReader {
 

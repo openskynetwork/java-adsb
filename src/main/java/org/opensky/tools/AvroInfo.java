@@ -24,7 +24,7 @@ import org.opensky.libadsb.msgs.ModeSReply;
 /**
  * Prints useful information about OpenSky avro files
  * 
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  *
  */
 public class AvroInfo {
