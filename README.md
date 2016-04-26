@@ -4,9 +4,11 @@ java-adsb
 This is a Mode S and ADS-B decoding library for Java. It is a product of the OpenSky Network project (http://www.opensky-network.org).
 
 It supports the following Mode S downlink formats:
+* Short air-air ACAS (DF 0)
 * Short altitude reply (DF 4)
 * Short identify reply (DF 5)
 * All-call reply (DF 11)
+* Long air-air ACAS (DF 16)
 * Extended Squitter (DF 17, 18; see below)
 * Comm-B altitude reply (DF 20)
 * Comm-B identify reply (DF 21)
