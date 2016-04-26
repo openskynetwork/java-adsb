@@ -12,6 +12,7 @@ import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.IdentifyReply;
+import org.opensky.libadsb.msgs.LongACAS;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
 import org.opensky.libadsb.msgs.ShortACAS;
@@ -52,20 +53,14 @@ public class Decoder {
 	 */
 	public static ModeSReply genericDecoder (String raw_message) throws BadFormatException, UnspecifiedFormatError {
 		ModeSReply modes = new ModeSReply(raw_message);
-		
-		if (modes.getDownlinkFormat() == 0) {
-			return new ShortACAS(modes);
-		}
-		else if (modes.getDownlinkFormat() == 4) {
-			return new AltitudeReply(modes);
-		}
-		else if (modes.getDownlinkFormat() == 5) {
-			return new IdentifyReply(modes);
-		}
-		else if (modes.getDownlinkFormat() == 11) {
-			return new AllCallReply(modes);
-		}
-		else if (modes.getDownlinkFormat() == 17 || modes.getDownlinkFormat() == 18) {
+
+		switch (modes.getDownlinkFormat()) {
+		case 0: return new ShortACAS(modes);
+		case 4: return new AltitudeReply(modes);
+		case 5: return new IdentifyReply(modes);
+		case 11: return new AllCallReply(modes);
+		case 16: return new LongACAS(modes);
+		case 17: case 18:
 			ExtendedSquitter es1090 = new ExtendedSquitter(modes);
 
 			// what kind of extended squitter?
@@ -106,15 +101,9 @@ public class Decoder {
 			}
 
 			return es1090; // unknown extended squitter
+		case 20: return new CommBAltitudeReply(modes);
+		case 21: return new CommBIdentifyReply(modes);
+		default: return modes; // unknown mode s reply
 		}
-		else if (modes.getDownlinkFormat() == 20) {
-			return new CommBAltitudeReply(modes);
-		}
-		else if (modes.getDownlinkFormat() == 21) {
-			return new CommBIdentifyReply(modes);
-		}
-
-		return modes; // unknown mode s reply
 	}
-
 }

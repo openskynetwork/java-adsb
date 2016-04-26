@@ -37,6 +37,7 @@ import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.IdentifyReply;
+import org.opensky.libadsb.msgs.LongACAS;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
 import org.opensky.libadsb.msgs.ShortACAS;
@@ -230,7 +231,13 @@ public class ExampleDecoder {
 				System.out.println("["+icao24+"]: All-call reply for "+tools.toHexString(allcall.getInterrogatorID()));
 				break;
 			case LONG_ACAS:
-				System.out.println("["+icao24+"]: Long ACAS message");
+				LongACAS long_acas = (LongACAS)msg;
+				System.out.println("["+icao24+"]: Altitude is "+long_acas.getAltitude()+" and ACAS is "+
+						(long_acas.hasOperatingACAS() ? "operating." : "not operating."));
+				System.out.println("          A/C is "+(long_acas.isAirborne() ? "airborne" : "on the ground")+
+						" and sensitivity level is "+long_acas.getSensitivityLevel());
+				System.out.println("          RAC is "+(long_acas.hasValidRAC() ? "valid" : "not valid")+
+						" and is "+long_acas.getResolutionAdvisoryComplement()+" (MTE="+long_acas.hasMultipleThreats()+")");
 				break;
 			case MILITARY_EXTENDED_SQUITTER:
 				System.out.println("["+icao24+"]: Military extended squitter.");
