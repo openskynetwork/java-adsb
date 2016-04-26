@@ -39,6 +39,7 @@ import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.IdentifyReply;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
+import org.opensky.libadsb.msgs.ShortACAS;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
@@ -73,7 +74,7 @@ public class ExampleDecoder {
 		try {
 			msg = Decoder.genericDecoder(raw);
 		} catch (BadFormatException e) {
-			System.out.println("Malformed message! Skipping it...");
+			System.out.println("Malformed message! Skipping it. Message: "+e.getMessage());
 			return;
 		} catch (UnspecifiedFormatError e) {
 			System.out.println("Unspecified message! Skipping it...");
@@ -210,7 +211,11 @@ public class ExampleDecoder {
 				System.out.println("["+icao24+"]: Unknown message with DF "+msg.getDownlinkFormat());
 				break;
 			case SHORT_ACAS:
-				System.out.println("["+icao24+"]: Short ACAS message");
+				ShortACAS acas = (ShortACAS)msg;
+				System.out.println("["+icao24+"]: Altitude is "+acas.getAltitude()+" and ACAS is "+
+						(acas.hasOperatingACAS() ? "operating." : "not operating."));
+				System.out.println("          A/C is "+(acas.isAirborne() ? "airborne" : "on the ground")+
+						" and sensitivity level is "+acas.getSensitivityLevel());
 				break;
 			case ALTITUDE_REPLY:
 				AltitudeReply alti = (AltitudeReply)msg;

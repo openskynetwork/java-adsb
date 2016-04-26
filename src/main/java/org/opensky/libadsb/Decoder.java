@@ -14,6 +14,7 @@ import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.IdentifyReply;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
+import org.opensky.libadsb.msgs.ShortACAS;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
@@ -52,7 +53,10 @@ public class Decoder {
 	public static ModeSReply genericDecoder (String raw_message) throws BadFormatException, UnspecifiedFormatError {
 		ModeSReply modes = new ModeSReply(raw_message);
 		
-		if (modes.getDownlinkFormat() == 4) {
+		if (modes.getDownlinkFormat() == 0) {
+			return new ShortACAS(modes);
+		}
+		else if (modes.getDownlinkFormat() == 4) {
 			return new AltitudeReply(modes);
 		}
 		else if (modes.getDownlinkFormat() == 5) {
