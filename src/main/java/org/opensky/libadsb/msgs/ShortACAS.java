@@ -36,7 +36,7 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	private short altitude_code;
 	
 	/**
-	 * @param raw_message raw altitude reply as hex string
+	 * @param raw_message raw short air-air acas reply as hex string
 	 * @throws BadFormatException if message is not altitude reply or 
 	 * contains wrong values.
 	 */
@@ -45,8 +45,8 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	}
 	
 	/**
-	 * @param reply Mode S reply containing this altitude reply
-	 * @throws BadFormatException if message is not altitude reply or 
+	 * @param reply Mode S reply containing this short air-air acas reply
+	 * @throws BadFormatException if message is not short air-air acas reply or 
 	 * contains wrong values.
 	 */
 	public ShortACAS(ModeSReply reply) throws BadFormatException {
@@ -86,6 +86,9 @@ public class ShortACAS extends ModeSReply implements Serializable {
 		return cross_link_capability;
 	}
 
+	/**
+	 * @return the sensitivity level at which ACAS is currently operating
+	 */
 	public byte getSensitivityLevel() {
 		return sensitivity_level;
 	}
