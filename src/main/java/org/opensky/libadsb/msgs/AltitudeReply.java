@@ -187,23 +187,23 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 		boolean Qbit = (altitude_code&0x10)!=0;
 		int N;
 		if (!Mbit && Qbit) { // altitude reported in 25ft increments
-			N = (altitude_code&0xF) | ((altitude_code&0x20)>>>1) | ((altitude_code&0x1F80)>>>2);
+			N = (altitude_code&0x0F) | ((altitude_code&0x20)>>>1) | ((altitude_code&0x1F80)>>>2);
 			return (25*N-1000)*0.3048;
 		}
 		else { // altitude is above 50175ft, so we use 100ft increments
 
 			// it's decoded using the Gillham code
 			int C1 = (0x1000&altitude_code)>>>12;
-			int A1 = (0x800&altitude_code)>>>11;
-			int C2 = (0x400&altitude_code)>>>10;
-			int A2 = (0x200&altitude_code)>>>9;
-			int C4 = (0x100&altitude_code)>>>8;
-			int A4 = (0x080&altitude_code)>>>7;
-			int B1 = (0x020&altitude_code)>>>5;
-			int B2 = (0x008&altitude_code)>>>3;
-			int D2 = (0x004&altitude_code)>>>2;
-			int B4 = (0x002&altitude_code)>>>1;
-			int D4 = (0x001&altitude_code);
+			int A1 = (0x0800&altitude_code)>>>11;
+			int C2 = (0x0400&altitude_code)>>>10;
+			int A2 = (0x0200&altitude_code)>>>9;
+			int C4 = (0x0100&altitude_code)>>>8;
+			int A4 = (0x0080&altitude_code)>>>7;
+			int B1 = (0x0020&altitude_code)>>>5;
+			int B2 = (0x0008&altitude_code)>>>3;
+			int D2 = (0x0004&altitude_code)>>>2;
+			int B4 = (0x0002&altitude_code)>>>1;
+			int D4 = (0x0001&altitude_code);
 
 			// this is standard gray code
 			int N500 = grayToBin(D2<<7|D4<<6|A1<<5|A2<<4|A4<<3|B1<<2|B2<<1|B4, 8);
