@@ -8,11 +8,13 @@ import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
 import org.opensky.libadsb.msgs.CommBAltitudeReply;
 import org.opensky.libadsb.msgs.CommBIdentifyReply;
+import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.IdentifyReply;
 import org.opensky.libadsb.msgs.LongACAS;
+import org.opensky.libadsb.msgs.MilitaryExtendedSquitter;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
 import org.opensky.libadsb.msgs.ShortACAS;
@@ -101,9 +103,13 @@ public class Decoder {
 			}
 
 			return es1090; // unknown extended squitter
+		case 19: return new MilitaryExtendedSquitter(modes);
 		case 20: return new CommBAltitudeReply(modes);
 		case 21: return new CommBIdentifyReply(modes);
-		default: return modes; // unknown mode s reply
+		default:
+			if (modes.getDownlinkFormat()>=24)
+				return new CommDExtendedLengthMsg(modes);
+			else return modes; // unknown mode s reply
 		}
 	}
 }

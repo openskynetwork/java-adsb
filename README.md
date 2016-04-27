@@ -9,10 +9,11 @@ It supports the following Mode S downlink formats:
 * Short identify reply (DF 5)
 * All-call reply (DF 11)
 * Long air-air ACAS (DF 16)
-* Extended Squitter (DF 17, 18; see below)
+* Extended Squitter (DF 17, 18; see ADS-B formats below)
 * Military Extended Squitter (DF 19)
 * Comm-B altitude reply (DF 20)
 * Comm-B identify reply (DF 21)
+* Comm-D Extended Length Message (DF >24)
 
 Currently it supports the following ADS-B formats:
 * Identification messages
@@ -22,9 +23,9 @@ Currently it supports the following ADS-B formats:
 * Operational status reports (airborne and surface)
 * Aircraft status reports (emergency/priority, TCAS RA)
 
-The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. Most message formats of ADS-B Version 1 are upward compatible.
-Please check the API documentation of the message formats for differences. The ADS-B version of transponders can be obtained in Aircraft
-Operational Status reports (type code 31; `OperationalStatusMsg.getVersion()`).
+The Comm-B registers, Comm-D data link and military ES are not parsed. Comm-B and D will follow soon.
+
+The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. Most message formats of ADS-B Version 1 are upward compatible. Please check the API documentation of the message formats for differences. The ADS-B version of transponders can be obtained in Aircraft Operational Status reports (type code 31; `OperationalStatusMsg.getVersion()`).
 
 Note: format type code 29 (target state and status information) is missing since it's virtually non-existent in the current ADS-B deployment.
 

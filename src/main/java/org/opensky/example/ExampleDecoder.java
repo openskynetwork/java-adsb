@@ -33,6 +33,7 @@ import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
 import org.opensky.libadsb.msgs.CommBAltitudeReply;
 import org.opensky.libadsb.msgs.CommBIdentifyReply;
+import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
@@ -242,6 +243,7 @@ public class ExampleDecoder {
 						" and sensitivity level is "+long_acas.getSensitivityLevel());
 				System.out.println("          RAC is "+(long_acas.hasValidRAC() ? "valid" : "not valid")+
 						" and is "+long_acas.getResolutionAdvisoryComplement()+" (MTE="+long_acas.hasMultipleThreats()+")");
+				System.out.println("          Maximum airspeed is "+long_acas.getMaximumAirspeed()+"m/s.");
 				break;
 			case MILITARY_EXTENDED_SQUITTER:
 				MilitaryExtendedSquitter mil = (MilitaryExtendedSquitter)msg;
@@ -257,7 +259,10 @@ public class ExampleDecoder {
 				System.out.println("["+icao24+"]: Long identify reply: "+commBidentify.getIdentity());
 				break;
 			case COMM_D_ELM:
-				System.out.println("["+icao24+"]: Comm-D ELM message");
+				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;
+				System.out.println("["+icao24+"]: ELM message w/ sequence no "+commDELM.getSequenceNumber()+
+						" (ACK: "+commDELM.isAck()+")");
+				System.out.println("          Message is 0x"+tools.toHexString(commDELM.getMessage()));
 				break;
 			default:
 			}
