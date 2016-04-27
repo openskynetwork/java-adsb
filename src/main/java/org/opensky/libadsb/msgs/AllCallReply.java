@@ -100,11 +100,11 @@ public class AllCallReply extends ModeSReply implements Serializable {
 		// code label is only defined for 0-4
 		if (cl>4) return false;
 		
-		int ii = interrogator[2]&0xF;
-		
-		// 3.1.2.5.2.1.2.4
-		// surveillance identifier of 0 shall never be used
-		if (cl>0 && ii==0) return false;
+		// Note: seems to be used by ACAS
+//		int ii = interrogator[2]&0xF;
+//		// 3.1.2.5.2.1.2.4
+//		// surveillance identifier of 0 shall never be used
+//		if (cl>0 && ii==0) return false;
 		
 		return true;
 	}
