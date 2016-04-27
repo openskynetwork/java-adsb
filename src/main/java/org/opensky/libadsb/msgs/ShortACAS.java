@@ -23,7 +23,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for Mode S short air-air ACAS replies (DF 0)
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class ShortACAS extends ModeSReply implements Serializable {
 	

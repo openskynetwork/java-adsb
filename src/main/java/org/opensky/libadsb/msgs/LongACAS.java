@@ -23,7 +23,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  * Decoder for Mode S long air-air ACAS replies (DF 0)
- * @author Matthias Schäfer <schaefer@opensky-network.org>
+ * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class LongACAS extends ModeSReply implements Serializable {
 	
