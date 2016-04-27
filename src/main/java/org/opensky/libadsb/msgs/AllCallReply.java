@@ -113,6 +113,7 @@ public class AllCallReply extends ModeSReply implements Serializable {
 		return super.toString()+"\n"+
 				"All-call Reply:\n"+
 				"\tCapabilities:\t\t"+getCapabilities()+"\n"+
+				"\tValid Interrogator ID:\t\t"+hasValidInterrogatorID()+"\n"+
 				"\tInterrogator:\t\t"+tools.toHexString(getInterrogatorID());
 	}
 

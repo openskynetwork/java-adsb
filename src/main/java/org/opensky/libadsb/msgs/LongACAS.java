@@ -97,8 +97,10 @@ public class LongACAS extends ModeSReply implements Serializable {
 	
 	/**
 	 * @return the binary encoded resolution advisory complement
-	 * @see {@link #noPassBelow()}, {@link #noPassAbove()},
-	 * {@link #noTurnLeft()}, {@link #noTurnRight()}
+	 * @see #noPassBelow()
+	 * @see #noPassAbove()
+	 * @see #noTurnLeft()
+	 * @see #noTurnRight()
 	 */
 	public byte getResolutionAdvisoryComplement() {
 		return racs_record;
@@ -165,7 +167,8 @@ public class LongACAS extends ModeSReply implements Serializable {
 	 * This field is used to report the aircraft's maximum cruising 
 	 * true airspeed capability and type of reply to interrogating aircraft
 	 * @return the air-to-air reply information according to 3.1.2.8.2.2
-	 * @see {@link #getMaximumAirspeed()}, {@link #hasOperatingACAS()}
+	 * @see #getMaximumAirspeed()
+	 * @see #hasOperatingACAS()
 	 */
 	public byte getReplyInformation() {
 		return reply_information;
@@ -173,7 +176,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	
 	/**
 	 * @return whether a/c has operating ACARS (derived from reply information)
-	 * @see {@link #getReplyInformation()}
+	 * @see #getReplyInformation()
 	 */
 	public boolean hasOperatingACAS() {
 		return getReplyInformation() != 0;
