@@ -10,6 +10,7 @@ It supports the following Mode S downlink formats:
 * All-call reply (DF 11)
 * Long air-air ACAS (DF 16)
 * Extended Squitter (DF 17, 18; see below)
+* Military Extended Squitter (DF 19)
 * Comm-B altitude reply (DF 20)
 * Comm-B identify reply (DF 21)
 

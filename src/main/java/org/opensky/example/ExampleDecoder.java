@@ -38,6 +38,7 @@ import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.IdentifyReply;
 import org.opensky.libadsb.msgs.LongACAS;
+import org.opensky.libadsb.msgs.MilitaryExtendedSquitter;
 import org.opensky.libadsb.msgs.ModeSReply;
 import org.opensky.libadsb.msgs.OperationalStatusMsg;
 import org.opensky.libadsb.msgs.ShortACAS;
@@ -243,7 +244,9 @@ public class ExampleDecoder {
 						" and is "+long_acas.getResolutionAdvisoryComplement()+" (MTE="+long_acas.hasMultipleThreats()+")");
 				break;
 			case MILITARY_EXTENDED_SQUITTER:
-				System.out.println("["+icao24+"]: Military extended squitter.");
+				MilitaryExtendedSquitter mil = (MilitaryExtendedSquitter)msg;
+				System.out.println("["+icao24+"]: Military ES of application "+mil.getApplicationCode());
+				System.out.println("          Message is 0x"+tools.toHexString(mil.getMessage()));
 				break;
 			case COMM_B_ALTITUDE_REPLY:
 				CommBAltitudeReply commBaltitude = (CommBAltitudeReply)msg;
