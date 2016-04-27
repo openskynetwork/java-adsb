@@ -70,7 +70,7 @@ public class ExampleDecoder {
 		decs = new HashMap<String, PositionDecoder>();
 	}
 
-	public void decodeMsg(double timestamp, String raw) throws Exception {
+	public void decodeMsg(double timestamp, String raw, String icao) throws Exception {
 		ModeSReply msg;
 		try {
 			msg = Decoder.genericDecoder(raw);
@@ -83,6 +83,8 @@ public class ExampleDecoder {
 		}
 		
 		String icao24 = tools.toHexString(msg.getIcao24());
+		
+		if (icao != null && !icao.toLowerCase().equals(icao24)) return;
 
 		// check for erroneous messages; some receivers set
 		// parity field to the result of the CRC polynomial division
@@ -263,12 +265,18 @@ public class ExampleDecoder {
 	}
 	
 	public static void main(String[] args) throws Exception {
+		String icao = null;
+		if (args.length > 0) {
+			icao = args[0];
+			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
+		}
+		
 		// iterate over STDIN
 		Scanner sc = new Scanner(System.in, "UTF-8");
 		ExampleDecoder dec = new ExampleDecoder();
 		while(sc.hasNext()) {
 		  String[] values = sc.nextLine().split(",");
-		  dec.decodeMsg(Double.parseDouble(values[0]), values[1]);
+		  dec.decodeMsg(Double.parseDouble(values[0]), values[1], icao);
 		}
 		sc.close();
 	}
