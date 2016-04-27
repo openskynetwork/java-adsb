@@ -2,7 +2,6 @@ package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
-import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
