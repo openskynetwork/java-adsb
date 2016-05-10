@@ -283,10 +283,57 @@ public class ModeSReply implements Serializable {
 		if (o.getClass() != getClass()) return false;
 		
 		ModeSReply other = (ModeSReply)o;
-		return tools.areEqual(this.getPayload(), other.getPayload()) &&
-				tools.areEqual(this.getParity(), other.getParity()) &&
-				this.getDownlinkFormat() == other.getDownlinkFormat() &&
-				this.getFirstField() == other.getFirstField();
+		
+		// same type?
+		if (this.getDownlinkFormat() != other.getDownlinkFormat())
+			return false;
+		
+		// most common
+		if (this.getDownlinkFormat() == 11 &&
+				!tools.areEqual(this.getIcao24(), other.getIcao24()))
+			return false;
+
+		// ads-b
+		if (this.getDownlinkFormat() == 17 &&
+				!tools.areEqual(this.getIcao24(), other.getIcao24()))
+			return false;
+		if (this.getDownlinkFormat() == 18 &&
+				!tools.areEqual(this.getIcao24(), other.getIcao24()))
+			return false;
+		
+		// check the full payload
+		if (!tools.areEqual(this.getPayload(), other.getPayload()) ||
+				this.getFirstField() != other.getFirstField())
+			return false;
+		
+		// and finally the parity
+		if (tools.areEqual(this.getParity(), other.getParity()))
+			return true;
+		
+		// Note: the following checks are necessary since some receivers set
+		// the parity field to the remainder of the CRC (0 if correct)
+		// while others do not touch it. This combination should be extremely
+		// rare so the performance can be more or less neglected.
+		
+		if (tools.areEqual(this.getParity(), other.calcParity()))
+			return true;
+		
+		if (tools.areEqual(this.calcParity(), other.getParity()))
+			return true;
+		
+		if (this.getDownlinkFormat() == 11) {
+			// check interrogator code
+			if (tools.areEqual(tools.xor(calcParity(), getParity()),
+					other.getParity()))
+				return true;
+			
+			if (tools.areEqual(tools.xor(other.calcParity(),
+					other.getParity()), this.getParity()))
+				return true;
+		}
+		
+		return tools.areEqual(this.getIcao24(), other.getParity()) ||
+				tools.areEqual(this.getParity(), other.getIcao24());
 	}
 	
 	@Override
