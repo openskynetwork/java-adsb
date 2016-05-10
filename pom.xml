@@ -4,7 +4,7 @@
 
 	<groupId>org.opensky-network</groupId>
 	<artifactId>libadsb</artifactId>
-	<version>1.1</version>
+	<version>2.0</version>
 	<packaging>jar</packaging>
 
 	<name>libadsb</name>
@@ -43,34 +43,14 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.avro</groupId>
-			<artifactId>avro</artifactId>
-			<version>1.7.7</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-cli</groupId>
-			<artifactId>commons-cli</artifactId>
-			<version>1.3.1</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.3</version>
-		</dependency>
-		<dependency>
-			<groupId>de.micromata.jak</groupId>
-			<artifactId>JavaAPIforKml</artifactId>
-			<version>2.2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.8.11.1</version>
 		</dependency>
 	</dependencies>
 
@@ -98,7 +78,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>org.opensky.example.OskySampleReader</mainClass>
+									<mainClass>org.opensky.example.ExampleDecoder</mainClass>
 								</manifest>
 							</archive>
 							<finalName>libadsb-${project.version}-fat</finalName>
