@@ -42,7 +42,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	 * contains wrong values.
 	 */
 	public CommBAltitudeReply(String raw_message) throws BadFormatException {
-		this(new CommBAltitudeReply(raw_message));
+		this(new ModeSReply(raw_message));
 	}
 	
 	/**
