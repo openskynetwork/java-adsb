@@ -86,7 +86,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 		true_airspeed = (msg[3]&0x80)>0;
 		airspeed = (short) (((msg[3]&0x7F)<<3 | msg[4]>>>5&0x07)-1);
 		if (airspeed == -1) airspeed_available = false;
-		if (msg_subtype == 2) airspeed<<=2;
+		if (msg_subtype == 4) airspeed<<=2;
 
 		vertical_source = (msg[4]&0x10)>0;
 		vertical_rate_down = (msg[4]&0x08)>0;
