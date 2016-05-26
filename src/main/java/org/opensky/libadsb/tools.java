@@ -24,29 +24,40 @@ package org.opensky.libadsb;
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class tools {
+	private static final char[] hexDigits =
+		{'0', '1', '2', '3', '4', '5', '6', '7',
+		 '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
 	/**
 	 * Converts a byte into a hex string (e.g. 164 -&gt; "a4")
 	 * @param b input byte
 	 * @return hex representation of input byte
 	 */
 	public static String toHexString(byte b) {
-		return String.format("%02x", (short)b & 0xFF);
+		final char[] out = new char[2];
+		out[0] = hexDigits[(0xF0 & b) >>> 4];
+		out[1] = hexDigits[0x0F & b];
+		return new String(out);
 	}
-	
-	
+
+
 	/**
-	 * Converts an array of bytes in a hex string
+	 * Converts an array of bytes in a hex string; Taken from 
+     * org.apache.commons.codec.binary.Hex.
 	 * @param bytes array of bytes
 	 * @return concatenated hex representation of input byte array
 	 */
 	public static String toHexString(byte[] bytes) {
-		StringBuilder result = new StringBuilder();
-		for (byte b : bytes)
-			result.append(toHexString(b));
+		final int l = bytes.length;
+		final char[] out = new char[l << 1];
 
-		return result.toString();
+		for (int i = 0, j = 0; i < l; i++) {
+			out[j++] = hexDigits[(0xF0 & bytes[i]) >>> 4];
+			out[j++] = hexDigits[0x0F & bytes[i]];
+		}
+		return new String(out);
 	}
-	
+
 	/**
 	 * Compares two byte arrays element by element
 	 * @param array1 first array
@@ -55,13 +66,13 @@ public class tools {
 	 */
 	public static boolean areEqual(byte[] array1, byte[] array2) {
 		if (array1.length != array2.length) return false;
-		
+
 		for (int i=0; i<array1.length; ++i)
 			if (array1[i] != array2[i]) return false;
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Compares two byte arrays element by element
 	 * @param array1 first array
@@ -70,13 +81,13 @@ public class tools {
 	 */
 	public static boolean areEqual(char[] array1, char[] array2) {
 		if (array1.length != array2.length) return false;
-		
+
 		for (int i=0; i<array1.length; ++i)
 			if (array1[i] != array2[i]) return false;
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @param byte1 first byte
 	 * @param byte2 second byte
@@ -85,7 +96,7 @@ public class tools {
 	public static byte xor(byte byte1, byte byte2) {
 		return (byte)(0xff&(byte1^byte2));
 	}
-	
+
 	/**
 	 * @param array1 first array
 	 * @param array2 second array
@@ -93,11 +104,11 @@ public class tools {
 	 */
 	public static byte[] xor(byte[] array1, byte[] array2) {
 		assert(array1.length != array2.length);
-		
+
 		byte[] res = new byte[array1.length];
 		for (int i=0; i<array1.length; ++i)
 			res[i] = xor(array1[i], array2[i]);
-		
+
 		return res;
 	}
 
