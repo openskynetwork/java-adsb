@@ -74,7 +74,7 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 			capability_class_code = (msg[1]<<8)|msg[2];
 		}
 		else { // surface
-			capability_class_code = (msg[1]<<4)|(msg[2]&0xF0);
+			capability_class_code = (msg[1]<<4)|(msg[2]&0xF0)>>>4;
 			airplane_len_width = (byte) (msg[2]&0xF);
 		}
 		operational_mode_code = (msg[3]<<8)|msg[4];
