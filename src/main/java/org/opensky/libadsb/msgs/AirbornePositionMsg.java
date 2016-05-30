@@ -109,20 +109,17 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		case 9: case 20: return 7.5;
 		case 10: case 21: return 25;
 		case 11:
-			if (nic_suppl_a) return 75;
-			else return 185.2;
+			return nic_suppl_b ? 75 : 185.2;
 		case 12: return 370.4;
 		case 13:
 			if (!nic_suppl_b) return 926;
-			else if (nic_suppl_a) return 1111.2;
-			else return 555.6;
+			else return nic_suppl_a ? 1111.2 : 555.6;
 		case 14: return 1852;
 		case 15: return 3704;
 		case 16:
-			if (nic_suppl_a) return 7408;
-			else return 14816;
+			return nic_suppl_b ? 7408 : 14816;
 		case 17: return 37040;
-		default: return 0;
+		default: return -1;
 		}
 	}
 
@@ -137,15 +134,13 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		case 9: case 20: return 11;
 		case 10: case 21: return 10;
 		case 11:
-			if (nic_suppl_a) return 9;
-			else return 8;
+			return (byte) (nic_suppl_b ? 9 : 8);
 		case 12: return 7;
 		case 13: return 6;
 		case 14: return 5;
 		case 15: return 4;
 		case 16:
-			if (nic_suppl_a) return 3;
-			else return 2;
+			return (byte) (nic_suppl_b ? 3 : 2);
 		case 17: return 1;
 		default: return 0;
 		}
