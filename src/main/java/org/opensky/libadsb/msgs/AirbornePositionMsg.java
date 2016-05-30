@@ -125,8 +125,6 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 
 	/**
 	 * @return Navigation integrity category. A NIC of 0 means "unkown".
-	 *         If NIC supplement is set before, the return value is exactly according to DO-260B.
-	 *         Otherwise it might be a little worse than it actually is.
 	 */
 	public byte getNavigationIntegrityCategory() {
 		switch (getFormatTypeCode()) {
