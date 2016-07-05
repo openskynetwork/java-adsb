@@ -35,7 +35,10 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	private byte utility_msg;
 	private short identity;
 	private byte[] message;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected CommBIdentifyReply() { }
+
 	/**
 	 * @param raw_message raw comm-b identify reply as hex string
 	 * @throws BadFormatException if message is not comm-b identify reply or 

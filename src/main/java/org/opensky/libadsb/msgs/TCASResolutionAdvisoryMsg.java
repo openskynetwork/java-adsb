@@ -36,7 +36,10 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	private boolean multi_threat_encounter;
 	private byte threat_type;
 	private int threat_identity;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected TCASResolutionAdvisoryMsg() { }
+
 	/**
 	 * @param raw_message raw ADS-B aircraft status message as hex string
 	 * @throws BadFormatException if message has wrong format

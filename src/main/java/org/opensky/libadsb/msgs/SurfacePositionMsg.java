@@ -43,6 +43,9 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	private boolean nic_supplA;
 	private boolean nic_supplC;
 
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected SurfacePositionMsg() { }
+
 	/**
 	 * @param raw_message raw ADS-B surface position message as hex string
 	 * @throws BadFormatException if message has wrong format

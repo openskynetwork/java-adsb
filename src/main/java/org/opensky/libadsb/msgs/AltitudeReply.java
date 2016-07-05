@@ -33,7 +33,10 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	private byte downlink_request;
 	private byte utility_msg;
 	private short altitude_code;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected AltitudeReply() { }
+
 	/**
 	 * @param raw_message raw altitude reply as hex string
 	 * @throws BadFormatException if message is not altitude reply or 

@@ -44,7 +44,10 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	private boolean vertical_rate_info_available;
 	private short geo_minus_baro; // in ft
 	private boolean geo_minus_baro_available;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected VelocityOverGroundMsg() { }
+
 	/**
 	 * @param raw_message raw ADS-B velocity-over-ground message as hex string
 	 * @throws BadFormatException if message has wrong format

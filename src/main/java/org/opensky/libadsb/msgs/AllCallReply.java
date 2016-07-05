@@ -32,7 +32,10 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	
 	private byte capabilities;
 	private byte[] interrogator; // 3 bytes
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected AllCallReply() { }
+
 	/**
 	 * @param raw_message raw all-call reply as hex string
 	 * @throws BadFormatException if message is not all-call reply or 

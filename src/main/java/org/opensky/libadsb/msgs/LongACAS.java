@@ -38,7 +38,10 @@ public class LongACAS extends ModeSReply implements Serializable {
 	private byte racs_record; // RAC = resolution advisory complement
 	private boolean ra_terminated;
 	private boolean multiple_threat_encounter;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected LongACAS() { }
+
 	/**
 	 * @param raw_message raw long air-to-air ACAS reply as hex string
 	 * @throws BadFormatException if message is not long air-to-air ACAS reply or 

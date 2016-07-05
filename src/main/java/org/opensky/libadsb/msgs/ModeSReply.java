@@ -121,6 +121,9 @@ public class ModeSReply implements Serializable {
 	 * Constructors
 	 */
 
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected ModeSReply() { }
+
 	/**
 	 * We assume the following message format:<br>
 	 * | DF (5) | FF (3) | Payload (24/80) | PI/AP (24) |

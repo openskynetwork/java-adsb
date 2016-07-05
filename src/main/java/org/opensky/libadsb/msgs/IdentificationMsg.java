@@ -55,7 +55,10 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 		
 		return result;
 	}
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected IdentificationMsg() { }
+
 	/**
 	 * @param raw_message the identification message in hex representation
 	 * @throws BadFormatException if message has the wrong typecode

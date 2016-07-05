@@ -44,7 +44,10 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	private boolean vertical_rate_info_available;
 	private short geo_minus_baro; // in ft
 	private boolean geo_minus_baro_available;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected AirspeedHeadingMsg() { }
+
 	/**
 	 * @param raw_message raw ADS-B airspeed and heading message as hex string
 	 * @throws BadFormatException if message has wrong format

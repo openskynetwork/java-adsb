@@ -43,6 +43,9 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	private int cpr_encoded_lon;
 	private boolean nic_suppl_a;
 
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected AirbornePositionMsg() { }
+
 	/**
 	 * @param raw_message raw ADS-B airborne position message as hex string
 	 * @throws BadFormatException if message has wrong format

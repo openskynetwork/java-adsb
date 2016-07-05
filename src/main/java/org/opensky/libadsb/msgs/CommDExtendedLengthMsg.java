@@ -33,8 +33,10 @@ public class CommDExtendedLengthMsg extends ModeSReply implements Serializable {
 	private byte[] message;
 	private boolean ack;
 	private byte seqno;
-	
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected CommDExtendedLengthMsg() { }
+
 	/**
 	 * @param raw_message raw comm-d extended len msg as hex string
 	 * @throws BadFormatException if message is not extended len msg or 

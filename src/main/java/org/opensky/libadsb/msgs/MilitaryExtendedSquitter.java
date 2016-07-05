@@ -34,7 +34,10 @@ public class MilitaryExtendedSquitter extends ModeSReply implements Serializable
 	
 	private byte[] message;
 	private byte application_code;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected MilitaryExtendedSquitter() { }
+
 	/**
 	 * @param raw_message raw military extended squitter as hex string
 	 * @throws BadFormatException if message is not military extended squitter or 

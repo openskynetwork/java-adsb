@@ -33,7 +33,10 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	private byte downlink_request;
 	private byte utility_msg;
 	private short identity;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected IdentifyReply() { }
+
 	/**
 	 * @param raw_message raw identify reply as hex string
 	 * @throws BadFormatException if message is not identify reply or 

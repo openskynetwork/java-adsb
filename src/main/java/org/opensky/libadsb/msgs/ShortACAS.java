@@ -34,7 +34,10 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	private byte sensitivity_level;
 	private byte reply_information;
 	private short altitude_code;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected ShortACAS() { }
+
 	/**
 	 * @param raw_message raw short air-air acas reply as hex string
 	 * @throws BadFormatException if message is not altitude reply or 

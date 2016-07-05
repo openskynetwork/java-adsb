@@ -31,7 +31,10 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	private byte msgsubtype;
 	private byte emergency_state;
 	private short mode_a_code;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected EmergencyOrPriorityStatusMsg() { }
+
 	/**
 	 * @param raw_message raw ADS-B aircraft status message as hex string
 	 * @throws BadFormatException if message has wrong format

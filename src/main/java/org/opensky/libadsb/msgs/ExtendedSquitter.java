@@ -33,7 +33,10 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	private byte capabilities;
 	private byte[] message;
 	private byte format_type_code;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected ExtendedSquitter() { }
+
 	/**
 	 * @param raw_message raw extended squitter as hex string
 	 * @throws BadFormatException if message is not extended squitter or 

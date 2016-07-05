@@ -35,7 +35,10 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	private byte utility_msg;
 	private short altitude_code;
 	private byte[] message;
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected CommBAltitudeReply() { }
+
 	/**
 	 * @param raw_message raw comm-b altitude reply as hex string
 	 * @throws BadFormatException if message is not comm-b altitude reply or 

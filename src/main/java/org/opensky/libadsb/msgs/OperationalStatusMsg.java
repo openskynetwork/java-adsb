@@ -41,7 +41,10 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	private byte sil; // surveillance integrity level
 	private boolean nic_trk_hdg; // NIC baro for airborne status, heading/ground track info else
 	private boolean hrd; // heading info is based on true north (0) or magnetic north (1)
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected OperationalStatusMsg() { }
+
 	/**
 	 * @param raw_message The full Mode S message in hex representation
 	 * @throws BadFormatException if message has the wrong typecode
