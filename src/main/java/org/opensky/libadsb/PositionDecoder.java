@@ -323,16 +323,16 @@ public class PositionDecoder {
 			try {
 				global_pos = msg.getGlobalPosition(last_other);
 			} catch (BadFormatException e) {
-				logger.warn("Cannot do global CPR due to bad format (icao24: %s).\n",
-						tools.toHexString(msg.getIcao24()));
+				logger.warn(String.format("Cannot do global CPR due to bad format (icao24: %s).\n",
+						tools.toHexString(msg.getIcao24())));
 				global = false;
 			} catch (PositionStraddleError e) {
-				logger.debug("Position staddle (icao24: %s).\n",
-						tools.toHexString(msg.getIcao24()));
+				logger.debug(String.format("Position staddle (icao24: %s).\n",
+						tools.toHexString(msg.getIcao24())));
 				global = false;
 			} catch (MissingInformationException e) {
-				logger.debug("Missing information (global, icao24: %s).\n",
-						tools.toHexString(msg.getIcao24()));
+				logger.debug(String.format("Missing information (global, icao24: %s).\n",
+						tools.toHexString(msg.getIcao24())));
 				global = false;
 			}
 		}
