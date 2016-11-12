@@ -283,7 +283,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		AirbornePositionMsg even = isOddFormat()?other:this;
 		AirbornePositionMsg odd = isOddFormat()?this:other;
 
-		// Helper for latitude single(Number of zones NZ is set to 15)
+		// Helper for latitude (Number of zones NZ is set to 15)
 		double Dlat0 = 360.0/60.0;
 		double Dlat1 = 360.0/59.0;
 

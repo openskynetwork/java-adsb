@@ -305,6 +305,8 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 * and set with msg.setOtherFormatMsg(other).
 	 * @param other position message of the other format (even/odd). Note that the time between
 	 *        both messages should be not longer than 50 seconds! 
+	 * @param ref reference position used to resolve the ambiguity of the CPR result by choosing the closest
+	 *        position to the reference position
 	 * @return globally unambiguously decoded position tuple (latitude, longitude). The positional
 	 *         accuracy maintained by the CPR encoding will be approximately 1.25 meters.
 	 *         A message of the other format is needed for global decoding.
@@ -313,7 +315,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	 * @throws PositionStraddleError if position messages straddle latitude transition
 	 * @throws BadFormatException other has the same format (even/odd)
 	 */
-	public Position getGlobalPosition(SurfacePositionMsg other) throws MissingInformationException, 
+	public Position getGlobalPosition(SurfacePositionMsg other, Position ref) throws MissingInformationException, 
 		PositionStraddleError, BadFormatException {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 				throw new IllegalArgumentException(
@@ -341,7 +343,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		// global latitudes
 		double Rlat0 = Dlat0 * (mod(j,60)+even.getCPREncodedLatitude()/((double)(1<<17)));
 		double Rlat1 = Dlat1 * (mod(j,59)+odd.getCPREncodedLatitude()/((double)(1<<17)));
-
+		
 		// Southern hemisphere?
 		if (Rlat0 >= 270 && Rlat0 <= 360) Rlat0 -= 360;
 		if (Rlat1 >= 270 && Rlat1 <= 360) Rlat1 -= 360;
@@ -367,16 +369,22 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		// global longitude
 		double Rlon0 = Dlon0 * (mod(m,Math.max(1.0, NL(Rlat0))) + even.getCPREncodedLongitude()/((double)(1<<17)));
 		double Rlon1 = Dlon1 * (mod(m,Math.max(1.0, NL(Rlat1)-1)) + odd.getCPREncodedLongitude()/((double)(1<<17)));
-
-		// correct longitude
-		if (Rlon0 < -180 && Rlon0 > -360) Rlon0 += 360;
-		if (Rlon1 < -180 && Rlon1 > -360) Rlon1 += 360;
-		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
-		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
-
-		return new Position(isOddFormat()?Rlon1:Rlon0,
-				            isOddFormat()?Rlat1:Rlat0,
-				            0.0);
+		
+		Double lon = isOddFormat() ? Rlon1 : Rlon0;
+		Double lat = isOddFormat() ? Rlat1 : Rlat0;
+		
+		// check the four possible positions
+		Position tmp, result = new Position(lon, lat, 0.);
+		for (int o : new int[] {90, 180, 270}) {
+			tmp = new Position(lon+o, lat, 0.0);
+			if (tmp.distanceTo(ref) < result.distanceTo(ref))
+				result = tmp;
+		}
+		
+		if (result.getLongitude()>180)
+			result.setLongitude(result.getLongitude()-360);
+		
+		return result;
 	}
 	
 	/**

@@ -288,18 +288,21 @@ public class PositionDecoder {
 	public Position decodePosition(AirbornePositionMsg msg) {
 		return decodePosition(System.currentTimeMillis()/1000.0, msg);
 	}
-
+	
 	/**
 	 * @param time time of applicability/reception of position report (seconds)
 	 * @param msg surface position message
+	 * @param ref reference position to resolve ambiguous surface position
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 */
-	public Position decodePosition(double time, SurfacePositionMsg msg) {
+	public Position decodePosition(double time, SurfacePositionMsg msg, Position ref) {
 		boolean local = false, global = false;
 		
-		if (!msg.hasPosition())
+		if (!msg.hasPosition() || last_pos == null && ref == null)
 			return null;
+		
+		Position real_ref = last_pos != null ? last_pos : ref;
 		
 		if (time <= last_time) {
 			logger.warn("Position messages should be ordered!");
@@ -321,7 +324,7 @@ public class PositionDecoder {
 		Position global_pos = null;
 		if (global) { // do global CPR
 			try {
-				global_pos = msg.getGlobalPosition(last_other);
+				global_pos = msg.getGlobalPosition(last_other, real_ref);
 			} catch (BadFormatException e) {
 				logger.warn(String.format("Cannot do global CPR due to bad format (icao24: %s).\n",
 						tools.toHexString(msg.getIcao24())));
@@ -379,7 +382,7 @@ public class PositionDecoder {
 				}
 				
 				// check local/global dist of old message
-				Position other_pos = last_other.getGlobalPosition(msg);
+				Position other_pos = last_other.getGlobalPosition(msg, real_ref);
 				dist = other_pos.distanceTo(last_other.getLocalPosition(other_pos));
 				if (dist > distance_threshold) {
 					reasonable = false;
@@ -444,45 +447,48 @@ public class PositionDecoder {
 
 		return ret;
 	}
-	
+
 	/**
+	 * Shortcut for using the last known position for reference; no reasonableness check on distance to receiver
 	 * @param time time of applicability/reception of position report (seconds)
-	 * @param receiver position of the receiver to check if received position was more than 600km away
 	 * @param msg surface position message
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
-	 * @return decoded position
 	 */
-	public Position decodePosition(double time, Position receiver, SurfacePositionMsg msg) {
-		Position ret = decodePosition(time, msg);
+	public Position decodePosition(double time, SurfacePositionMsg msg) {
+		if (last_pos == null)
+			return null;
+		
+		return decodePosition(time, msg, last_pos);
+	}
+	
+	/**
+	 * Shortcut for live decoding; no reasonableness check on distance to receiver
+	 * @param reference used for reasonableness test and to decide which of the four resulting positions of the CPR algorithm is the right one
+	 * @param msg airborne position message
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
+	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
+	 */
+	public Position decodePosition(SurfacePositionMsg msg, Position reference) {
+		return decodePosition(System.currentTimeMillis()/1000.0, msg, reference);
+	}
+	
+	/**
+	 * Performs all reasonableness tests.
+	 * @param time time of applicability/reception of position report (seconds)
+	 * @param reference position used to decide which position of the four results of the CPR algorithm is the right one
+	 * @param receiver position to check if received position was more than 700km away and 
+	 * @param msg surface position message
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
+	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
+	 */
+	public Position decodePosition(double time, Position receiver, SurfacePositionMsg msg, Position reference) {
+		Position ret = decodePosition(time, msg, reference);
 		if (ret != null && receiver != null && !withinReasonableRange(receiver, ret)) {
 			ret.setReasonable(false);
 			num_reasonable = 0;
 		}
 		return ret;
-	}
-	
-	/**
-	 * @param receiver position of the receiver to be included in the reasonableness test
-	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
-	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
-	 * @return decoded position
-	 */
-	public Position decodePosition(Position receiver, SurfacePositionMsg msg) {
-		return decodePosition(System.currentTimeMillis()/1000.0, receiver, msg);
-	}
-	
-	/**
-	 * Note: use this method for live decoding only! Assumes that time of applicability
-	 * equals current time! Using this function for older messages might result in false
-	 * positions! Prefer using decodePosition with proper time of applicability.
-	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
-	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
-	 */
-	public Position decodePosition(SurfacePositionMsg msg) {
-		return decodePosition(System.currentTimeMillis()/1000.0, msg);
 	}
 
 	/**

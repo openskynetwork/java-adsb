@@ -133,20 +133,17 @@ public class ExampleDecoder {
 
 				System.out.print("["+icao24+"]: ");
 
-				// decode the position if possible
+				// decode the position if possible; prior position needed
 				if (decs.containsKey(icao24)) {
 					dec = decs.get(icao24);
 					Position current = dec.decodePosition(timestamp, surfpos);
 					if (current == null)
-						System.out.println("Cannot decode position yet.");
+						System.out.println("Cannot decode position yet or no reference available.");
 					else
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
 				}
 				else {
-					dec = new PositionDecoder();
-					dec.decodePosition(timestamp, surfpos);
-					decs.put(icao24, dec);
-					System.out.println("First position.");
+					System.out.println("Cannot decode surface position as first positions without reference.");
 				}
 				System.out.println("          Horizontal containment radius is "+surfpos.getHorizontalContainmentRadiusLimit()+" m");
 				if (surfpos.hasValidHeading())
