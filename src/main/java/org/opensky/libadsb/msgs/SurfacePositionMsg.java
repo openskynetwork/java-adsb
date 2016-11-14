@@ -42,6 +42,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	private int cpr_encoded_lon;
 	private boolean nic_supplA;
 	private boolean nic_supplC;
+	private static final int[] lon_offs = new int[] {90, 180, 270};
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected SurfacePositionMsg() { }
@@ -375,7 +376,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		
 		// check the four possible positions
 		Position tmp, result = new Position(lon, lat, 0.);
-		for (int o : new int[] {90, 180, 270}) {
+		for (int o : lon_offs) {
 			tmp = new Position(lon+o, lat, 0.0);
 			if (tmp.distanceTo(ref) < result.distanceTo(ref))
 				result = tmp;

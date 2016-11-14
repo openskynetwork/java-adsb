@@ -292,7 +292,8 @@ public class PositionDecoder {
 	/**
 	 * @param time time of applicability/reception of position report (seconds)
 	 * @param msg surface position message
-	 * @param ref reference position to resolve ambiguous surface position
+	 * @param ref reference position to resolve ambiguous surface position; set to null if no reference known; in the latter case, the decoder
+	 *        uses the last known position of the aircraft.
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 */
