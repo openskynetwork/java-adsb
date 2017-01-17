@@ -150,7 +150,7 @@ public class ModeSReply implements Serializable {
 
 		if (length != getExpectedLength(downlink_format)<<1) {
 			throw new BadFormatException("Downlink format "+downlink_format+" suggests length "+
-					getExpectedLength(downlink_format)+" but input has length "+length,
+					getExpectedLength(downlink_format)+" byte but input has length "+length/2,
 					raw_message);
 		}
 		
