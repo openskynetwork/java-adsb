@@ -49,7 +49,12 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 /**
  * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
- * comma-separated timestamp and message. Example input:
+ * comma-separated timestamp, receiver latitude, receiver longitude and the
+ * raw Mode S/ADS-B message. Receiver coordinates can be omitted. In that
+ * case, surface position messages cannot be decoded properly and plausibility
+ * checks for positions are limited. 
+ * 
+ * Example input:
  * 
  * 1,8d4b19f39911088090641010b9b0
  * 2,8d4ca513587153a8184a2fb5adeb
@@ -72,7 +77,7 @@ public class ExampleDecoder {
 		decs = new HashMap<String, PositionDecoder>();
 	}
 
-	public void decodeMsg(double timestamp, String raw, String icao) throws Exception {
+	public void decodeMsg(double timestamp, String raw, Position receiver) throws Exception {
 		ModeSReply msg;
 		try {
 			msg = Decoder.genericDecoder(raw);
@@ -85,8 +90,6 @@ public class ExampleDecoder {
 		}
 		
 		String icao24 = tools.toHexString(msg.getIcao24());
-		
-		if (icao != null && !icao.toLowerCase().equals(icao24)) return;
 
 		// check for erroneous messages; some receivers set
 		// parity field to the result of the CRC polynomial division
@@ -113,7 +116,11 @@ public class ExampleDecoder {
 				if (decs.containsKey(icao24)) {
 					dec = decs.get(icao24);
 					airpos.setNICSupplementA(dec.getNICSupplementA());
-					Position current = dec.decodePosition(timestamp, airpos);
+					Position current;
+					if (receiver != null)
+						current = dec.decodePosition(timestamp, receiver, airpos);
+					else
+						current = dec.decodePosition(timestamp, airpos);
 					if (current == null)
 						System.out.println("Cannot decode position yet.");
 					else
@@ -136,7 +143,12 @@ public class ExampleDecoder {
 				// decode the position if possible; prior position needed
 				if (decs.containsKey(icao24)) {
 					dec = decs.get(icao24);
-					Position current = dec.decodePosition(timestamp, surfpos);
+					Position current;
+					if (receiver != null)
+						current = dec.decodePosition(timestamp, surfpos, receiver);
+					else
+						current = dec.decodePosition(timestamp, surfpos);
+					
 					if (current == null)
 						System.out.println("Cannot decode position yet or no reference available.");
 					else
@@ -270,18 +282,23 @@ public class ExampleDecoder {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String icao = null;
-		if (args.length > 0) {
-			icao = args[0];
-			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
-		}
-		
 		// iterate over STDIN
 		Scanner sc = new Scanner(System.in, "UTF-8");
 		ExampleDecoder dec = new ExampleDecoder();
+		Position rec = new Position(0., 0., 0.);
 		while(sc.hasNext()) {
 		  String[] values = sc.nextLine().split(",");
-		  dec.decodeMsg(Double.parseDouble(values[0]), values[1], icao);
+		  
+		  if (values.length == 4) {
+			  // time,lat,lon,msg
+			  rec.setLongitude(Double.parseDouble(values[2]));
+			  rec.setLatitude(Double.parseDouble(values[1]));
+			  dec.decodeMsg(Double.parseDouble(values[0]), values[3], rec);
+		  }
+		  else if (values.length == 2) {
+			  // time,msg
+			  dec.decodeMsg(Double.parseDouble(values[0]), values[1], null);
+		  }
 		}
 		sc.close();
 	}
