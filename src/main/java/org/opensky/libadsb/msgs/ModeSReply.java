@@ -116,6 +116,11 @@ public class ModeSReply implements Serializable {
 
 		return Arrays.copyOf(pi, CRC_polynomial.length);
 	}
+	
+	public static int getExpectedLength(byte downlink_format) {
+		if (downlink_format < 16) return 7;
+		else return 14;
+	}
 
 	/*
 	 * Constructors
@@ -135,13 +140,19 @@ public class ModeSReply implements Serializable {
 	public ModeSReply (String raw_message) throws BadFormatException {
 		// check format invariants
 		int length = raw_message.length();
-		if (length != 14 && length != 28)
-			throw new BadFormatException("Raw message has invalid length", raw_message);
+		
+		if (length != 14 && length != 28) // initial test
+			throw new BadFormatException("Raw message has an invalid length of "+length, raw_message);
 
 		downlink_format = (byte) (Short.parseShort(raw_message.substring(0, 2), 16));
 		first_field = (byte) (downlink_format & 0x7);
 		downlink_format = (byte) (downlink_format>>>3 & 0x1F);
 
+		if (length != getExpectedLength(downlink_format)<<1) {
+			throw new BadFormatException("Downlink format "+downlink_format+" suggests length "+
+					getExpectedLength(downlink_format)+" but input has length "+length,
+					raw_message);
+		}
 		
 		// extract payload
 		payload = new byte[(length-8)/2];
