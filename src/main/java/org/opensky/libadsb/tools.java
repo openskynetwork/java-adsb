@@ -103,7 +103,7 @@ public class tools {
 	 * @return array1 xor array2 (bitwise)
 	 */
 	public static byte[] xor(byte[] array1, byte[] array2) {
-		assert(array1.length != array2.length);
+		assert(array1.length == array2.length);
 
 		byte[] res = new byte[array1.length];
 		for (int i=0; i<array1.length; ++i)
