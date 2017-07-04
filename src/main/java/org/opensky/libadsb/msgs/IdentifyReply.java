@@ -63,7 +63,7 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 		flight_status = getFirstField();
 		downlink_request = (byte) ((payload[0]>>>3) & 0x1F);
 		utility_msg = (byte) ((payload[0]&0x7)<<3 | (payload[1]>>>5)&0x7);
-		identity = (short) ((payload[1]<<8 | payload[2])&0x1FFF);
+		identity = (short) ((payload[1]<<8 | (payload[2]&0xFF))&0x1FFF);
 	}
 
 	/**
