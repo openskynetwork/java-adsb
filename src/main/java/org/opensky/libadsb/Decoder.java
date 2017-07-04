@@ -54,8 +54,19 @@ public class Decoder {
 	 * @throws BadFormatException if format contains error
 	 */
 	public static ModeSReply genericDecoder (String raw_message) throws BadFormatException, UnspecifiedFormatError {
-		ModeSReply modes = new ModeSReply(raw_message);
-
+		return genericDecoder(new ModeSReply(raw_message));
+	}
+	
+	/**
+	 * This function decodes a half-decoded Mode S reply to its
+	 * deepest possible specialization. Use getType() to check its
+	 * actual type afterwards.
+	 * @param modes the incompletely decoded Mode S message
+	 * @return an instance of the most specialized ModeSReply possible
+	 * @throws UnspecifiedFormatError if format is not specified
+	 * @throws BadFormatException if format contains error
+	 */
+	public static ModeSReply genericDecoder (ModeSReply modes) throws BadFormatException, UnspecifiedFormatError {
 		switch (modes.getDownlinkFormat()) {
 		case 0: return new ShortACAS(modes);
 		case 4: return new AltitudeReply(modes);
