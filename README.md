@@ -46,7 +46,7 @@ We have also published this project on Maven Central. Just include the following
 <dependency>
   <groupId>org.opensky-network</groupId>
   <artifactId>libadsb</artifactId>
-  <version>2.1</version>
+  <version>2.1.1</version>
 </dependency>
 ```
 
