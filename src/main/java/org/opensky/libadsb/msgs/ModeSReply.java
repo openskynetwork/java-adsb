@@ -38,6 +38,7 @@ public class ModeSReply implements Serializable {
 	private byte[] icao24; // 3 bytes
 	private byte[] payload; // 3 or 10 bytes
 	private byte[] parity; // 3 bytes
+	private boolean noCRC;
 	
 	/**
 	 * Indicator set by all specializations of this class to tell
@@ -122,13 +123,66 @@ public class ModeSReply implements Serializable {
 		else return 14;
 	}
 
+	private void parseMessage (String raw_message, boolean noCRC) throws BadFormatException {
+		// check format invariants
+				int length = raw_message.length();
+				this.noCRC = noCRC;
+				
+				if (length != 14 && length != 28) // initial test
+					throw new BadFormatException("Raw message has an invalid length of "+length, raw_message);
+
+				downlink_format = (byte) (Short.parseShort(raw_message.substring(0, 2), 16));
+				first_field = (byte) (downlink_format & 0x7);
+				downlink_format = (byte) (downlink_format>>>3 & 0x1F);
+
+				if (length != getExpectedLength(downlink_format)<<1) {
+					throw new BadFormatException("Downlink format "+downlink_format+" suggests length "+
+							getExpectedLength(downlink_format)+" byte but input has length "+length/2,
+							raw_message);
+				}
+				
+				// extract payload
+				payload = new byte[(length-8)/2];
+				for (int i=2; i<length-6; i+=2)
+					payload[(i-2)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
+				
+				// extract parity field
+				parity = new byte[3];
+				for (int i=length-6; i<length; i+=2)
+					parity[(i-length+6)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
+
+				// extract ICAO24 address
+				icao24 = new byte[3];
+				switch (downlink_format) {
+				case 0: // Short air-air (ACAS)
+				case 4: // Short altitude reply
+				case 5: // Short identity reply
+				case 16: // Long air-air (ACAS)
+				case 20: // Long Comm-B, altitude reply
+				case 21: // Long Comm-B, identity reply
+				case 24: // Long Comm-D (ELM)
+					icao24 = noCRC ? parity : tools.xor(calcParity(), parity);
+					break;
+					
+				case 11: // all call replies
+				case 17: case 18: // Extended squitter
+					for (int i=0; i<3; i++)
+						icao24[i] = payload[i];
+					break;
+				default: // unkown downlink format
+					// leave everything 0
+				}
+
+				setType(subtype.MODES_REPLY);
+	}
+	
 	/*
 	 * Constructors
 	 */
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected ModeSReply() { }
-
+	
 	/**
 	 * We assume the following message format:<br>
 	 * | DF (5) | FF (3) | Payload (24/80) | PI/AP (24) |
@@ -138,55 +192,20 @@ public class ModeSReply implements Serializable {
 	 * not match specification or parity has invalid length
 	 */
 	public ModeSReply (String raw_message) throws BadFormatException {
-		// check format invariants
-		int length = raw_message.length();
-		
-		if (length != 14 && length != 28) // initial test
-			throw new BadFormatException("Raw message has an invalid length of "+length, raw_message);
+		parseMessage(raw_message, false);
+	}
 
-		downlink_format = (byte) (Short.parseShort(raw_message.substring(0, 2), 16));
-		first_field = (byte) (downlink_format & 0x7);
-		downlink_format = (byte) (downlink_format>>>3 & 0x1F);
-
-		if (length != getExpectedLength(downlink_format)<<1) {
-			throw new BadFormatException("Downlink format "+downlink_format+" suggests length "+
-					getExpectedLength(downlink_format)+" byte but input has length "+length/2,
-					raw_message);
-		}
-		
-		// extract payload
-		payload = new byte[(length-8)/2];
-		for (int i=2; i<length-6; i+=2)
-			payload[(i-2)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
-		
-		// extract parity field
-		parity = new byte[3];
-		for (int i=length-6; i<length; i+=2)
-			parity[(i-length+6)/2] = (byte) Short.parseShort(raw_message.substring(i, i+2), 16);
-
-		// extract ICAO24 address
-		icao24 = new byte[3];
-		switch (downlink_format) {
-		case 0: // Short air-air (ACAS)
-		case 4: // Short altitude reply
-		case 5: // Short identity reply
-		case 16: // Long air-air (ACAS)
-		case 20: // Long Comm-B, altitude reply
-		case 21: // Long Comm-B, identity reply
-		case 24: // Long Comm-D (ELM)
-			icao24 = tools.xor(calcParity(), parity);
-			break;
-			
-		case 11: // all call replies
-		case 17: case 18: // Extended squitter
-			for (int i=0; i<3; i++)
-				icao24[i] = payload[i];
-			break;
-		default: // unkown downlink format
-			// leave everything 0
-		}
-
-		setType(subtype.MODES_REPLY);
+	/**
+	 * We assume the following message format:<br>
+	 * | DF (5) | FF (3) | Payload (24/80) | PI/AP (24) |
+	 * 
+	 * @param raw_message Mode S message in hex representation
+	 * @param noCRC indicates whether the CRC has been subtracted from the parity field
+	 * @throws BadFormatException if message has invalid length or payload does
+	 * not match specification or parity has invalid length
+	 */
+	public ModeSReply (String raw_message, boolean noCRC) throws BadFormatException {
+		parseMessage(raw_message, noCRC);
 	}
 	
 	/**
@@ -356,8 +375,12 @@ public class ModeSReply implements Serializable {
 		int sum = downlink_format<<3|first_field;
 		for (int i = 0; i<payload.length; ++i)
 			sum += payload[i]*31^(payload.length-i);
-		for (int i = 0; i<parity.length; ++i)
-			sum += parity[i]*31^(payload.length+parity.length-i);
+		
+		byte[] effective_partiy = parity;
+		if (noCRC) effective_partiy = tools.xor(parity, calcParity());
+		
+		for (int i = 0; i<effective_partiy.length; ++i)
+			sum += effective_partiy[i]*31^(payload.length+effective_partiy.length-i);
 		return sum;
 	}
 }
