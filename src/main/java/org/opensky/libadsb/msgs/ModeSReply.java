@@ -285,6 +285,19 @@ public class ModeSReply implements Serializable {
 
 		return calcParity(message);
 	}
+	
+	/**
+	 * Re-builds the message from the fields and returns it as a hex string
+	 * @return the reply as a hex string
+	 */
+	public String getHexMessage() {
+		byte[] msg = new byte[4+payload.length];
+		msg[0] = (byte) (downlink_format<<3 | first_field);
+		for (int i = 0; i < payload.length; ++i) msg[1+i] = payload[i];
+		byte[] crc = noCRC ? tools.xor(getParity(), calcParity()) : getParity();
+		for (int i = 0; i < 3; ++i) msg[1+payload.length+i] = crc[i];
+		return tools.toHexString(msg);
+	}
 
 	/**
 	 * Important note: use this method for extended
