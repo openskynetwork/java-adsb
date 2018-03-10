@@ -1,7 +1,9 @@
 java-adsb
 =========
 
-This is a Mode S and ADS-B decoding library for Java. It is a product of the OpenSky Network project (http://www.opensky-network.org).
+This is a Mode S and ADS-B decoding library for Java. It is a product of the OpenSky Network project (http://www.opensky-network.org). It is based on these two references:
+* ICAO Aeronautical Telecommunications Annex 10 Volume 4 (Surveillance Radar and Collision Avoidance Systems)
+* RTCA DO-260 "Minimum Operational Performance Standards (MOPS) for 1090ES"
 
 It supports the following Mode S downlink formats:
 * Short air-air ACAS (DF 0)
