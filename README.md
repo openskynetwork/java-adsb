@@ -83,6 +83,6 @@ System.out.println("Latitude  = "+ lat_lon[0]+ "°\n"+
 ```
 
 A complete working decoder can be found in [ExampleDecoder.java](src/main/java/org/opensky/example/ExampleDecoder.java). A demonstration how this
-decoder can be used is provided in [OskySampleReader.java](src/main/java/org/opensky/example/OskySampleReader.java). It reads, decodes, and prints serialized
+decoder can be used is provided in [OskySampleReader.java](https://github.com/openskynetwork/osky-sample/blob/master/src/main/java/org/opensky/tools/OskySampleReader.java). It reads, decodes, and prints serialized
 ADS-B messages from avro-files with the OpenSky schema. A sample of such data and the schema is provided in the
 [osky-sample repository](https://github.com/openskynetwork/osky-sample).
