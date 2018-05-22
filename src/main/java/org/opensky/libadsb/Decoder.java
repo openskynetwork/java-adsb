@@ -56,7 +56,20 @@ public class Decoder {
 	public static ModeSReply genericDecoder (String raw_message) throws BadFormatException, UnspecifiedFormatError {
 		return genericDecoder(new ModeSReply(raw_message));
 	}
-	
+
+	/**
+	 * A easy-to-use top-down ADS-B decoder. Use msg.getType() to
+	 * check the message type and then cast to the appropriate class.
+	 * @param raw_message the Mode S message in hex representation
+	 * @param noCRC indicates whether the CRC has been subtracted from the parity field
+	 * @return an instance of the most specialized ModeSReply possible
+	 * @throws UnspecifiedFormatError if format is not specified
+	 * @throws BadFormatException if format contains error
+	 */
+	public static ModeSReply genericDecoder (String raw_message, boolean noCRC) throws BadFormatException, UnspecifiedFormatError {
+		return genericDecoder(new ModeSReply(raw_message, noCRC));
+	}
+
 	/**
 	 * This function decodes a half-decoded Mode S reply to its
 	 * deepest possible specialization. Use getType() to check its
