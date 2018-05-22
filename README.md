@@ -37,8 +37,8 @@ This is a Maven project. You can simply generate a jar file with `mvn package`.
 All the output can afterwards be found in the `target` directory. There will
 be two jar files
 
-* `libadsb-2.1.2.jar` contains libadsb, only. You should use this in your projects
-* `libadsb-2.1.2-fat.jar` is packaged with all dependencies to read AVRO files. You should use it to decode OpenSky Avro dumps.
+* `libadsb-2.1.3.jar` contains libadsb, only. You should use this in your projects
+* `libadsb-2.1.3-fat.jar` is packaged with all dependencies to read AVRO files. You should use it to decode OpenSky Avro dumps.
 
 #### Maven Central
 
@@ -48,7 +48,7 @@ We have also published this project on Maven Central. Just include the following
 <dependency>
   <groupId>org.opensky-network</groupId>
   <artifactId>libadsb</artifactId>
-  <version>2.1.2</version>
+  <version>2.1.3</version>
 </dependency>
 ```
 
