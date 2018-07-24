@@ -2,25 +2,7 @@ package org.opensky.libadsb;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
-import org.opensky.libadsb.msgs.AirbornePositionMsg;
-import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
-import org.opensky.libadsb.msgs.AllCallReply;
-import org.opensky.libadsb.msgs.AltitudeReply;
-import org.opensky.libadsb.msgs.CommBAltitudeReply;
-import org.opensky.libadsb.msgs.CommBIdentifyReply;
-import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
-import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
-import org.opensky.libadsb.msgs.ExtendedSquitter;
-import org.opensky.libadsb.msgs.IdentificationMsg;
-import org.opensky.libadsb.msgs.IdentifyReply;
-import org.opensky.libadsb.msgs.LongACAS;
-import org.opensky.libadsb.msgs.MilitaryExtendedSquitter;
-import org.opensky.libadsb.msgs.ModeSReply;
-import org.opensky.libadsb.msgs.OperationalStatusMsg;
-import org.opensky.libadsb.msgs.ShortACAS;
-import org.opensky.libadsb.msgs.SurfacePositionMsg;
-import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
-import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
+import org.opensky.libadsb.msgs.*;
 
 /**
  *  This file is part of org.opensky.libadsb.

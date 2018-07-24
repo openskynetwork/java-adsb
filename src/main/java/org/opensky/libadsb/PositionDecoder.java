@@ -1,7 +1,5 @@
 package org.opensky.libadsb;
 
-import static java.lang.Math.*;
-
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
 import org.opensky.libadsb.exceptions.PositionStraddleError;
@@ -9,6 +7,8 @@ import org.opensky.libadsb.msgs.AirbornePositionMsg;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.lang.Math.abs;
 
 /**
  * This class is a stateful position decoder for one airplane.

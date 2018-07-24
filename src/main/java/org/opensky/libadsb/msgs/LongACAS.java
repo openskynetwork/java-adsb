@@ -1,8 +1,8 @@
 package org.opensky.libadsb.msgs;
 
-import java.io.Serializable;
-
 import org.opensky.libadsb.exceptions.BadFormatException;
+
+import java.io.Serializable;
 
 /**
  *  This file is part of org.opensky.libadsb.

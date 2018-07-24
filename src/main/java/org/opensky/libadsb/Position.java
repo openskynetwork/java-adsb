@@ -1,17 +1,12 @@
 package org.opensky.libadsb;
 
-import static java.lang.Math.asin;
-import static java.lang.Math.cos;
-import static java.lang.Math.pow;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
-import static java.lang.Math.toRadians;
-
-import java.io.Serializable;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
+import java.io.Serializable;
+
+import static java.lang.Math.*;
 
 /**
  * Container class for WGS84 positions

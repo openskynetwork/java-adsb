@@ -1,10 +1,10 @@
 package org.opensky.libadsb.msgs;
 
+import org.opensky.libadsb.exceptions.BadFormatException;
+import org.opensky.libadsb.tools;
+
 import java.io.Serializable;
 import java.util.Arrays;
-
-import org.opensky.libadsb.tools;
-import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
  *  This file is part of org.opensky.libadsb.
