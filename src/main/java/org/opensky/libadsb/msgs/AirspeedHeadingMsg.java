@@ -55,6 +55,14 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	public AirspeedHeadingMsg(String raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw ADS-B airspeed and heading message as byte array
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public AirspeedHeadingMsg(byte[] raw_message) throws BadFormatException {
+		this(new ExtendedSquitter(raw_message));
+	}
 	
 	/**
 	 * @param squitter extended squitter containing the airspeed and heading msg

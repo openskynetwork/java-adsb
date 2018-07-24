@@ -42,6 +42,14 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	public EmergencyOrPriorityStatusMsg(String raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw ADS-B aircraft status message as byte array
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public EmergencyOrPriorityStatusMsg(byte[] raw_message) throws BadFormatException {
+		this(new ExtendedSquitter(raw_message));
+	}
 	
 	/**
 	 * @param squitter extended squitter which contains this emergency or priority status msg

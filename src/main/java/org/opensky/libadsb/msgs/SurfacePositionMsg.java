@@ -54,6 +54,14 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	public SurfacePositionMsg(String raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw ADS-B surface position message as byte array
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public SurfacePositionMsg(byte[] raw_message) throws BadFormatException {
+		this(new ExtendedSquitter(raw_message));
+	}
 	
 	/**
 	 * @param squitter extended squitter which contains this surface position msg

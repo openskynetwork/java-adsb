@@ -45,6 +45,15 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	public IdentifyReply(String raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw identify reply as byte array
+	 * @throws BadFormatException if message is not identify reply or
+	 * contains wrong values.
+	 */
+	public IdentifyReply(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
+	}
 	
 	/**
 	 * @param reply Mode S reply which contains this identify reply

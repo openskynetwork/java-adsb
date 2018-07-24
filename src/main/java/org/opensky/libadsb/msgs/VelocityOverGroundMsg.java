@@ -27,7 +27,7 @@ import java.io.Serializable;
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializable {
-	
+
 	private static final long serialVersionUID = -7397309420290359454L;
 	private byte msg_subtype;
 	private boolean intent_change;
@@ -55,7 +55,15 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	public VelocityOverGroundMsg(String raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
-	
+
+	/**
+	 * @param raw_message raw ADS-B velocity-over-ground message as byte array
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public VelocityOverGroundMsg(byte[] raw_message) throws BadFormatException {
+		this(new ExtendedSquitter(raw_message));
+	}
+
 	/**
 	 * @param squitter extended squitter which contains this velocity over ground msg
 	 * @throws BadFormatException if message has wrong format
@@ -63,32 +71,32 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	public VelocityOverGroundMsg(ExtendedSquitter squitter) throws BadFormatException {
 		super(squitter);
 		setType(subtype.ADSB_VELOCITY);
-		
+
 		if (this.getFormatTypeCode() != 19) {
 			throw new BadFormatException("Velocity messages must have typecode 19.");
 		}
-		
+
 		byte[] msg = this.getMessage();
-		
+
 		msg_subtype = (byte) (msg[0]&0x7);
 		if (msg_subtype != 1 && msg_subtype != 2) {
 			throw new BadFormatException("Ground speed messages have subtype 1 or 2.");
 		}
-		
+
 		intent_change = (msg[1]&0x80)>0;
 		ifr_capability = (msg[1]&0x40)>0;
 		navigation_accuracy_category = (byte) ((msg[1]>>>3)&0x7);
-		
+
 		// check this later
 		velocity_info_available = true;
 		vertical_rate_info_available = true;
 		geo_minus_baro_available = true;
-		
+
 		direction_west = (msg[1]&0x4)>0;
 		east_west_velocity = (short) (((msg[1]&0x3)<<8 | msg[2]&0xFF)-1);
 		if (east_west_velocity == -1) velocity_info_available = false;
 		if (msg_subtype == 2) east_west_velocity<<=2;
-		
+
 		direction_south = (msg[3]&0x80)>0;
 		north_south_velocity = (short) (((msg[3]&0x7F)<<3 | msg[4]>>>5&0x07)-1);
 		if (north_south_velocity == -1) velocity_info_available = false;
@@ -98,7 +106,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		vertical_rate_down = (msg[4]&0x08)>0;
 		vertical_rate = (short) ((((msg[4]&0x07)<<6 | msg[5]>>>2&0x3F)-1)<<6);
 		if (vertical_rate == -1) vertical_rate_info_available = false;
-		
+
 		geo_minus_baro = (short) (((msg[6]&0x7F)-1)*25);
 		if (geo_minus_baro == -1) geo_minus_baro_available = false;
 		if ((msg[6]&0x80)>0) geo_minus_baro *= -1;
@@ -106,7 +114,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 	/**
 	 * Must be checked before accessing velocity!
-	 * 
+	 *
 	 * @return whether velocity info is available
 	 */
 	public boolean hasVelocityInfo() {
@@ -115,7 +123,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 	/**
 	 * Must be checked before accessing vertical rate!
-	 * 
+	 *
 	 * @return whether vertical rate info is available
 	 */
 	public boolean hasVerticalRateInfo() {
@@ -124,7 +132,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 	/**
 	 * Must be checked before accessing geo minus baro!
-	 * 
+	 *
 	 * @return whether geo-baro difference info is available
 	 */
 	public boolean hasGeoMinusBaroInfo() {
@@ -137,7 +145,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	public boolean isSupersonic() {
 		return msg_subtype == 2;
 	}
-	
+
 	/**
 	 * @return true, if aircraft wants to change altitude for instance
 	 */
@@ -208,7 +216,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		if (!geo_minus_baro_available) throw new MissingInformationException("No geo/baro difference info available!");
 		return geo_minus_baro * 0.3048;
 	}
-	
+
 	/**
 	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north
 	 * @throws MissingInformationException if no velocity info is available
@@ -218,12 +226,12 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		double angle = Math.toDegrees(Math.atan2(
 				-this.getEastToWestVelocity(),
 				-this.getNorthToSouthVelocity()));
-		
+
 		// if negative => clockwise
 		if (angle < 0) return 360+angle;
 		else return angle;
 	}
-	
+
 	/**
 	 * @return speed over ground in m/s
 	 * @throws MissingInformationException if no velocity info is available
@@ -232,7 +240,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
 		return Math.hypot(north_south_velocity, east_west_velocity) * 0.514444;
 	}
-	
+
 	public String toString() {
 		String ret = super.toString()+"\n"+
 				"Velocity over ground:\n";
@@ -246,7 +254,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		catch (Exception e) { ret += "\tHeading\t\t\t\tnot available\n"; }
 		try { ret += "\tVertical rate:\t\t\t"+getVerticalRate(); }
 		catch (Exception e) { ret += "\tVertical rate:\t\t\tnot available"; }
-		
+
 		return ret;
 	}
 }

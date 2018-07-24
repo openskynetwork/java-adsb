@@ -47,6 +47,15 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	public CommBAltitudeReply(String raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw comm-b altitude reply as byte array
+	 * @throws BadFormatException if message is not comm-b altitude reply or
+	 * contains wrong values.
+	 */
+	public CommBAltitudeReply(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
+	}
 	
 	/**
 	 * @param reply Mode S reply which contains this comm-b altitude reply

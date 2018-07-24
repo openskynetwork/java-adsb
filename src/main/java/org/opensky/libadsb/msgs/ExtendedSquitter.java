@@ -45,6 +45,15 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	public ExtendedSquitter(String raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw extended squitter as byte array
+	 * @throws BadFormatException if message is not extended squitter or
+	 * contains wrong values.
+	 */
+	public ExtendedSquitter(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
+	}
 	
 	/**
 	 * @param reply Mode S reply containing this extended squitter

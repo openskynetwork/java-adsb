@@ -68,6 +68,14 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 	}
 
 	/**
+	 * @param raw_message the identification message as byte array
+	 * @throws BadFormatException if message has the wrong typecode
+	 */
+	public IdentificationMsg(byte[] raw_message) throws BadFormatException {
+		this(new ExtendedSquitter(raw_message));
+	}
+
+	/**
 	 * @param squitter extended squitter which contains this identification msg
 	 * @throws BadFormatException if message has the wrong typecode
 	 */

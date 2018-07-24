@@ -53,6 +53,15 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	public OperationalStatusMsg(String raw_message) throws BadFormatException, UnspecifiedFormatError {
 		this(new ExtendedSquitter(raw_message));
 	}
+
+	/**
+	 * @param raw_message The full Mode S message as byte array
+	 * @throws BadFormatException if message has the wrong typecode
+	 * @throws UnspecifiedFormatError if message has the wrong subtype
+	 */
+	public OperationalStatusMsg(byte[] raw_message) throws BadFormatException, UnspecifiedFormatError {
+		this(new ExtendedSquitter(raw_message));
+	}
 	
 	/**
 	 * @param squitter extended squitter which contains this message

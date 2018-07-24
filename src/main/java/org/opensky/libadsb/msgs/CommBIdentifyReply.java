@@ -47,6 +47,15 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	public CommBIdentifyReply(String raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw comm-b identify reply as byte array
+	 * @throws BadFormatException if message is not comm-b identify reply or
+	 * contains wrong values.
+	 */
+	public CommBIdentifyReply(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
+	}
 	
 	/**
 	 * @param reply Mode S reply which contains this comm-b identify reply

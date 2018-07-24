@@ -46,6 +46,15 @@ public class MilitaryExtendedSquitter extends ModeSReply implements Serializable
 	public MilitaryExtendedSquitter(String raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw military extended squitter as byte array
+	 * @throws BadFormatException if message is not military extended squitter or
+	 * contains wrong values.
+	 */
+	public MilitaryExtendedSquitter(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
+	}
 	
 	/**
 	 * @param reply Mode S reply containing this military extended squitter

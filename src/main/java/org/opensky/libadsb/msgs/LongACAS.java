@@ -50,6 +50,15 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public LongACAS(String raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw long air-to-air ACAS reply as byte array
+	 * @throws BadFormatException if message is not long air-to-air ACAS reply or
+	 * contains wrong values.
+	 */
+	public LongACAS(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
+	}
 	
 	/**
 	 * @param reply Mode S reply containing this long air-to-air ACAS reply

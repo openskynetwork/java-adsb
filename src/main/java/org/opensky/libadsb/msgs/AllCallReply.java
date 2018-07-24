@@ -36,14 +36,23 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected AllCallReply() { }
 
-	/**
-	 * @param raw_message raw all-call reply as hex string
-	 * @throws BadFormatException if message is not all-call reply or 
-	 * contains wrong values.
-	 */
-	public AllCallReply(String raw_message) throws BadFormatException {
-		this(new ModeSReply(raw_message));
-	}
+    /**
+     * @param raw_message raw all-call reply as hex string
+     * @throws BadFormatException if message is not all-call reply or
+     * contains wrong values.
+     */
+    public AllCallReply(String raw_message) throws BadFormatException {
+        this(new ModeSReply(raw_message));
+    }
+
+    /**
+     * @param raw_message raw all-call reply as byte array
+     * @throws BadFormatException if message is not all-call reply or
+     * contains wrong values.
+     */
+    public AllCallReply(byte[] raw_message) throws BadFormatException {
+        this(new ModeSReply(raw_message));
+    }
 	
 	/**
 	 * @param reply Mode S reply containing this all-call reply

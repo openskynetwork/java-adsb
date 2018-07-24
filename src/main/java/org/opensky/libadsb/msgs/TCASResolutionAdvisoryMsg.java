@@ -47,6 +47,14 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	public TCASResolutionAdvisoryMsg(String raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw ADS-B aircraft status message as byte array
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public TCASResolutionAdvisoryMsg(byte[] raw_message) throws BadFormatException {
+		this(new ExtendedSquitter(raw_message));
+	}
 	
 	/**
 	 * @param squitter extended squitter which contains this TCAS resolution advisory msg

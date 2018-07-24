@@ -53,7 +53,15 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	public AirbornePositionMsg(String raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
-	
+
+	/**
+	 * @param raw_message raw ADS-B airborne position message as byte array
+	 * @throws BadFormatException if message has wrong format
+	 */
+	public AirbornePositionMsg(byte[] raw_message) throws BadFormatException {
+		this(new ExtendedSquitter(raw_message));
+	}
+
 	/**
 	 * @param squitter extended squitter containing the airborne position msg
 	 * @throws BadFormatException if message has wrong format
@@ -64,7 +72,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 9 && getFormatTypeCode() <= 18) ||
-				(getFormatTypeCode() >= 20 && getFormatTypeCode() <= 22))) 
+				(getFormatTypeCode() >= 20 && getFormatTypeCode() <= 22)))
 			throw new BadFormatException("This is not a position message! Wrong format type code ("+getFormatTypeCode()+").");
 
 		byte[] msg = getMessage();
@@ -108,21 +116,21 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 */
 	public double getHorizontalContainmentRadiusLimit() {
 		switch (getFormatTypeCode()) {
-		case 0: case 18: case 22: return -1;
-		case 9: case 20: return 7.5;
-		case 10: case 21: return 25;
-		case 11:
-			return nic_suppl_b ? 75 : 185.2;
-		case 12: return 370.4;
-		case 13:
-			if (!nic_suppl_b) return 926;
-			else return nic_suppl_a ? 1111.2 : 555.6;
-		case 14: return 1852;
-		case 15: return 3704;
-		case 16:
-			return nic_suppl_b ? 7408 : 14816;
-		case 17: return 37040;
-		default: return -1;
+			case 0: case 18: case 22: return -1;
+			case 9: case 20: return 7.5;
+			case 10: case 21: return 25;
+			case 11:
+				return nic_suppl_b ? 75 : 185.2;
+			case 12: return 370.4;
+			case 13:
+				if (!nic_suppl_b) return 926;
+				else return nic_suppl_a ? 1111.2 : 555.6;
+			case 14: return 1852;
+			case 15: return 3704;
+			case 16:
+				return nic_suppl_b ? 7408 : 14816;
+			case 17: return 37040;
+			default: return -1;
 		}
 	}
 
@@ -131,19 +139,19 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 */
 	public byte getNavigationIntegrityCategory() {
 		switch (getFormatTypeCode()) {
-		case 0: case 18: case 22: return 0;
-		case 9: case 20: return 11;
-		case 10: case 21: return 10;
-		case 11:
-			return (byte) (nic_suppl_b ? 9 : 8);
-		case 12: return 7;
-		case 13: return 6;
-		case 14: return 5;
-		case 15: return 4;
-		case 16:
-			return (byte) (nic_suppl_b ? 3 : 2);
-		case 17: return 1;
-		default: return 0;
+			case 0: case 18: case 22: return 0;
+			case 9: case 20: return 11;
+			case 10: case 21: return 10;
+			case 11:
+				return (byte) (nic_suppl_b ? 9 : 8);
+			case 12: return 7;
+			case 13: return 6;
+			case 14: return 5;
+			case 15: return 4;
+			case 16:
+				return (byte) (nic_suppl_b ? 3 : 2);
+			case 17: return 1;
+			default: return 0;
 		}
 	}
 
@@ -172,7 +180,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	/**
 	 * This is a function of the surveillance status field in the position
 	 * message.
-	 * 
+	 *
 	 * @return surveillance status description as defines in DO-260B
 	 */
 	public String getSurveillanceStatusDescription() {
@@ -244,7 +252,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		double tmp = 1-(1-Math.cos(Math.PI/(2.0*15.0)))/Math.pow(Math.cos(Math.PI/180.0*Math.abs(Rlat)), 2);
 		return Math.floor(2*Math.PI/Math.acos(tmp));
 	}
-	
+
 	/**
 	 * Modulo operator in java has stupid behavior
 	 */
@@ -266,12 +274,12 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @throws BadFormatException other has the same format (even/odd)
 	 */
 	public Position getGlobalPosition(AirbornePositionMsg other) throws BadFormatException,
-		PositionStraddleError, MissingInformationException {
+			PositionStraddleError, MissingInformationException {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
-				throw new IllegalArgumentException(
-						String.format("Transmitter of other message (%s) not equal to this (%s).",
-						tools.toHexString(other.getIcao24()), tools.toHexString(this.getIcao24())));
-		
+			throw new IllegalArgumentException(
+					String.format("Transmitter of other message (%s) not equal to this (%s).",
+							tools.toHexString(other.getIcao24()), tools.toHexString(this.getIcao24())));
+
 		if (other.isOddFormat() == this.isOddFormat())
 			throw new BadFormatException("Expected "+(isOddFormat()?"even":"odd")+" message format.", other.toString());
 
@@ -305,8 +313,8 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		// ensure that the number of even longitude zones are equal
 		if (NL(Rlat0) != NL(Rlat1))
 			throw new org.opensky.libadsb.exceptions.PositionStraddleError(
-				"The two given position straddle a transition latitude "+
-				"and cannot be decoded. Wait for positions where they are equal.");
+					"The two given position straddle a transition latitude "+
+							"and cannot be decoded. Wait for positions where they are equal.");
 
 		// Helper for longitude
 		double Dlon0 = 360.0/Math.max(1.0, NL(Rlat0));
@@ -325,12 +333,12 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		if (Rlon1 < -180 && Rlon1 > -360) Rlon1 += 360;
 		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
 		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
-		
+
 		return new Position(isOddFormat()?Rlon1:Rlon0,
-				            isOddFormat()?Rlat1:Rlat0,
-				            this.hasAltitude() ? this.getAltitude() : null);
+				isOddFormat()?Rlat1:Rlat0,
+				this.hasAltitude() ? this.getAltitude() : null);
 	}
-	
+
 	/**
 	 * This method uses a locally unambiguous decoding for airborne position messages. It
 	 * uses a reference position known to be within 180NM (= 333.36km) of the true target
@@ -344,25 +352,25 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	public Position getLocalPosition(Position ref) throws MissingInformationException {
 		if (!horizontal_position_available)
 			throw new MissingInformationException("No position information available!");
-		
+
 		// latitude zone size
 		double Dlat = isOddFormat() ? 360.0/59.0 : 360.0/60.0;
-		
+
 		// latitude zone index
 		double j = Math.floor(ref.getLatitude()/Dlat) +
 				Math.floor(0.5+(mod(ref.getLatitude(), Dlat))/Dlat-getCPREncodedLatitude()/((double)(1<<17)));
-		
+
 		// decoded position latitude
 		double Rlat = Dlat*(j+getCPREncodedLatitude()/((double)(1<<17)));
-		
+
 		// longitude zone size
 		double Dlon = 360.0/Math.max(1.0, NL(Rlat)-(isOddFormat()?1.0:0.0));
-		
+
 		// longitude zone coordinate
 		double m =
 				Math.floor(ref.getLongitude()/Dlon) +
-				Math.floor(0.5+(mod(ref.getLongitude(),Dlon))/Dlon-(double)getCPREncodedLongitude()/((double)(1<<17)));
-		
+						Math.floor(0.5+(mod(ref.getLongitude(),Dlon))/Dlon-(double)getCPREncodedLongitude()/((double)(1<<17)));
+
 		// and finally the longitude
 		double Rlon = Dlon * (m + getCPREncodedLongitude()/((double)(1<<17)));
 
@@ -422,7 +430,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 			return (-1200+N500*500+N100*100)*0.3048;
 		}
 	}
-	
+
 	public String toString() {
 		try {
 			return super.toString()+"\n"+

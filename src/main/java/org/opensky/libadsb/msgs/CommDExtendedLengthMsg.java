@@ -43,7 +43,16 @@ public class CommDExtendedLengthMsg extends ModeSReply implements Serializable {
 	 * contains wrong values.
 	 */
 	public CommDExtendedLengthMsg(String raw_message) throws BadFormatException {
-		this(new CommDExtendedLengthMsg(raw_message));
+		this(new ModeSReply(raw_message));
+	}
+
+	/**
+	 * @param raw_message raw comm-d extended len msg as byte array
+	 * @throws BadFormatException if message is not extended len msg or
+	 * contains wrong values.
+	 */
+	public CommDExtendedLengthMsg(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
 	}
 	
 	/**

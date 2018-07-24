@@ -46,6 +46,15 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	public ShortACAS(String raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
+
+	/**
+	 * @param raw_message raw short air-air acas reply as byte array
+	 * @throws BadFormatException if message is not altitude reply or
+	 * contains wrong values.
+	 */
+	public ShortACAS(byte[] raw_message) throws BadFormatException {
+		this(new ModeSReply(raw_message));
+	}
 	
 	/**
 	 * @param reply Mode S reply containing this short air-air acas reply
