@@ -59,7 +59,7 @@ public class tools {
 	}
 
 	/**
-	 * Converts a hex string to an array of bytes.<br/>
+	 * Converts a hex string to an array of bytes.<br>
 	 * Source: https://stackoverflow.com/a/140861/3485023
 	 * @param str the hex string to convert
 	 * @return the byte array
