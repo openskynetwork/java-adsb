@@ -25,8 +25,8 @@ package org.opensky.libadsb;
  */
 public class tools {
 	private static final char[] hexDigits =
-		{'0', '1', '2', '3', '4', '5', '6', '7',
-		 '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+			{'0', '1', '2', '3', '4', '5', '6', '7',
+					'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 	/**
 	 * Converts a byte into a hex string (e.g. 164 -&gt; "a4")
@@ -43,7 +43,7 @@ public class tools {
 
 	/**
 	 * Converts an array of bytes in a hex string; Taken from 
-     * org.apache.commons.codec.binary.Hex.
+	 * org.apache.commons.codec.binary.Hex.
 	 * @param bytes array of bytes
 	 * @return concatenated hex representation of input byte array
 	 */
@@ -56,6 +56,22 @@ public class tools {
 			out[j++] = hexDigits[0x0F & bytes[i]];
 		}
 		return new String(out);
+	}
+
+	/**
+	 * Converts a hex string to an array of bytes.<br/>
+	 * Source: https://stackoverflow.com/a/140861/3485023
+	 * @param str the hex string to convert
+	 * @return the byte array
+	 */
+	public static byte[] hexStringToByteArray(String str) {
+		int len = str.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2) {
+			data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4)
+					+ Character.digit(str.charAt(i+1), 16));
+		}
+		return data;
 	}
 
 	/**
