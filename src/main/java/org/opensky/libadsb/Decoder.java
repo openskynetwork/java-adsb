@@ -88,59 +88,79 @@ public class Decoder {
 	 */
 	public static ModeSReply genericDecoder (ModeSReply modes) throws BadFormatException, UnspecifiedFormatError {
 		switch (modes.getDownlinkFormat()) {
-		case 0: return new ShortACAS(modes);
-		case 4: return new AltitudeReply(modes);
-		case 5: return new IdentifyReply(modes);
-		case 11: return new AllCallReply(modes);
-		case 16: return new LongACAS(modes);
-		case 17: case 18:
-			ExtendedSquitter es1090 = new ExtendedSquitter(modes);
+			case 0: return new ShortACAS(modes);
+			case 4: return new AltitudeReply(modes);
+			case 5: return new IdentifyReply(modes);
+			case 11: return new AllCallReply(modes);
+			case 16: return new LongACAS(modes);
+			case 17: case 18: case 19:
+				// check whether this is an ADS-B message (see Figure 2-2, RTCA DO-260B)
+				if (modes.getDownlinkFormat() == 17 |
+						modes.getDownlinkFormat() == 18 && modes.getFirstField() < 2 |
+						modes.getDownlinkFormat() == 19 && modes.getFirstField() == 0) {
 
-			// what kind of extended squitter?
-			byte ftc = es1090.getFormatTypeCode();
+					// interpret ME field as standard ADS-B
 
-			if (ftc >= 1 && ftc <= 4) // identification message
-				return new IdentificationMsg(es1090);
+					ExtendedSquitter es1090 = new ExtendedSquitter(modes);
 
-			if (ftc >= 5 && ftc <= 8) // surface position message
-				return new SurfacePositionMsg(es1090);
+					// what kind of extended squitter?
+					byte ftc = es1090.getFormatTypeCode();
 
-			if ((ftc >= 9 && ftc <= 18) || (ftc >= 20 && ftc <= 22)) // airborne position message
-				return new AirbornePositionMsg(es1090);
+					if (ftc >= 1 && ftc <= 4) // identification message
+						return new IdentificationMsg(es1090);
 
-			if (ftc == 19) { // possible velocity message, check subtype
-				int subtype = es1090.getMessage()[0]&0x7;
+					if (ftc >= 5 && ftc <= 8) // surface position message
+						return new SurfacePositionMsg(es1090);
 
-				if (subtype == 1 || subtype == 2) // velocity over ground
-					return new VelocityOverGroundMsg(es1090);
-				else if (subtype == 3 || subtype == 4) // airspeed & heading
-					return new AirspeedHeadingMsg(es1090);
-			}
+					if ((ftc >= 9 && ftc <= 18) || (ftc >= 20 && ftc <= 22)) // airborne position message
+						return new AirbornePositionMsg(es1090);
 
-			if (ftc == 28) { // aircraft status message, check subtype
-				int subtype = es1090.getMessage()[0]&0x7;
+					if (ftc == 19) { // possible velocity message, check subtype
+						int subtype = es1090.getMessage()[0] & 0x7;
 
-				if (subtype == 1) // emergency/priority status
-					return new EmergencyOrPriorityStatusMsg(es1090);
-				if (subtype == 2) // TCAS resolution advisory report
-					return new TCASResolutionAdvisoryMsg(es1090);
-			}
+						if (subtype == 1 || subtype == 2) // velocity over ground
+							return new VelocityOverGroundMsg(es1090);
+						else if (subtype == 3 || subtype == 4) // airspeed & heading
+							return new AirspeedHeadingMsg(es1090);
+					}
 
-			if (ftc == 31) { // operational status message
-				int subtype = es1090.getMessage()[0]&0x7;
+					if (ftc == 28) { // aircraft status message, check subtype
+						int subtype = es1090.getMessage()[0] & 0x7;
 
-				if (subtype == 0 || subtype == 1) // airborne or surface?
-					return new OperationalStatusMsg(es1090);
-			}
+						if (subtype == 1) // emergency/priority status
+							return new EmergencyOrPriorityStatusMsg(es1090);
+						if (subtype == 2) // TCAS resolution advisory report
+							return new TCASResolutionAdvisoryMsg(es1090);
+					}
 
-			return es1090; // unknown extended squitter
-		case 19: return new MilitaryExtendedSquitter(modes);
-		case 20: return new CommBAltitudeReply(modes);
-		case 21: return new CommBIdentifyReply(modes);
-		default:
-			if (modes.getDownlinkFormat()>=24)
-				return new CommDExtendedLengthMsg(modes);
-			else return modes; // unknown mode s reply
+					if (ftc == 31) { // operational status message
+						int subtype = es1090.getMessage()[0] & 0x7;
+
+						if (subtype == 0 || subtype == 1) // airborne or surface?
+							return new OperationalStatusMsg(es1090);
+					}
+
+					return es1090; // unknown extended squitter
+				} else if (modes.getDownlinkFormat() == 18 && modes.getFirstField() == 6) {
+					// TODO: ADS-R message (minor differences to ADS-B, see 2.2.18 in DO-260B
+					return modes;
+				} else if (modes.getDownlinkFormat() == 18 && modes.getFirstField() < 4 |
+						modes.getDownlinkFormat() == 18 && modes.getFirstField() == 5) {
+					// TODO: TIS-B "ME" field
+					// check IMF field for AA interpretation
+					return modes;
+				} else if (modes.getDownlinkFormat() == 18 && modes.getFirstField() == 4) {
+					// TODO: TIS-B or ADS-R Management Message
+					return modes;
+				} else if (modes.getDownlinkFormat() == 19) {
+					return new MilitaryExtendedSquitter(modes);
+				}
+			case 20: return new CommBAltitudeReply(modes);
+			case 21: return new CommBIdentifyReply(modes);
+			default:
+				if (modes.getDownlinkFormat()>=24)
+					return new CommDExtendedLengthMsg(modes);
+				else return modes; // unknown mode s reply
 		}
 	}
 }

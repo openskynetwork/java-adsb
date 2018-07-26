@@ -258,10 +258,10 @@ public class ModeSReply implements Serializable {
 	}
 
 	/**
-	 * Note: Should only be used by subtype classes
+	 * Note: the definition of this field depends on the downlink format
 	 * @return the first field (three bits after downlink format)
 	 */
-	protected byte getFirstField() {
+	public byte getFirstField() {
 		return first_field;
 	}
 
