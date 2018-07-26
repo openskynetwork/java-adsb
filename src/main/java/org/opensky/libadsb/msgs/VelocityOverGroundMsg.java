@@ -42,7 +42,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	private boolean vertical_rate_down; // 0 = up, 1 = down
 	private short vertical_rate; // in ft/min
 	private boolean vertical_rate_info_available;
-	private short geo_minus_baro; // in ft
+	private int geo_minus_baro; // in ft
 	private boolean geo_minus_baro_available;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
@@ -107,8 +107,9 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		vertical_rate = (short) ((((msg[4]&0x07)<<6 | msg[5]>>>2&0x3F)-1)<<6);
 		if (vertical_rate == -1) vertical_rate_info_available = false;
 
-		geo_minus_baro = (short) (((msg[6]&0x7F)-1)*25);
-		if (geo_minus_baro == -1) geo_minus_baro_available = false;
+		geo_minus_baro = msg[6]&0x7F;
+		if (geo_minus_baro == 0) geo_minus_baro_available = false;
+		else geo_minus_baro = (geo_minus_baro-1)*25;
 		if ((msg[6]&0x80)>0) geo_minus_baro *= -1;
 	}
 
