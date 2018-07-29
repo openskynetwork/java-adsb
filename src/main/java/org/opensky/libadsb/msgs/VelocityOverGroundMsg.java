@@ -5,7 +5,7 @@ import org.opensky.libadsb.exceptions.MissingInformationException;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify

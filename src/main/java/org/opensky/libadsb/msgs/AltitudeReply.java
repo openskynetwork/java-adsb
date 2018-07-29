@@ -4,7 +4,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
