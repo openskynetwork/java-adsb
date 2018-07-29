@@ -4,21 +4,21 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 import org.opensky.libadsb.msgs.*;
 
-/**
- *  This file is part of org.opensky.libadsb.
- *
- *  org.opensky.libadsb is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  org.opensky.libadsb is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
+/*
+   This file is part of org.opensky.libadsb.
+
+   org.opensky.libadsb is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   org.opensky.libadsb is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -95,8 +95,8 @@ public class Decoder {
 			case 16: return new LongACAS(modes);
 			case 17: case 18: case 19:
 				// check whether this is an ADS-B message (see Figure 2-2, RTCA DO-260B)
-				if (modes.getDownlinkFormat() == 17 |
-						modes.getDownlinkFormat() == 18 && modes.getFirstField() < 2 |
+				if (modes.getDownlinkFormat() == 17 ||
+						modes.getDownlinkFormat() == 18 && modes.getFirstField() < 2 ||
 						modes.getDownlinkFormat() == 19 && modes.getFirstField() == 0) {
 
 					// interpret ME field as standard ADS-B
@@ -155,6 +155,8 @@ public class Decoder {
 				} else if (modes.getDownlinkFormat() == 19) {
 					return new MilitaryExtendedSquitter(modes);
 				}
+
+				return modes; // this should never happen
 			case 20: return new CommBAltitudeReply(modes);
 			case 21: return new CommBIdentifyReply(modes);
 			default:
