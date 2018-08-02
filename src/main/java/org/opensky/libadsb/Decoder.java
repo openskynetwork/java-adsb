@@ -144,7 +144,7 @@ public class Decoder {
 				} else if (modes.getDownlinkFormat() == 18 && modes.getFirstField() == 6) {
 					// TODO: ADS-R message (minor differences to ADS-B, see 2.2.18 in DO-260B
 					return modes;
-				} else if (modes.getDownlinkFormat() == 18 && modes.getFirstField() < 4 |
+				} else if (modes.getDownlinkFormat() == 18 && modes.getFirstField() < 4 ||
 						modes.getDownlinkFormat() == 18 && modes.getFirstField() == 5) {
 					// TODO: TIS-B "ME" field
 					// check IMF field for AA interpretation
