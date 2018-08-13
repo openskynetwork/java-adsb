@@ -357,13 +357,14 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	}
 
 	/**
+	 * Get the 95% horizontal accuracy bounds (EPU), see table A-13 in RCTA DO-260B
 	 * @return the estimated position uncertainty according to the position NAC in meters (-1 for unknown)
 	 */
 	public double getPositionUncertainty() {
 		switch (nac_pos) {
-		case 1: return 18.52;
-		case 2: return 7.408;
-		case 3: return 3.704;
+		case 1: return 18520;
+		case 2: return 7408;
+		case 3: return 3704;
 		case 4: return 1852.0;
 		case 5: return 926.0;
 		case 6: return 555.6;
