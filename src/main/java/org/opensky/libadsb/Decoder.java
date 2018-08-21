@@ -5,25 +5,27 @@ import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 import org.opensky.libadsb.msgs.*;
 
 /*
-   This file is part of org.opensky.libadsb.
-
-   org.opensky.libadsb is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   org.opensky.libadsb is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
+ *  This file is part of org.opensky.libadsb.
+ *
+ *  org.opensky.libadsb is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  org.opensky.libadsb is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
- * General decoder for ADS-B messages
+ * General decoder for ADS-B messages.
+ *
  * @author Matthias Schäfer (schaefer@opensky-network.org)
+ * @deprecated This decoder lacks support for different ADS-B versions. Use {@link ModeSDecoder} instead.
  */
 public class Decoder {
 
@@ -110,10 +112,10 @@ public class Decoder {
 						return new IdentificationMsg(es1090);
 
 					if (ftc >= 5 && ftc <= 8) // surface position message
-						return new SurfacePositionMsg(es1090);
+						return new SurfacePositionV0Msg(es1090);
 
 					if ((ftc >= 9 && ftc <= 18) || (ftc >= 20 && ftc <= 22)) // airborne position message
-						return new AirbornePositionMsg(es1090);
+						return new AirbornePositionV0Msg(es1090);
 
 					if (ftc == 19) { // possible velocity message, check subtype
 						int subtype = es1090.getMessage()[0] & 0x7;
@@ -136,8 +138,28 @@ public class Decoder {
 					if (ftc == 31) { // operational status message
 						int subtype = es1090.getMessage()[0] & 0x7;
 
-						if (subtype == 0 || subtype == 1) // airborne or surface?
-							return new OperationalStatusMsg(es1090);
+						int version = (es1090.getMessage()[5]>>>5);
+						if (subtype == 0) {
+							// airborne
+							switch (version) {
+								case 0:
+									return new OperationalStatusV0Msg(es1090);
+								case 1:
+									return new AirborneOperationalStatusV1Msg(es1090);
+								case 2:
+									return new AirborneOperationalStatusV2Msg(es1090);
+							}
+						} else if (subtype == 1) {
+							// surface
+							switch (version) {
+								case 0:
+									return new OperationalStatusV0Msg(es1090);
+								case 1:
+									return new SurfaceOperationalStatusV1Msg(es1090);
+								case 2:
+									return new SurfaceOperationalStatusV2Msg(es1090);
+							}
+						}
 					}
 
 					return es1090; // unknown extended squitter

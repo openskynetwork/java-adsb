@@ -6,7 +6,7 @@ import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ import java.io.Serializable;
 public class MilitaryExtendedSquitter extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -7877955448285410779L;
-	
+
 	private byte[] message;
 	private byte application_code;
 
@@ -55,7 +55,7 @@ public class MilitaryExtendedSquitter extends ModeSReply implements Serializable
 	public MilitaryExtendedSquitter(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply containing this military extended squitter
 	 * @throws BadFormatException if message is not a military extended squitter or 
@@ -64,15 +64,15 @@ public class MilitaryExtendedSquitter extends ModeSReply implements Serializable
 	public MilitaryExtendedSquitter(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.MILITARY_EXTENDED_SQUITTER);
-		
+
 		if (getDownlinkFormat() != 19) {
 			throw new BadFormatException("Message is not a military extended squitter!");
 		}
-		
+
 		message = ArrayUtils.addAll(getPayload(), getParity());
 		application_code = getFirstField();
 	}
-	
+
 	/**
 	 * Copy constructor for subclasses
 	 * 
@@ -80,7 +80,7 @@ public class MilitaryExtendedSquitter extends ModeSReply implements Serializable
 	 */
 	public MilitaryExtendedSquitter(MilitaryExtendedSquitter squitter) {
 		super(squitter);
-		
+
 		message = squitter.getMessage();
 		application_code = squitter.getApplicationCode();
 	}
@@ -91,14 +91,14 @@ public class MilitaryExtendedSquitter extends ModeSReply implements Serializable
 	public byte[] getMessage() {
 		return message;
 	}
-	
+
 	/**
 	 * @return the application code from the AF field
 	 */
 	public byte getApplicationCode() {
 		return application_code;
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"Extended Squitter:\n"+

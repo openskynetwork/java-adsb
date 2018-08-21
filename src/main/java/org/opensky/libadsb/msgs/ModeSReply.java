@@ -7,20 +7,20 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /*
-   This file is part of org.opensky.libadsb.
-
-   org.opensky.libadsb is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   org.opensky.libadsb is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
+ *  This file is part of org.opensky.libadsb.
+ *
+ *  org.opensky.libadsb is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  org.opensky.libadsb is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -57,14 +57,22 @@ public class ModeSReply implements Serializable {
 		COMM_B_IDENTIFY_REPLY,
 		COMM_D_ELM,
 		// ADS-B subtypes
-		ADSB_AIRBORN_POSITION,
-		ADSB_SURFACE_POSITION,
+		ADSB_AIRBORN_POSITION_V0,
+		ADSB_AIRBORN_POSITION_V1,
+		ADSB_AIRBORN_POSITION_V2,
+		ADSB_SURFACE_POSITION_V0,
+		ADSB_SURFACE_POSITION_V1,
+		ADSB_SURFACE_POSITION_V2,
 		ADSB_AIRSPEED,
 		ADSB_EMERGENCY,
 		ADSB_TCAS,
 		ADSB_VELOCITY,
 		ADSB_IDENTIFICATION,
-		ADSB_STATUS
+		ADSB_STATUS_V0,
+		ADSB_AIRBORN_STATUS_V1,
+		ADSB_SURFACE_STATUS_V1,
+		ADSB_AIRBORN_STATUS_V2,
+		ADSB_SURFACE_STATUS_V2
 	}
 	private subtype type;
 

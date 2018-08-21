@@ -5,7 +5,7 @@ import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ import java.io.Serializable;
 public class CommBIdentifyReply extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -1156158096293306435L;
-	
+
 	private byte flight_status;
 	private byte downlink_request;
 	private byte utility_msg;
@@ -56,7 +56,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	public CommBIdentifyReply(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply which contains this comm-b identify reply
 	 * @throws BadFormatException if message is not comm-b identify reply or 
@@ -65,17 +65,17 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	public CommBIdentifyReply(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.COMM_B_IDENTIFY_REPLY);
-		
+
 		if (getDownlinkFormat() != 21) {
 			throw new BadFormatException("Message is not a comm-b identify reply!");
 		}
-		
+
 		byte[] payload = getPayload();
 		flight_status = getFirstField();
 		downlink_request = (byte) ((payload[0]>>>3) & 0x1F);
 		utility_msg = (byte) ((payload[0]&0x7)<<3 | (payload[1]>>>5)&0x7);
 		identity = (short) ((payload[1]<<8 | (payload[2]&0xFF))&0x1FFF);
-		
+
 		// extract Comm-B message
 		message = new byte[7];
 		for (int i=0; i<7; i++)
@@ -151,7 +151,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	public byte getUtilityMsg() {
 		return utility_msg;
 	}
-	
+
 	/**
 	 * Note: this is not the same identifier as the one contained in all-call replies.
 	 * 
@@ -162,7 +162,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	public byte getInterrogatorIdentifier() {
 		return (byte) ((utility_msg>>>2)&0xF);
 	}
-	
+
 	/**
 	 * @return the 2-bit identifier designator subfield of the
 	 * utility message which reports the type of reservation made
@@ -225,7 +225,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 		
 		return A+B+C+D;
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"Comm-B Identify Reply:\n"+

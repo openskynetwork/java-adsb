@@ -4,7 +4,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -26,9 +26,9 @@ import java.io.Serializable;
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class LongACAS extends ModeSReply implements Serializable {
-	
+
 	private static final long serialVersionUID = -945389130204217847L;
-	
+
 	private boolean airborne;
 	private byte sensitivity_level;
 	private byte reply_information;
@@ -59,7 +59,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public LongACAS(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply containing this long air-to-air ACAS reply
 	 * @throws BadFormatException if message is not long air-to-air ACAS reply or 
@@ -68,17 +68,17 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public LongACAS(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.LONG_ACAS);
-		
+
 		if (getDownlinkFormat() != 16) {
 			throw new BadFormatException("Message is not a long ACAS (air-air) message!");
 		}
-		
+
 		byte[] payload = getPayload();
 		airborne = (getFirstField()&0x4)==0;
 		sensitivity_level = (byte) ((payload[0]>>>5)&0x7);
 		reply_information = (byte) ((payload[0]&0x7)<<1 | (payload[1]>>>7)&0x1);
 		altitude_code = (short) ((payload[1]<<8 | payload[2]&0xFF)&0x1FFF);
-		
+
 		// extract MV/air-air coordination info
 		valid_rac = payload[3] != 0x30;
 		active_resolution_advisories = (short) ((payload[4]<<6 | (payload[5]>>>2)&0x3)&0x3FFF);
@@ -86,7 +86,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 		ra_terminated = (payload[6]>>>5&0x1) == 1;
 		multiple_threat_encounter = (payload[6]>>>4&0x1) == 1;	
 	}
-	
+
 	/**
 	 * Important note: check this before using any of
 	 * {@link #getActiveResolutionAdvisories()},
@@ -98,7 +98,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public boolean hasValidRAC() {
 		return valid_rac;
 	}
-	
+
 	/**
 	 * @return the binary encoded information about active
 	 * resolution advisories (see Annex 10V4; 4.3.8.4.2.2.1.1)
@@ -106,7 +106,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public short getActiveResolutionAdvisories() {
 		return active_resolution_advisories;
 	}
-	
+
 	/**
 	 * @return the binary encoded resolution advisory complement
 	 * @see #noPassBelow()
@@ -117,7 +117,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public byte getResolutionAdvisoryComplement() {
 		return racs_record;
 	}
-	
+
 	/**
 	 * @return true iff do not pass below advisory is active
 	 */
@@ -153,14 +153,14 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public boolean isAirborne() {
 		return airborne;
 	}
-	
+
 	/**
 	 * @return true iff the RA from {@link #getActiveResolutionAdvisories()} has been terminated
 	 */
 	public boolean hasTerminated() {
 		return ra_terminated;
 	}
-	
+
 	/**
 	 * @return true iff two or more threats are being processed
 	 */
@@ -185,7 +185,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public byte getReplyInformation() {
 		return reply_information;
 	}
-	
+
 	/**
 	 * @return whether a/c has operating ACARS (derived from reply information)
 	 * @see #getReplyInformation()
@@ -193,7 +193,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	public boolean hasOperatingACAS() {
 		return getReplyInformation() != 0;
 	}
-	
+
 	/**
 	 * @return the maximum airspeed in m/s as specified in ICAO Annex 10V4 3.1.2.8.2.2<br>
 	 * null if unknown<br>Double.MAX_VALUE if unbound
@@ -229,7 +229,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 			result = result|((((0x1<<(i+1))&result)>>>1)^((1<<i)&gray));
 		return result;
 	}
-	
+
 	/**
 	 * @return the decoded altitude in meters
 	 */
@@ -272,7 +272,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 		}
 		else return null; // unspecified metric encoding
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"Long air-air ACAS reply:\n"+

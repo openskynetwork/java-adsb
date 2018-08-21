@@ -4,7 +4,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -50,7 +50,7 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	public EmergencyOrPriorityStatusMsg(byte[] raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
-	
+
 	/**
 	 * @param squitter extended squitter which contains this emergency or priority status msg
 	 * @throws BadFormatException if message has wrong format
@@ -58,22 +58,22 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	public EmergencyOrPriorityStatusMsg(ExtendedSquitter squitter) throws BadFormatException {
 		super(squitter);
 		setType(subtype.ADSB_EMERGENCY);
-		
+
 		if (this.getFormatTypeCode() != 28) {
 			throw new BadFormatException("Emergency and Priority Status messages must have typecode 28.");
 		}
-		
+
 		byte[] msg = this.getMessage();
-		
+
 		msgsubtype = (byte) (msg[0]&0x7);
 		if (msgsubtype != 1) {
 			throw new BadFormatException("Emergency and priority status reports have subtype 1.");
 		}
-		
+
 		emergency_state = (byte) ((msg[1]&0xFF)>>>5);
 		mode_a_code = (short) (msg[2]|((msg[1]&0x1F)<<8));
 	}
-	
+
 	/**
 	 * @return the subtype code of the aircraft status report (should always be 1)
 	 */
@@ -134,7 +134,7 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 				"Emergency & Priority Status:\n";
 		ret += "\tEmergency:\t"+getEmergencyStateText()+"\n";
 		ret += "\tMode A code:\t"+modeA[0]+"|"+modeA[1]+"|"+modeA[2]+"|"+modeA[3];
-		
+
 		return ret;
 	}
 }

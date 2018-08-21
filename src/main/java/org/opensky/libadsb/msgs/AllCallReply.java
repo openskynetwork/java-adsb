@@ -5,7 +5,7 @@ import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ import java.io.Serializable;
 public class AllCallReply extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -1156158096293306435L;
-	
+
 	private byte capabilities;
 	private byte[] interrogator; // 3 bytes
 
@@ -53,7 +53,7 @@ public class AllCallReply extends ModeSReply implements Serializable {
     public AllCallReply(byte[] raw_message) throws BadFormatException {
         this(new ModeSReply(raw_message));
     }
-	
+
 	/**
 	 * @param reply Mode S reply containing this all-call reply
 	 * @throws BadFormatException if message is not all-call reply or 
@@ -62,13 +62,13 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	public AllCallReply(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.ALL_CALL_REPLY);
-		
+
 		if (getDownlinkFormat() != 11) {
 			throw new BadFormatException("Message is not an all-call reply!");
 		}
-		
+
 		capabilities = getFirstField();
-		
+
 		// extract interrogator ID
 		interrogator = tools.xor(calcParity(), getParity());
 	}
@@ -90,7 +90,7 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	public byte[] getInterrogatorID() {
 		return interrogator;
 	}
-	
+
 	/**
 	 * Note: this can be used as an accurate check whether the all call reply
 	 * has been received correctly without knowing the interrogator in advance.
@@ -98,29 +98,29 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	 */
 	public boolean hasValidInterrogatorID() {
 		assert(interrogator.length == 3);
-		
+
 		// 3.1.2.3.3.2
 		// the first 17 bits have to be zero
 		if (interrogator[0] != 0 ||
 				interrogator[1] != 0 ||
 				(interrogator[2]&0x80) != 0)
 			return false;
-		
+
 		int cl = (interrogator[2]>>4)&0x7;
-		
+
 		// 3.1.2.5.2.1.3
 		// code label is only defined for 0-4
 		if (cl>4) return false;
-		
+
 		// Note: seems to be used by ACAS
 //		int ii = interrogator[2]&0xF;
 //		// 3.1.2.5.2.1.2.4
 //		// surveillance identifier of 0 shall never be used
 //		if (cl>0 && ii==0) return false;
-		
+
 		return true;
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"All-call Reply:\n"+

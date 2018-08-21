@@ -5,7 +5,7 @@ import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -56,7 +56,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	public CommBAltitudeReply(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply which contains this comm-b altitude reply
 	 * @throws BadFormatException if message is not comm-b altitude reply or 
@@ -65,17 +65,17 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	public CommBAltitudeReply(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.COMM_B_ALTITUDE_REPLY);
-		
+
 		if (getDownlinkFormat() != 20) {
 			throw new BadFormatException("Message is not an altitude reply!");
 		}
-		
+
 		byte[] payload = getPayload();
 		flight_status = getFirstField();
 		downlink_request = (byte) ((payload[0]>>>3) & 0x1F);
 		utility_msg = (byte) ((payload[0]&0x7)<<3 | (payload[1]>>>5)&0x7);
 		altitude_code = (short) ((payload[1]<<8 | payload[2]&0xFF)&0x1FFF);
-		
+
 		// extract Comm-B message
 		message = new byte[7];
 		for (int i=0; i<7; i++)
@@ -151,7 +151,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	public byte getUtilityMsg() {
 		return utility_msg;
 	}
-	
+
 	/**
 	 * Note that this is not the same identifier as the one contained in all-call replies.
 	 * 
@@ -162,7 +162,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	public byte getInterrogatorIdentifier() {
 		return (byte) ((utility_msg>>>2)&0xF);
 	}
-	
+
 	/**
 	 * Assigned coding is:<br>
 	 * 0 signifies no information<br>
@@ -197,7 +197,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 			result = result|((((0x1<<(i+1))&result)>>>1)^((1<<i)&gray));
 		return result;
 	}
-	
+
 	/**
 	 * @return the decoded altitude in meters
 	 */
@@ -247,7 +247,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	public byte[] getMessage() {
 		return message;
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"Comm-B Altitude Reply:\n"+

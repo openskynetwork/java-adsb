@@ -2,13 +2,12 @@ package org.opensky.libadsb.msgs;
 
 import org.opensky.libadsb.Position;
 import org.opensky.libadsb.exceptions.BadFormatException;
-import org.opensky.libadsb.exceptions.MissingInformationException;
 import org.opensky.libadsb.exceptions.PositionStraddleError;
 import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -26,10 +25,10 @@ import java.io.Serializable;
  */
 
 /**
- * Decoder for ADS-B airborne position messages
+ * Decoder for ADS-B airborne position messages version 0 and 1.
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
-public class AirbornePositionMsg extends ExtendedSquitter implements Serializable {
+public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializable {
 
 	private static final long serialVersionUID = -1901589500173456758L;
 	private boolean horizontal_position_available;
@@ -41,16 +40,15 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	private boolean cpr_format;
 	private int cpr_encoded_lat;
 	private int cpr_encoded_lon;
-	private boolean nic_suppl_a;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
-	protected AirbornePositionMsg() { }
+	protected AirbornePositionV0Msg() { }
 
 	/**
 	 * @param raw_message raw ADS-B airborne position message as hex string
 	 * @throws BadFormatException if message has wrong format
 	 */
-	public AirbornePositionMsg(String raw_message) throws BadFormatException {
+	public AirbornePositionV0Msg(String raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
 
@@ -58,7 +56,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @param raw_message raw ADS-B airborne position message as byte array
 	 * @throws BadFormatException if message has wrong format
 	 */
-	public AirbornePositionMsg(byte[] raw_message) throws BadFormatException {
+	public AirbornePositionV0Msg(byte[] raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
 
@@ -66,9 +64,9 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @param squitter extended squitter containing the airborne position msg
 	 * @throws BadFormatException if message has wrong format
 	 */
-	public AirbornePositionMsg(ExtendedSquitter squitter) throws BadFormatException {
+	public AirbornePositionV0Msg(ExtendedSquitter squitter) throws BadFormatException {
 		super(squitter);
-		setType(subtype.ADSB_AIRBORN_POSITION);
+		setType(subtype.ADSB_AIRBORN_POSITION_V0);
 
 		if (!(getFormatTypeCode() == 0 ||
 				(getFormatTypeCode() >= 9 && getFormatTypeCode() <= 18) ||
@@ -92,44 +90,75 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	}
 
 	/**
-	 * @return NIC supplement that was set before
-	 */
-	public boolean getNICSupplementA() {
-		return nic_suppl_a;
-	}
-
-
-	/**
-	 * @param nic_suppl Navigation Integrity Category (NIC) supplement from operational status message.
-	 *        Otherwise worst case is assumed for containment radius limit and NIC.
-	 */
-	public void setNICSupplementA(boolean nic_suppl) {
-		this.nic_suppl_a = nic_suppl;
-	}
-
-	/**
+	 * The position error, i.e., 95% accuracy for the horizontal position. Values according to DO-260B Table N-4.
+	 *
+	 *  The horizontal containment radius is also known as "horizontal protection level".
+	 *
 	 * @return horizontal containment radius limit in meters. A return value of -1 means "unkown".
-	 *         Set NIC supplement A from Operational Status Message for better precision.
-	 *         Otherwise, we'll be pessimistic.
-	 *         Note: For ADS-B versions &lt; 2, this is inaccurate for NIC class 6, since there was
-	 *         no NIC supplement B in earlier versions.
 	 */
 	public double getHorizontalContainmentRadiusLimit() {
 		switch (getFormatTypeCode()) {
 			case 0: case 18: case 22: return -1;
 			case 9: case 20: return 7.5;
 			case 10: case 21: return 25;
-			case 11:
-				return nic_suppl_b ? 75 : 185.2;
+			case 11: return 185.2;
 			case 12: return 370.4;
-			case 13:
-				if (!nic_suppl_b) return 926;
-				else return nic_suppl_a ? 1111.2 : 555.6;
+			case 13: return 926;
 			case 14: return 1852;
 			case 15: return 3704;
-			case 16:
-				return nic_suppl_b ? 7408 : 14816;
+			case 16: return 18520;
 			case 17: return 37040;
+			default: return -1;
+		}
+	}
+
+	/**
+	 * Navigation accuracy category according to DO-260B Table N-7. In ADS-B version 1+ this information is contained
+	 * in the operational status message. For version 0 it is derived from the format type code.
+	 *
+	 * For a value in meters, use {@link #getPositionUncertainty()}.
+	 *
+	 * @return NACp according value (no unit), comparable to NACp in {@link AirborneOperationalStatusV2Msg} and
+	 * {@link AirborneOperationalStatusV1Msg}.
+	 */
+	public byte getNACp() {
+		switch (getFormatTypeCode()) {
+			case 0: case 18: case 22: return 0;
+			case 9: case 20: return 11;
+			case 10: case 21: return 10;
+			case 11: return 8;
+			case 12: return 7;
+			case 13: return 6;
+			case 14: return 5;
+			case 15: return 4;
+			case 16: case 17: return 1;
+			default: return 0;
+		}
+	}
+
+	/**
+	 * Get the 95% horizontal accuracy bounds (EPU) derived from NACp value in meter, see table N-7 in RCTA DO-260B.
+	 *
+	 * The concept of NACp has been introduced in ADS-B version 1. For version 0 transmitters, a mapping exists which
+	 * is reflected by this method.
+	 * Values are comparable to those of {@link AirborneOperationalStatusV1Msg}'s and
+	 * {@link AirborneOperationalStatusV2Msg}'s getPositionUncertainty method for aircraft supporting ADS-B
+	 * version 1 and 2.
+	 *
+	 * @return the estimated position uncertainty according to the position NAC in meters (-1 for unknown)
+	 */
+	public double getPositionUncertainty() {
+		switch (getFormatTypeCode()) {
+			case 0: case 18: case 22: return -1;
+			case 9: return 3;
+			case 10: return 10;
+			case 11: return 92.6;
+			case 12: return 185.2;
+			case 13: return 463;
+			case 14: return 926;
+			case 15: return 1852;
+			case 16: return 9260;
+			case 17: return 18520;
 			default: return -1;
 		}
 	}
@@ -137,21 +166,38 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	/**
 	 * @return Navigation integrity category. A NIC of 0 means "unkown".
 	 */
-	public byte getNavigationIntegrityCategory() {
+	public byte getNIC() {
 		switch (getFormatTypeCode()) {
 			case 0: case 18: case 22: return 0;
 			case 9: case 20: return 11;
 			case 10: case 21: return 10;
-			case 11:
-				return (byte) (nic_suppl_b ? 9 : 8);
+			case 11: return 9;
 			case 12: return 7;
 			case 13: return 6;
 			case 14: return 5;
 			case 15: return 4;
-			case 16:
-				return (byte) (nic_suppl_b ? 3 : 2);
+			case 16: return 3;
 			case 17: return 1;
 			default: return 0;
+		}
+	}
+
+	/**
+	 * Source/Surveillance Integrity Level (SIL) according to DO-260B Table N-8.
+	 *
+	 * The concept of SIL has been introduced in ADS-B version 1. For version 0 transmitters, a mapping exists which
+	 * is reflected by this method.
+	 * Values are comparable to those of {@link AirborneOperationalStatusV1Msg}'s and
+	 * {@link AirborneOperationalStatusV2Msg}'s getSIL method for aircraft supporting ADS-B
+	 * version 1 and 2.
+	 *
+	 * @return the source integrity level (SIL) which indicates the propability of exceeding
+	 *         the NIC containment radius.
+	 */
+	public byte getSIL() {
+		switch (getFormatTypeCode()) {
+			case 0: case 18: case 22: return 0;
+			default: return 2;
 		}
 	}
 
@@ -196,9 +242,8 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 
 	/**
 	 * @return for ADS-B version 0 and 1 messages true, iff transmitting system uses only one antenna.
-	 *         For ADS-B version 2, this flag represents the NIC supplement B!
 	 */
-	public boolean getNICSupplementB() {
+	public boolean hasSingleAntenna() {
 		return nic_suppl_b;
 	}
 
@@ -207,7 +252,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 *         is synchronized with UTC time. False will denote that the time is not synchronized
 	 *         to UTC. True will denote that Time of Applicability is synchronized to UTC time.
 	 */
-	public boolean getTimeFlag() {
+	public boolean hasTimeFlag() {
 		return time_flag;
 	}
 
@@ -268,13 +313,13 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @return globally unambiguously decoded position. The positional
 	 *         accuracy maintained by the Airborne CPR encoding will be approximately 5.1 meters.
 	 *         A message of the other format is needed for global decoding.
-	 * @throws MissingInformationException if no position information is available in one of the messages
+	 *         Result will be null if this or the other message does not contain horizontal position information.
 	 * @throws IllegalArgumentException if input message was emitted from a different transmitter
 	 * @throws PositionStraddleError if position messages straddle latitude transition
 	 * @throws BadFormatException other has the same format (even/odd)
 	 */
-	public Position getGlobalPosition(AirbornePositionMsg other) throws BadFormatException,
-			PositionStraddleError, MissingInformationException {
+	public Position getGlobalPosition(AirbornePositionV0Msg other) throws BadFormatException,
+			PositionStraddleError {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 			throw new IllegalArgumentException(
 					String.format("Transmitter of other message (%s) not equal to this (%s).",
@@ -283,13 +328,10 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		if (other.isOddFormat() == this.isOddFormat())
 			throw new BadFormatException("Expected "+(isOddFormat()?"even":"odd")+" message format.", other.toString());
 
-		if (!horizontal_position_available)
-			throw new MissingInformationException("No position information available!");
-		if (!other.hasPosition())
-			throw new MissingInformationException("Other message has no position information.");
+		if (!horizontal_position_available || !other.hasPosition()) return null;
 
-		AirbornePositionMsg even = isOddFormat()?other:this;
-		AirbornePositionMsg odd = isOddFormat()?this:other;
+		AirbornePositionV0Msg even = isOddFormat()?other:this;
+		AirbornePositionV0Msg odd = isOddFormat()?this:other;
 
 		// Helper for latitude (Number of zones NZ is set to 15)
 		double Dlat0 = 360.0/60.0;
@@ -347,11 +389,11 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @param ref reference position
 	 * @return decoded position. The positional
 	 *         accuracy maintained by the Airborne CPR encoding will be approximately 5.1 meters.
-	 * @throws MissingInformationException if no position information is available
+	 *         Result will be null if message does not contain horizontal position information.
+	 *         This can also be checked with {@link #hasPosition()}.
 	 */
-	public Position getLocalPosition(Position ref) throws MissingInformationException {
-		if (!horizontal_position_available)
-			throw new MissingInformationException("No position information available!");
+	public Position getLocalPosition(Position ref) {
+		if (!horizontal_position_available) return null;
 
 		// latitude zone size
 		double Dlat = isOddFormat() ? 360.0/59.0 : 360.0/60.0;
@@ -391,12 +433,11 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	}
 
 	/**
-	 * @return the decoded altitude in meters
-	 * @throws MissingInformationException if no position available
+	 * @return the decoded altitude in meters or null if altitude is not available. The latter can be checked with
+	 * {@link #hasAltitude()}.
 	 */
-	public double getAltitude() throws MissingInformationException {
-		if (!altitude_available)
-			throw new MissingInformationException("No altitude information available!");
+	public Double getAltitude() {
+		if (!altitude_available) return null;
 
 		boolean Qbit = (altitude_encoded&0x10)!=0;
 		int N;
@@ -432,15 +473,11 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	}
 
 	public String toString() {
-		try {
-			return super.toString()+"\n"+
-					"Position:\n"+
-					"\tFormat:\t\t"+(isOddFormat()?"odd":"even")+
-					"\n\tHas position:\t"+(hasPosition()?"yes":"no")+
-					"\n\tAltitude:\t"+(hasAltitude()?getAltitude():"unkown");
-		} catch (MissingInformationException e) {
-			return "Position: Missing information!";
-		}
+		return super.toString()+"\n"+
+				"Position:\n"+
+				"\tFormat:\t\t"+(isOddFormat()?"odd":"even")+
+				"\n\tHas position:\t"+(hasPosition()?"yes":"no")+
+				"\n\tAltitude:\t"+(hasAltitude()?getAltitude():"unkown");
 	}
 
 }

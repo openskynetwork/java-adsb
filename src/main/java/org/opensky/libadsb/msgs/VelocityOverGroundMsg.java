@@ -1,7 +1,6 @@
 package org.opensky.libadsb.msgs;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
-import org.opensky.libadsb.exceptions.MissingInformationException;
 
 import java.io.Serializable;
 
@@ -114,8 +113,6 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * Must be checked before accessing velocity!
-	 *
 	 * @return whether velocity info is available
 	 */
 	public boolean hasVelocityInfo() {
@@ -123,8 +120,6 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * Must be checked before accessing vertical rate!
-	 *
 	 * @return whether vertical rate info is available
 	 */
 	public boolean hasVerticalRateInfo() {
@@ -132,8 +127,6 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * Must be checked before accessing geo minus baro!
-	 *
 	 * @return whether geo-baro difference info is available
 	 */
 	public boolean hasGeoMinusBaroInfo() {
@@ -164,29 +157,42 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 
 	/**
-	 * @return NAC according to RTCA DO-260A
+	 * The 95% accuracy for horizontal velocity. We interpret the coding according to
+	 * DO-260B Table 2-22 for all ADS-B versions.
+	 * TODO harmonize name with operationalstatus and position messages
+	 * @return Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5 in m/s, -1 means
+	 * "unknown" or &gt;10m
 	 */
-	public byte getNavigationAccuracyCategory() {
-		return navigation_accuracy_category;
+	public float getNACv() {
+		switch(navigation_accuracy_category) {
+			case 1:
+				return 10;
+			case 2:
+				return 3;
+			case 3:
+				return 1;
+			case 4:
+				return 0.3F;
+			default:
+				return -1;
+		}
 	}
 
 
 	/**
-	 * @return velocity from east to south in m/s
-	 * @throws MissingInformationException if no velocity information available
+	 * @return velocity from east to south in m/s or null if information is not available
 	 */
-	public double getEastToWestVelocity() throws MissingInformationException {
-		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
+	public Double getEastToWestVelocity() {
+		if (!velocity_info_available) return null;
 		return (direction_west ? east_west_velocity : -east_west_velocity) * 0.514444;
 	}
 
 
 	/**
-	 * @return velocity from north to south in m/s
-	 * @throws MissingInformationException if no velocity information available
+	 * @return velocity from north to south in m/s or null if information is not available
 	 */
-	public double getNorthToSouthVelocity() throws MissingInformationException {
-		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
+	public Double getNorthToSouthVelocity() {
+		if (!velocity_info_available) return null;
 		return (direction_south ? north_south_velocity : -north_south_velocity) * 0.514444;
 	}
 
@@ -200,30 +206,30 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 
 	/**
-	 * @return vertical rate in m/s (negative value means descending)
-	 * @throws MissingInformationException if no vertical rate info is available
+	 * @return vertical rate in m/s (negative value means descending) or null if information is not available. The
+	 * latter can also be checked with {@link #hasVerticalRateInfo()}
 	 */
-	public double getVerticalRate() throws MissingInformationException {
-		if (!vertical_rate_info_available) throw new MissingInformationException("No vertical rate info available!");
+	public Double getVerticalRate() {
+		if (!vertical_rate_info_available) return null;
 		return (vertical_rate_down ? -vertical_rate : vertical_rate) * 0.00508;
 	}
 
 
 	/**
-	 * @return difference between barometric and geometric altitude in m
-	 * @throws MissingInformationException  if no geo/baro difference info is available
+	 * @return difference between barometric and geometric altitude in m or null if information is not available. The
+	 * latter can also be checked with {@link #hasGeoMinusBaroInfo()}
 	 */
-	public double getGeoMinusBaro() throws MissingInformationException {
-		if (!geo_minus_baro_available) throw new MissingInformationException("No geo/baro difference info available!");
+	public Double getGeoMinusBaro() {
+		if (!geo_minus_baro_available) return null;
 		return geo_minus_baro * 0.3048;
 	}
 
 	/**
-	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north
-	 * @throws MissingInformationException if no velocity info is available
+	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north or null if information is not available.
+	 * The latter can also be checked with {@link #hasVelocityInfo()}.
 	 */
-	public double getHeading() throws MissingInformationException {
-		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
+	public Double getHeading() {
+		if (!velocity_info_available) return null;
 		double angle = Math.toDegrees(Math.atan2(
 				-this.getEastToWestVelocity(),
 				-this.getNorthToSouthVelocity()));
@@ -234,11 +240,11 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * @return speed over ground in m/s
-	 * @throws MissingInformationException if no velocity info is available
+	 * @return speed over ground in m/s or null if information is not available. The latter can also be checked
+	 * with {@link #hasVelocityInfo()}.
 	 */
-	public double getVelocity() throws MissingInformationException {
-		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
+	public Double getVelocity() {
+		if (!velocity_info_available) return null;
 		return Math.hypot(north_south_velocity, east_west_velocity) * 0.514444;
 	}
 

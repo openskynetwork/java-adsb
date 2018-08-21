@@ -1,11 +1,10 @@
 package org.opensky.libadsb.msgs;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
-import org.opensky.libadsb.exceptions.MissingInformationException;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -33,7 +32,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	private boolean intent_change;
 	private boolean ifr_capability;
 	private byte navigation_accuracy_category;
-	private boolean heading_available;
+	private boolean heading_status_bit;
 	private double heading; // in degrees
 	private boolean true_airspeed; // 0 = indicated AS, 1 = true AS
 	private short airspeed; // in knots
@@ -63,7 +62,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	public AirspeedHeadingMsg(byte[] raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
-	
+
 	/**
 	 * @param squitter extended squitter containing the airspeed and heading msg
 	 * @throws BadFormatException if message has wrong format
@@ -71,29 +70,30 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	public AirspeedHeadingMsg(ExtendedSquitter squitter) throws BadFormatException {
 		super(squitter);
 		setType(subtype.ADSB_AIRSPEED);
-		
+
 		if (this.getFormatTypeCode() != 19) {
 			throw new BadFormatException("Airspeed and heading messages must have typecode 19.");
 		}
-		
+
 		byte[] msg = this.getMessage();
-		
+
 		msg_subtype = (byte) (msg[0]&0x7);
 		if (msg_subtype != 3 && msg_subtype != 4) {
 			throw new BadFormatException("Airspeed and heading messages have subtype 3 or 4.");
 		}
-		
+
 		intent_change = (msg[1]&0x80)>0;
 		ifr_capability = (msg[1]&0x40)>0;
 		navigation_accuracy_category = (byte) ((msg[1]>>>3)&0x7);
-		
+
 		// check this later
 		vertical_rate_info_available = true;
 		geo_minus_baro_available = true;
-		
-		heading_available = (msg[1]&0x4)>0;
+
+		// heading available in ADS-B version 1+, indicates true/magnetic north for version 0
+		heading_status_bit = (msg[1]&0x4)>0;
 		heading = ((msg[1]&0x3)<<8 | msg[2]&0xFF) * 360/1024;
-		
+
 		true_airspeed = (msg[3]&0x80)>0;
 		airspeed = (short) (((msg[3]&0x7F)<<3 | msg[4]>>>5&0x07)-1);
 		if (airspeed != -1) {
@@ -105,19 +105,24 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 		vertical_rate_down = (msg[4]&0x08)>0;
 		vertical_rate = (short) ((((msg[4]&0x07)<<6 | msg[5]>>>2&0x3F)-1)<<6);
 		if (vertical_rate == -1) vertical_rate_info_available = false;
-		
+
 		geo_minus_baro = (short) (((msg[6]&0x7F)-1)*25);
 		if (geo_minus_baro == -1) geo_minus_baro_available = false;
 		if ((msg[6]&0x80)>0) geo_minus_baro *= -1;
 	}
 
 	/**
-	 * Must be checked before accessing heading!
+	 * For ADS-B version 1 and 2 this must be checked before retrieving heading information.
 	 * 
-	 * @return whether heading info is available
+	 * @return Depending on the ADS-B version, different interpretations:
+	 * 	<ul>
+	 * 	    <li><strong>Version 0</strong> the flag indicates whether heading is relative to magnetic north (true) or
+	 * 	    	true north (false)</li>
+	 * 	    <li><strong>Version 1+</strong> the flag indicates whether heading information is available or not</li>
+	 * 	</ul>
 	 */
-	public boolean hasHeadingInfo() {
-		return heading_available;
+	public boolean headingStatusFlag() {
+		return heading_status_bit;
 	}
 
 	/**
@@ -162,28 +167,40 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	}
 
 	/**
-	 * Note: only in ADS-B version 1 transponders!!
+	 * Note: only in ADS-B version 0 and 1 transponders!!
 	 * @return true, iff aircraft has equipage class A1 or higher
 	 */
 	public boolean hasIFRCapability() {
 		return ifr_capability;
 	}
 
-
 	/**
-	 * @return NAC according to RTCA DO-260A
+	 * The 95% accuracy for horizontal velocity. We interpret the coding according to
+	 * DO-260B Table 2-22 for all ADS-B versions.
+	 * @return Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5 in m/s, -1 means
+	 * "unknown" or &gt;10m
 	 */
-	public byte getNavigationAccuracyCategory() {
-		return navigation_accuracy_category;
+	public float getNACv() {
+		switch(navigation_accuracy_category) {
+			case 1:
+				return 10;
+			case 2:
+				return 3;
+			case 3:
+				return 1;
+			case 4:
+				return 0.3F;
+			default:
+				return -1;
+		}
 	}
 
-
 	/**
-	 * @return airspeed in m/s
-	 * @throws MissingInformationException if no velocity information available
+	 * @return airspeed in m/s or null if information is not available. The latter can also be checked using
+	 * {@link #hasAirspeedInfo()}.
 	 */
-	public double getAirspeed() throws MissingInformationException {
-		if (!airspeed_available) throw new MissingInformationException("No airspeed info available!");
+	public Double getAirspeed() {
+		if (!airspeed_available) return null;
 		return airspeed * 0.514444;
 	}
 
@@ -197,30 +214,30 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 
 
 	/**
-	 * @return vertical rate in m/s (negative value means descending)
-	 * @throws MissingInformationException if no vertical rate info is available
+	 * @return vertical rate in m/s (negative value means descending) or null if information is not available. The
+	 * latter can also be checked with {@link #hasVerticalRateInfo()}.
 	 */
-	public double getVerticalRate() throws MissingInformationException {
-		if (!vertical_rate_info_available) throw new MissingInformationException("No vertical rate info available!");
+	public Double getVerticalRate() {
+		if (!vertical_rate_info_available) return null;
 		return (vertical_rate_down ? -vertical_rate : vertical_rate) * 0.00508;
 	}
 
 
 	/**
-	 * @return difference between barometric and geometric altitude in m
-	 * @throws MissingInformationException  if no geo/baro difference info is available
+	 * @return difference between barometric and geometric altitude in m or null if no information is available.
+	 * The latter can also be checked using {@link #hasGeoMinusBaroInfo()}.
 	 */
-	public double getGeoMinusBaro() throws MissingInformationException {
-		if (!geo_minus_baro_available) throw new MissingInformationException("No geo/baro difference info available!");
+	public Double getGeoMinusBaro() {
+		if (!geo_minus_baro_available) return null;
 		return geo_minus_baro * 0.3048;
 	}
 	
 	/**
-	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north
-	 * @throws MissingInformationException if no velocity info is available
+	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north or null if no information is available.
+	 * The latter can also be checked using {@link #headingStatusFlag()}.
 	 */
-	public double getHeading() throws MissingInformationException {
-		if (!heading_available) throw new MissingInformationException("No heading info available!");
+	public Double getHeading() {
+		if (!heading_status_bit) return null;
 		return heading;
 	}
 	

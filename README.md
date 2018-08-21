@@ -19,17 +19,17 @@ It supports the following Mode S downlink formats:
 
 Currently it supports the following ADS-B formats:
 * Identification messages
-* Velocity over ground messages
-* Airborne Position messages (including global and local CPR)
-* Surface Position messages (including global and local CPR)
+* Airborne velocity messages
+* Airborne position messages (including global and local CPR)
+* Surface position messages (including global and local CPR)
 * Operational status reports (airborne and surface)
 * Aircraft status reports (emergency/priority, TCAS RA)
 
 The Comm-B registers, Comm-D data link and military ES are not parsed. Comm-B and D will follow soon.
 
-The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. Most message formats of ADS-B Version 1 are upward compatible. Please check the API documentation of the message formats for differences. The ADS-B version of transponders can be obtained in Aircraft Operational Status reports (type code 31; `OperationalStatusMsg.getVersion()`).
+The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. The decoder takes care of proper older versions.
 
-Note: format type code 29 (target state and status information) is missing since it's virtually non-existent in the current ADS-B deployment.
+Note: format type code 29 (target state and status information) is missing since it has been abandoned in ADS-B version 2 and is virtually non-existent in current ADS-B deployments.
 
 ### Packaging
 
@@ -37,8 +37,7 @@ This is a Maven project. You can simply generate a jar file with `mvn package`.
 All the output can afterwards be found in the `target` directory. There will
 be two jar files
 
-* `libadsb-2.1.5.jar` contains libadsb, only. You should use this in your projects
-* `libadsb-2.1.5-fat.jar` is packaged with all dependencies to read AVRO files. You should use it to decode OpenSky Avro dumps.
+* `libadsb-VERSION.jar` contains libadsb, only. You should use this in your projects
 
 #### Maven Central
 
@@ -48,9 +47,11 @@ We have also published this project on Maven Central. Just include the following
 <dependency>
   <groupId>org.opensky-network</groupId>
   <artifactId>libadsb</artifactId>
-  <version>2.1.5</version>
+  <version>VERSION</version>
 </dependency>
 ```
+
+Get the latest version number [here](https://mvnrepository.com/artifact/org.opensky-network/libadsb).
 
 ### Example decoding of position message
 ```java
@@ -86,3 +87,20 @@ A complete working decoder can be found in [ExampleDecoder.java](src/main/java/o
 decoder can be used is provided in [OskySampleReader.java](https://github.com/openskynetwork/osky-sample/blob/master/src/main/java/org/opensky/tools/OskySampleReader.java). It reads, decodes, and prints serialized
 ADS-B messages from avro-files with the OpenSky schema. A sample of such data and the schema is provided in the
 [osky-sample repository](https://github.com/openskynetwork/osky-sample).
+
+
+## Migration to Version 3
+
+**!!Version 3 is not a drop-in replacement. You have to adapt your existing code!!**
+
+With libadsb version 3, many things have changed, including:
+* Introduction of a stateful decoder to correctly handle transmitters with different ADS-B versions
+* Removal `MissingInformationException` - return `null` values instead
+* Split operational status message into separate classes for different ADS-B versions
+* Split airborne and surface position messages into separate classes for different ADS-B versions
+* Proper mapping for NUCr to NACv
+* Proper mapping, decoding and description for
+  * Horizontal Containment Radius Limit (=Horizontal Protection Limit)
+  * Navigation Accuracy Category for position (NACp)
+  * Navigation Integrity Category (NIC)
+* Added Source Integrity Level to position messages of version 0

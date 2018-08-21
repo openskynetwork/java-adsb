@@ -5,7 +5,7 @@ import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ import java.io.Serializable;
 public class CommDExtendedLengthMsg extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = 1509054097399122428L;
-	
+
 	private byte[] message;
 	private boolean ack;
 	private byte seqno;
@@ -54,7 +54,7 @@ public class CommDExtendedLengthMsg extends ModeSReply implements Serializable {
 	public CommDExtendedLengthMsg(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply which contains this extended len msg
 	 * @throws BadFormatException if message is not extended len msg or 
@@ -63,38 +63,38 @@ public class CommDExtendedLengthMsg extends ModeSReply implements Serializable {
 	public CommDExtendedLengthMsg(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.COMM_D_ELM);
-		
+
 		if (getDownlinkFormat() < 24) {
 			throw new BadFormatException("Message is not an extended length message!");
 		}
-		
+
 		// extract Comm-D extended length message
 		message = getPayload();
 		ack = (getDownlinkFormat()&0x2)!=0;
 		seqno = (byte) ((getDownlinkFormat()&0x1)<<3|getFirstField());
 	}
-	
+
 	/**
 	 * @return the 10-byte Comm-D extended length message
 	 */
 	public byte[] getMessage() {
 		return message;
 	}
-	
+
 	/**
 	 * @return true if this is a uplink ELM acknowledgement
 	 */
 	public boolean isAck() {
 		return ack;
 	}
-	
+
 	/**
 	 * @return the number of the message segment returned by {@link #getMessage()}
 	 */
 	public byte getSequenceNumber() {
 		return seqno;
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"Comm-D Extended Length Message:\n"+

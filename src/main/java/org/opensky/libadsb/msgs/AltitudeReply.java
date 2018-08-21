@@ -28,7 +28,7 @@ import java.io.Serializable;
 public class AltitudeReply extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -1156158096293306435L;
-	
+
 	private byte flight_status;
 	private byte downlink_request;
 	private byte utility_msg;
@@ -54,7 +54,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	public AltitudeReply(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply containing this altitude reply
 	 * @throws BadFormatException if message is not altitude reply or 
@@ -63,11 +63,11 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	public AltitudeReply(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.ALTITUDE_REPLY);
-		
+
 		if (getDownlinkFormat() != 4) {
 			throw new BadFormatException("Message is not an altitude reply!");
 		}
-		
+
 		byte[] payload = getPayload();
 		flight_status = getFirstField();
 		downlink_request = (byte) ((payload[0]>>>3) & 0x1F);
@@ -144,7 +144,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	public byte getUtilityMsg() {
 		return utility_msg;
 	}
-	
+
 	/**
 	 * Note that this is not the same identifier as the one contained in all-call replies.
 	 * 
@@ -155,7 +155,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	public byte getInterrogatorIdentifier() {
 		return (byte) ((utility_msg>>>2)&0xF);
 	}
-	
+
 	/**
 	 * Assigned coding is:<br>
 	 * 0 signifies no information<br>
@@ -190,7 +190,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 			result = result|((((0x1<<(i+1))&result)>>>1)^((1<<i)&gray));
 		return result;
 	}
-	
+
 	/**
 	 * @return the decoded altitude in meters
 	 */

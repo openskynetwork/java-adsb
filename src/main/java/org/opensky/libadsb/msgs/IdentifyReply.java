@@ -5,20 +5,20 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 import java.io.Serializable;
 
 /*
-   This file is part of org.opensky.libadsb.
-
-   org.opensky.libadsb is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   org.opensky.libadsb is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
+ *  This file is part of org.opensky.libadsb.
+ *
+ *  org.opensky.libadsb is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  org.opensky.libadsb is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -28,7 +28,7 @@ import java.io.Serializable;
 public class IdentifyReply extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -1156158096293306435L;
-	
+
 	private byte flight_status;
 	private byte downlink_request;
 	private byte utility_msg;
@@ -54,7 +54,7 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	public IdentifyReply(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply which contains this identify reply
 	 * @throws BadFormatException if message is not identify reply or 
@@ -63,11 +63,11 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	public IdentifyReply(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.IDENTIFY_REPLY);
-		
+
 		if (getDownlinkFormat() != 5) {
 			throw new BadFormatException("Message is not an identify reply!");
 		}
-		
+
 		byte[] payload = getPayload();
 		flight_status = getFirstField();
 		downlink_request = (byte) ((payload[0]>>>3) & 0x1F);
@@ -144,7 +144,7 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	public byte getUtilityMsg() {
 		return utility_msg;
 	}
-	
+
 	/**
 	 * Note: this is not the same identifier as the one contained in all-call replies.
 	 * 
@@ -155,7 +155,7 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	public byte getInterrogatorIdentifier() {
 		return (byte) ((utility_msg>>>2)&0xF);
 	}
-	
+
 	/**
 	 * @return the 2-bit identifier designator subfield of the
 	 * utility message which reports the type of reservation made
@@ -208,10 +208,10 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 		String B = Integer.toString((B4<<2)+(B2<<1)+B1);
 		String C = Integer.toString((C4<<2)+(C2<<1)+C1);
 		String D = Integer.toString((D4<<2)+(D2<<1)+D1);
-		
+
 		return A+B+C+D;
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"Identify Reply:\n"+

@@ -5,7 +5,7 @@ import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
 
-/**
+/*
  *  This file is part of org.opensky.libadsb.
  *
  *  org.opensky.libadsb is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ import java.io.Serializable;
 public class ExtendedSquitter extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -7877955448285410779L;
-	
+
 	private byte capabilities;
 	private byte[] message;
 	private byte format_type_code;
@@ -54,7 +54,7 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	public ExtendedSquitter(byte[] raw_message) throws BadFormatException {
 		this(new ModeSReply(raw_message));
 	}
-	
+
 	/**
 	 * @param reply Mode S reply containing this extended squitter
 	 * @throws BadFormatException if message is not extended squitter or 
@@ -63,22 +63,22 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	public ExtendedSquitter(ModeSReply reply) throws BadFormatException {
 		super(reply);
 		setType(subtype.EXTENDED_SQUITTER);
-		
+
 		if (getDownlinkFormat() != 17 && getDownlinkFormat() != 18) {
 			throw new BadFormatException("Message is not an extended squitter!");
 		}
-		
+
 		byte[] payload = getPayload();
 		capabilities = getFirstField();
-		
+
 		// extract ADS-B message
 		message = new byte[7];
 		for (int i=0; i<7; i++)
 			message[i] = payload[i+3];
-		
+
 		format_type_code = (byte) ((message[0] >>> 3) & 0x1F);
 	}
-	
+
 	/**
 	 * Copy constructor for subclasses
 	 * 
@@ -86,7 +86,7 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	 */
 	public ExtendedSquitter(ExtendedSquitter squitter) {
 		super(squitter);
-		
+
 		capabilities = squitter.getCapabilities();
 		message = squitter.getMessage();
 		format_type_code = squitter.getFormatTypeCode();
@@ -112,7 +112,7 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 	public byte[] getMessage() {
 		return message;
 	}
-	
+
 	public String toString() {
 		return super.toString()+"\n"+
 				"Extended Squitter:\n"+

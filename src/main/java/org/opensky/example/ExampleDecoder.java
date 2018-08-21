@@ -1,29 +1,26 @@
 package org.opensky.example;
 
 /*
-   This file is part of org.opensky.libadsb.
-
-   org.opensky.libadsb is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   org.opensky.libadsb is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
+ *  This file is part of org.opensky.libadsb.
+ *
+ *  org.opensky.libadsb is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  org.opensky.libadsb is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import org.opensky.libadsb.Decoder;
-import org.opensky.libadsb.Position;
-import org.opensky.libadsb.PositionDecoder;
+import org.opensky.libadsb.*;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 import org.opensky.libadsb.msgs.*;
-import org.opensky.libadsb.tools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,20 +47,22 @@ import java.util.Scanner;
  * 9,a0001839000000000000004401e3
  * 
  * @author Matthias Schäfer (schaefer@opensky-network.org)
+ * @author Markus Fuchs (fuchs@opensky-network.org)
  */
 public class ExampleDecoder {
-	// we store the position decoder for each aircraft
-	HashMap<String, PositionDecoder> decs;
-	private PositionDecoder dec;
-	
-	public ExampleDecoder() {
-		decs = new HashMap<String, PositionDecoder>();
-	}
+	// The ModeSDecoder does all the magic for us
+	private ModeSDecoder decoder = new ModeSDecoder();
 
-	public void decodeMsg(double timestamp, String raw, Position receiver) throws Exception {
+	/**
+	 *
+	 * @param timestamp in milliseconds since epoch
+	 * @param raw Mode S messages as hex string
+	 * @param receiver the location of the receiver for sanity checks on decoded positions (optional)
+	 */
+	public void decodeMsg(long timestamp, String raw, Position receiver) {
 		ModeSReply msg;
 		try {
-			msg = Decoder.genericDecoder(raw);
+			msg = decoder.decode(raw);
 		} catch (BadFormatException e) {
 			System.out.println("Malformed message! Skipping it. Message: "+e.getMessage());
 			return;
@@ -71,80 +70,49 @@ public class ExampleDecoder {
 			System.out.println("Unspecified message! Skipping it...");
 			return;
 		}
-		
+
 		String icao24 = tools.toHexString(msg.getIcao24());
 
 		// check for erroneous messages; some receivers set
 		// parity field to the result of the CRC polynomial division
 		if (tools.isZero(msg.getParity()) || msg.checkParity()) { // CRC is ok
-			
-			// cleanup decoders every 100.000 messages to avoid excessive memory usage
-			// therefore, remove decoders which have not been used for more than one hour.
-			List<String> to_remove = new ArrayList<String>();
-			for (String key : decs.keySet())
-				if (decs.get(key).getLastUsedTime()<timestamp-3600)
-					to_remove.add(key);
-			
-			for (String key : to_remove)
-				decs.remove(key);
 
 			// now check the message type
-
 			switch (msg.getType()) {
-			case ADSB_AIRBORN_POSITION:
-				AirbornePositionMsg airpos = (AirbornePositionMsg) msg;
+			case ADSB_AIRBORN_POSITION_V0:
+			case ADSB_AIRBORN_POSITION_V1:
+			case ADSB_AIRBORN_POSITION_V2:
+				AirbornePositionV0Msg ap0 = (AirbornePositionV0Msg) msg;
 				System.out.print("["+icao24+"]: ");
 
-				// decode the position if possible
-				if (decs.containsKey(icao24)) {
-					dec = decs.get(icao24);
-					airpos.setNICSupplementA(dec.getNICSupplementA());
-					Position current;
-					if (receiver != null)
-						current = dec.decodePosition(timestamp, receiver, airpos);
-					else
-						current = dec.decodePosition(timestamp, airpos);
-					if (current == null)
-						System.out.println("Cannot decode position yet.");
-					else
-						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
-				}
-				else {
-					dec = new PositionDecoder();
-					dec.decodePosition(timestamp, airpos);
-					decs.put(icao24, dec);
-					System.out.println("First position.");
-				}
-				System.out.println("          Horizontal containment radius is "+airpos.getHorizontalContainmentRadiusLimit()+" m");
-				System.out.println("          Altitude is "+ (airpos.hasAltitude() ? airpos.getAltitude() : "unknown") +" m");
+				Position c0 = decoder.decodePosition(timestamp, ap0, receiver);
+				if (c0 == null)
+					System.out.println("Cannot decode position yet.");
+				else
+					System.out.println("Now at position ("+c0.getLatitude()+","+c0.getLongitude()+")");
+				System.out.println("          Horizontal containment radius is "+ap0.getHorizontalContainmentRadiusLimit()+" m");
+				System.out.println("          Altitude is "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" m");
+				// TODO uncertainty etc
 				break;
-			case ADSB_SURFACE_POSITION:
-				SurfacePositionMsg surfpos = (SurfacePositionMsg) msg;
-
+			case ADSB_SURFACE_POSITION_V0:
+			case ADSB_SURFACE_POSITION_V1:
+			case ADSB_SURFACE_POSITION_V2:
+				SurfacePositionV0Msg sp0 = (SurfacePositionV0Msg) msg;
 				System.out.print("["+icao24+"]: ");
 
+				Position sPos0 = decoder.decodePosition(timestamp, sp0, receiver);
 				// decode the position if possible; prior position needed
-				if (decs.containsKey(icao24)) {
-					dec = decs.get(icao24);
-					Position current;
-					if (receiver != null)
-						current = dec.decodePosition(timestamp, surfpos, receiver);
-					else
-						current = dec.decodePosition(timestamp, surfpos);
-					
-					if (current == null)
-						System.out.println("Cannot decode position yet or no reference available.");
-					else
-						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
-				}
-				else {
-					System.out.println("Cannot decode surface position as first positions without reference.");
-				}
-				System.out.println("          Horizontal containment radius is "+surfpos.getHorizontalContainmentRadiusLimit()+" m");
-				if (surfpos.hasValidHeading())
-					System.out.println("          Heading is "+surfpos.getHeading()+" m");
+				if (sPos0 == null)
+					System.out.println("Cannot decode position yet or no reference available (yet).");
+				else
+					System.out.println("Now at position ("+sPos0.getLatitude()+","+sPos0.getLongitude()+")");
+
+				System.out.println("          Horizontal containment radius is "+sp0.getHorizontalContainmentRadiusLimit()+" m");
+				if (sp0.hasValidHeading())
+					System.out.println("          Heading is "+sp0.getHeading()+" m");
 				System.out.println("          Airplane is on the ground.");
 				break;
+				// TODO nic suppl etc
 			case ADSB_EMERGENCY:
 				EmergencyOrPriorityStatusMsg status = (EmergencyOrPriorityStatusMsg) msg;
 				System.out.println("["+icao24+"]: "+status.getEmergencyStateText());
@@ -155,9 +123,9 @@ public class ExampleDecoder {
 				AirspeedHeadingMsg airspeed = (AirspeedHeadingMsg) msg;
 				System.out.println("["+icao24+"]: Airspeed is "+
 						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" m/s" : "unkown"));
-				if (airspeed.hasHeadingInfo())
+				if (airspeed.headingStatusFlag())
 					System.out.println("          Heading is "+
-							(airspeed.hasHeadingInfo() ? airspeed.getHeading()+"°" : "unkown"));
+							(airspeed.headingStatusFlag() ? airspeed.getHeading()+"°" : "unkown"));
 				if (airspeed.hasVerticalRateInfo())
 					System.out.println("          Vertical rate is "+
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
@@ -167,8 +135,17 @@ public class ExampleDecoder {
 				System.out.println("["+icao24+"]: Callsign is "+new String(ident.getIdentity()));
 				System.out.println("          Category: "+ident.getCategoryDescription());
 				break;
-			case ADSB_STATUS:
-				OperationalStatusMsg opstat = (OperationalStatusMsg) msg;
+			case ADSB_STATUS_V0:
+				break;
+			case ADSB_AIRBORN_STATUS_V1:
+				break;
+			case ADSB_AIRBORN_STATUS_V2:
+				break;
+			case ADSB_SURFACE_STATUS_V1:
+				break;
+			case ADSB_SURFACE_STATUS_V2:
+				/* TODO
+				OperationalStatusV2Msg opstat = (OperationalStatusV2Msg) msg;
 				PositionDecoder dec;
 				if (decs.containsKey(icao24))
 					dec = decs.get(icao24);
@@ -176,11 +153,12 @@ public class ExampleDecoder {
 					dec = new PositionDecoder();
 					decs.put(icao24, dec);
 				}
-				dec.setNICSupplementA(opstat.getNICSupplementA());
+				dec.setNICSupplementA(opstat.hasNICSupplementA());
 				if (opstat.getSubtypeCode() == 1)
 					dec.setNICSupplementC(opstat.getNICSupplementC());
 				System.out.println("["+icao24+"]: Using ADS-B version "+opstat.getVersion());
 				System.out.println("          Has ADS-B IN function: "+opstat.has1090ESIn());
+				*/
 				break;
 			case ADSB_TCAS:
 				TCASResolutionAdvisoryMsg tcas = (TCASResolutionAdvisoryMsg) msg;
@@ -198,8 +176,6 @@ public class ExampleDecoder {
 			case EXTENDED_SQUITTER:
 				System.out.println("["+icao24+"]: Unknown extended squitter with type code "+((ExtendedSquitter)msg).getFormatTypeCode()+"!");
 				break;
-			default:
-					
 			}
 		}
 		else if (msg.getDownlinkFormat() != 17) { // CRC failed
@@ -263,7 +239,7 @@ public class ExampleDecoder {
 			System.out.println("Message contains biterrors.");
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		// iterate over STDIN
 		Scanner sc = new Scanner(System.in, "UTF-8");
@@ -271,16 +247,16 @@ public class ExampleDecoder {
 		Position rec = new Position(0., 0., 0.);
 		while(sc.hasNext()) {
 		  String[] values = sc.nextLine().split(",");
-		  
+
 		  if (values.length == 4) {
 			  // time,lat,lon,msg
 			  rec.setLongitude(Double.parseDouble(values[2]));
 			  rec.setLatitude(Double.parseDouble(values[1]));
-			  dec.decodeMsg(Double.parseDouble(values[0]), values[3], rec);
+			  dec.decodeMsg((long) Double.parseDouble(values[0]), values[3], rec);
 		  }
 		  else if (values.length == 2) {
 			  // time,msg
-			  dec.decodeMsg(Double.parseDouble(values[0]), values[1], null);
+			  dec.decodeMsg((long) Double.parseDouble(values[0]), values[1], null);
 		  }
 		}
 		sc.close();

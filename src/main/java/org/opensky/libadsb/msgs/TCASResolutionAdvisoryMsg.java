@@ -5,20 +5,20 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 import java.io.Serializable;
 
 /*
-   This file is part of org.opensky.libadsb.
-
-   org.opensky.libadsb is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   org.opensky.libadsb is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
+ *  This file is part of org.opensky.libadsb.
+ *
+ *  org.opensky.libadsb is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  org.opensky.libadsb is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -27,7 +27,7 @@ import java.io.Serializable;
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Serializable {
-	
+
 	private static final long serialVersionUID = -5356935198993751991L;
 	private byte msg_subtype;
 	private short active_ra;
@@ -55,7 +55,7 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	public TCASResolutionAdvisoryMsg(byte[] raw_message) throws BadFormatException {
 		this(new ExtendedSquitter(raw_message));
 	}
-	
+
 	/**
 	 * @param squitter extended squitter which contains this TCAS resolution advisory msg
 	 * @throws BadFormatException if message has wrong format
@@ -63,16 +63,16 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	public TCASResolutionAdvisoryMsg(ExtendedSquitter squitter) throws BadFormatException {
 		super(squitter);
 		setType(subtype.ADSB_TCAS);
-		
+
 		if (this.getFormatTypeCode() != 28)
 			throw new BadFormatException("TCAS RA reports must have typecode 28.");
-		
+
 		byte[] msg = this.getMessage();
-		
+
 		msg_subtype = (byte) (msg[0]&0x7);
 		if (msg_subtype != 2)
 			throw new BadFormatException("TCAS RA reports have subtype 2.");
-		
+
 		active_ra = (short) (((msg[2]>>>2)&0x3f | (msg[1]<<6)) & 0x3FFF);
 		racs_record = (byte) ((((msg[2]&0x3)<<2) | (msg[3]>>>6)&0x3) & 0xF);
 		ra_terminated = (msg[3]&0x20) > 0;
@@ -80,7 +80,7 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 		threat_type = (byte) ((msg[3]>>>2)&0x3);
 		threat_identity = (msg[6] | (msg[5]<<8) | (msg[4]<<16) | ((msg[4]&0x3)<<24)) & 0x3FFFFFF;
 	}
-	
+
 	/**
 	 * @return the subtype code of the aircraft status report (should always be 2)
 	 */
@@ -149,7 +149,7 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 		ret += "\tMultiple Threats:\t"+hasMultiThreatEncounter()+"\n";
 		ret += "\tThreat type:\t"+getThreatType()+"\n";
 		ret += "\tThreat identity:\t"+getThreatIdentity();
-		
+
 		return ret;
 	}
 }
