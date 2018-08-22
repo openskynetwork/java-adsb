@@ -183,8 +183,8 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	}
 
 	/**
-	 * FIXME check compatibility when decoding V2
-	 * @return the airplane's length in meters; -1 for unkown
+	 * According to DO-260B Table 2-74. Compatible with ADS-B version 1 and 2
+	 * @return the airplane's length in meters; -1 for unknown
 	 */
 	public int getAirplaneLength() {
 		switch (airplane_len_width) {
@@ -217,7 +217,7 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	}
 
 	/**
-	 * FIXME check compatibility when decoding V2
+	 * According to DO-260B Table 2-74. Compatible with ADS-B version 1 and 2.
 	 * @return the airplane's width in meters
 	 */
 	public double getAirplaneWidth() {
