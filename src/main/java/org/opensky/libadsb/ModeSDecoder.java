@@ -5,6 +5,7 @@ import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 import org.opensky.libadsb.msgs.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,8 @@ import java.util.Map;
  * @author Markus Fuchs (fuchs@opensky-network.org)
  */
 public class ModeSDecoder {
-	private Map<byte[], DecoderData> decoderData;
+	// mapping from icao24 to Decoder, note that we cannot use byte[] as key!
+	private Map<String, DecoderData> decoderData = new HashMap<String, DecoderData>();
 	private int afterLastCleanup;
 	private long latestTimestamp;
 
@@ -64,12 +66,12 @@ public class ModeSDecoder {
 
 					// we need stateful decoding, because ADS-B version > 0 can only be assumed
 					// if matching version info in operational status has been found.
-					DecoderData dd = this.decoderData.get(modes.getIcao24());
+					DecoderData dd = this.decoderData.get(tools.toHexString(modes.getIcao24()));
 					if (dd == null) {
 						// create new DecoderData
-						// assume ADS-B version 0 (as demanded by DO-260B N.1.2
+						// assume ADS-B version 0 (as demanded by DO-260B N.1.2)
 						dd = new DecoderData();
-						decoderData.put(modes.getIcao24(), dd);
+						this.decoderData.put(tools.toHexString(modes.getIcao24()), dd);
 					}
 
 					// what kind of extended squitter?
@@ -133,6 +135,7 @@ public class ModeSDecoder {
 						int subtype = es1090.getMessage()[0] & 0x7;
 
 						dd.adsbVersion = (byte) (es1090.getMessage()[5]>>>5);
+						System.out.println("Set ADS-B version " + dd.adsbVersion);
 						if (subtype == 0) {
 							// airborne
 							switch (dd.adsbVersion) {
@@ -140,11 +143,11 @@ public class ModeSDecoder {
 									return new OperationalStatusV0Msg(es1090);
 								case 1:
 									AirborneOperationalStatusV1Msg s1 = new AirborneOperationalStatusV1Msg(es1090);
-									dd.nicSupplA = s1.getNICSupplementA();
+									dd.nicSupplA = s1.hasNICSupplementA();
 									return s1;
 								case 2:
 									AirborneOperationalStatusV2Msg s2 = new AirborneOperationalStatusV2Msg(es1090);
-									dd.nicSupplA = s2.getNICSupplementA();
+									dd.nicSupplA = s2.hasNICSupplementA();
 									return s2;
 							}
 						} else if (subtype == 1) {
@@ -154,12 +157,12 @@ public class ModeSDecoder {
 									return new OperationalStatusV0Msg(es1090);
 								case 1:
 									SurfaceOperationalStatusV1Msg s1 = new SurfaceOperationalStatusV1Msg(es1090);
-									dd.nicSupplA = s1.getNICSupplementA();
+									dd.nicSupplA = s1.hasNICSupplementA();
 									dd.nicSupplC = s1.getNICSupplementC();
 									return s1;
 								case 2:
 									SurfaceOperationalStatusV2Msg s2 = new SurfaceOperationalStatusV2Msg(es1090);
-									dd.nicSupplA = s2.getNICSupplementA();
+									dd.nicSupplA = s2.hasNICSupplementA();
 									dd.nicSupplC = s2.getNICSupplementC();
 									return s2;
 							}
@@ -194,20 +197,20 @@ public class ModeSDecoder {
 
 	public <T extends SurfacePositionV0Msg> Position decodePosition(long time, T surfPos, Position receiverPos) {
 		latestTimestamp = Math.max(latestTimestamp, time);
-		DecoderData dd = this.decoderData.get(surfPos.getIcao24());
+		DecoderData dd = this.decoderData.get(tools.toHexString(surfPos.getIcao24()));
 		if (dd == null) {
 			dd = new DecoderData();
-			decoderData.put(surfPos.getIcao24(), dd);
+			decoderData.put(tools.toHexString(surfPos.getIcao24()), dd);
 		}
 		return dd.posDec.decodePosition(time/1000, surfPos, receiverPos);
 	}
 
 	public <T extends AirbornePositionV0Msg> Position decodePosition(long time, T airPos, Position receiverPos) {
 		latestTimestamp = Math.max(latestTimestamp, time);
-		DecoderData dd = this.decoderData.get(airPos.getIcao24());
+		DecoderData dd = this.decoderData.get(tools.toHexString(airPos.getIcao24()));
 		if (dd == null) {
 			dd = new DecoderData();
-			decoderData.put(airPos.getIcao24(), dd);
+			decoderData.put(tools.toHexString(airPos.getIcao24()), dd);
 		}
 		return dd.posDec.decodePosition(time/1000, receiverPos, airPos);
 	}
@@ -259,12 +262,12 @@ public class ModeSDecoder {
 	 * every 1 Mio messages if more than 50000 aircraft are tracked.
 	 */
 	public void gc() {
-		List<byte[]> toRemove = new ArrayList<byte[]>();
-		for (byte[] key : decoderData.keySet())
+		List<String> toRemove = new ArrayList<String>();
+		for (String key : decoderData.keySet())
 			if (decoderData.get(key).posDec.getLastUsedTime()<latestTimestamp-3600000)
 				toRemove.add(key);
 
-		for (byte[] key : toRemove)
+		for (String key : toRemove)
 			decoderData.remove(key);
 	}
 

@@ -72,7 +72,7 @@ public class SurfaceOperationalStatusV2Msg extends SurfaceOperationalStatusV1Msg
 	 * @return true if SIL (Source Integrity Level) is based on "per sample" probability, otherwise
 	 * 			it's based on "per hour".
 	 */
-	public boolean getSILSupplement() {
+	public boolean hasSILSupplement() {
 		return sil_supplement;
 	}
 

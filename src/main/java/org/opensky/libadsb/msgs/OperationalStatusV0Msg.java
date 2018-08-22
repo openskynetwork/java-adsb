@@ -94,4 +94,16 @@ public class OperationalStatusV0Msg extends ExtendedSquitter implements Serializ
 		// status of 4th bit when first two bits zero
 		return (enroute_capabilities & 0xd0) == 16;
 	}
+
+	/**
+	 * the version number of the formats and protocols in use on the aircraft installation.<br>
+	 * 	       0: Conformant to DO-260/ED-102 and DO-242<br>
+	 * 	       1: Conformant to DO-260A and DO-242A<br>
+	 * 	       2: Conformant to DO-260B/ED-102A and DO-242B<br>
+	 * 	       3-7: reserved
+	 * @return always 0
+	 */
+	public byte getVersion() {
+		return 0;
+	}
 }

@@ -90,9 +90,6 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 		operational_mode_code = (msg[3]<<8)|msg[4];
 		version = (byte) (msg[5]>>>5);
 
-		if ((byte) (msg[5]>>>5) != 1)
-			throw new BadFormatException("Not a DO-260B/version 1 status message.");
-
 		if ((capability_class_code & 0xC000) != 0)
 			throw new BadFormatException("Unknown capability class code!");
 
@@ -137,7 +134,7 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	/**
 	 * @return navigation accuracy category for velocity
 	 */
-	public byte getNACV() {
+	public byte getNACv() {
 		return (byte) ((capability_class_code & 0xE0)>>>5);
 	}
 
@@ -165,7 +162,7 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	/**
 	 * @return whether aircraft uses a single antenna or two
 	 */
-	public boolean usesSingleAntenna() {
+	public boolean hasSingleAntenna() {
 		return (operational_mode_code&0x400) != 0;
 	}
 
@@ -258,14 +255,14 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	/**
 	 * @return the NIC supplement A to the format type code of position messages
 	 */
-	public boolean getNICSupplementA() {
+	public boolean hasNICSupplementA() {
 		return nic_suppl;
 	}
 
 	/**
 	 * @return the navigation accuracy for position messages; rather use getPositionUncertainty
 	 */
-	public byte getPositionNAC() {
+	public byte getNACp() {
 		return nac_pos;
 	}
 
@@ -310,12 +307,13 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 		return sil;
 	}
 
+	// TODO use in Surface position message?
 	/**
 	 * @return the Track Angle/Heading allows correct interpretation of the data
 	 *         contained in the Heading/Ground Track subfield of ADS-B Surface
 	 *         Position Messages.
 	 */
-	public boolean getTrackHeadingInfo() {
+	public boolean hasTrackHeadingInfo() {
 		return nic_trk_hdg;
 	}
 
@@ -332,12 +330,12 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	public String toString() {
 		String retstr;
 
-		retstr = "Surfce operational status:\n";
+		retstr = "Surface operational status:\n";
 		retstr += "\tUses low tx power: ";
 		retstr += (hasLowTxPower() ? "yes" : "no")+"\n";
 
 		retstr += "\tNAC category velocity: ";
-		retstr += getNACV()+"\n";
+		retstr += getNACv()+"\n";
 
 		retstr += "\tGPA antenna offset: ";
 		retstr += getGPSAntennaOffset()+"\n";
@@ -361,15 +359,15 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 		retstr += (hasActiveIDENTSwitch() ? "yes" : "no")+"\n";
 
 		retstr += "\tUses single antenna: ";
-		retstr += (usesSingleAntenna() ? "yes" : "no")+"\n";
+		retstr += (hasSingleAntenna() ? "yes" : "no")+"\n";
 
 		retstr += "\tSystem design assurance: ";
 		retstr += getSystemDesignAssurance()+"\n";
 
 		retstr += "\tADS-B version: "+getVersion()+"\n";
 		retstr += "\tNIC supplement A: ";
-		retstr += (getNICSupplementA() ? "true" : "false")+"\n";
-		retstr += "\tPosition NAC: "+getPositionNAC()+"\n";
+		retstr += (hasNICSupplementA() ? "true" : "false")+"\n";
+		retstr += "\tPosition NAC: "+getNACp()+"\n";
 		retstr += "\tVertical Accuracy: "+getGeometricVerticalAccuracy()+"\n";
 		retstr += "\tSource Integrity Level: "+ getSIL()+"\n";
 		retstr += "\tHorizontal reference: "+getHorizontalReferenceDirection();

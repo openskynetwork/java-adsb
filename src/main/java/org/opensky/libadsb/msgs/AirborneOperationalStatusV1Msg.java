@@ -89,9 +89,6 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 		operational_mode_code = (msg[3]<<8)|msg[4];
 		version = (byte) (msg[5]>>>5);
 
-		if ((byte) (msg[5]>>>5) != 1)
-			throw new BadFormatException("Not a DO-260B/version 1 status message.");
-
 		if ((capability_class_code & 0xC000) != 0)
 			throw new BadFormatException("Unknown capability class code!");
 
@@ -121,7 +118,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	 * @return whether aircraft has capability of sending messages to support Air-Referenced
 	 *         Velocity Reports
 	 */
-	public boolean supportsAirReferencedVelocity() {
+	public boolean hasAirReferencedVelocity() {
 		return (capability_class_code & 0x200) != 0;
 	}
 
@@ -129,7 +126,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	 * @return whether aircraft has capability of sending messages to support Target
 	 *         State Reports
 	 */
-	public boolean supportsTargetStateReport() {
+	public boolean hasTargetStateReport() {
 		return (capability_class_code & 0x100) != 0;
 	}
 
@@ -165,7 +162,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	/**
 	 * @return whether aircraft uses a single antenna or two
 	 */
-	public boolean usesSingleAntenna() {
+	public boolean hasSingleAntenna() {
 		return (operational_mode_code&0x400) != 0;
 	}
 
@@ -191,7 +188,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	/**
 	 * @return the NIC supplement A to the format type code of position messages
 	 */
-	public boolean getNICSupplementA() {
+	public boolean hasNICSupplementA() {
 		return nic_suppl;
 	}
 
@@ -238,7 +235,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	 * @return the source integrity level (SIL) which indicates the propability of exceeding
 	 *         the NIC containment radius (see table A-15 in RCTA DO-260B)
 	 */
-	public byte getSourceIntegrityLevel() {
+	public byte getSIL() {
 		return sil;
 	}
 
@@ -269,10 +266,10 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 		retstr += (hasOperationalTCAS() ? "yes" : "no")+"\n";
 
 		retstr += "\tAir-referenced velocity: ";
-		retstr += (supportsAirReferencedVelocity() ? "yes" : "no")+"\n";
+		retstr += (hasAirReferencedVelocity() ? "yes" : "no")+"\n";
 
 		retstr += "\tTarget State Reports: ";
-		retstr += (supportsTargetStateReport() ? "yes" : "no")+"\n";
+		retstr += (hasTargetStateReport() ? "yes" : "no")+"\n";
 		retstr += "\tTarget Change Reports: ";
 		retstr += (supportsTargetChangeReport() ? "yes" : "no")+"\n";
 
@@ -289,7 +286,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 		retstr += (hasActiveIDENTSwitch() ? "yes" : "no")+"\n";
 
 		retstr += "\tUses single antenna: ";
-		retstr += (usesSingleAntenna() ? "yes" : "no")+"\n";
+		retstr += (hasSingleAntenna() ? "yes" : "no")+"\n";
 
 		retstr += "\tSystem design assurance: ";
 		retstr += getSystemDesignAssurance()+"\n";
@@ -297,12 +294,12 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 		retstr += "\tADS-B version: "+getVersion()+"\n";
 
 		retstr += "\tNIC supplement A: ";
-		retstr += (getNICSupplementA() ? "true" : "false")+"\n";
+		retstr += (hasNICSupplementA() ? "true" : "false")+"\n";
 
 		retstr += "\tPosition NAC: "+ getNACp()+"\n";
 		retstr += "\tVertical Accuracy: "+getGeometricVerticalAccuracy()+"\n";
 
-		retstr += "\tSource Integrity Level: "+getSourceIntegrityLevel()+"\n";
+		retstr += "\tSource Integrity Level: "+ getSIL()+"\n";
 		retstr += "\tHorizontal reference: "+getHorizontalReferenceDirection();
 
 		return super.toString()+"\n"+retstr;

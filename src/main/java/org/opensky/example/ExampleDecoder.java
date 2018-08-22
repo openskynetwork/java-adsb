@@ -22,9 +22,6 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.UnspecifiedFormatError;
 import org.opensky.libadsb.msgs.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -85,14 +82,38 @@ public class ExampleDecoder {
 				AirbornePositionV0Msg ap0 = (AirbornePositionV0Msg) msg;
 				System.out.print("["+icao24+"]: ");
 
+				// use CPR to decode position
+				// CPR needs at least 2 positions or a reference, otherwise we get null here
 				Position c0 = decoder.decodePosition(timestamp, ap0, receiver);
 				if (c0 == null)
 					System.out.println("Cannot decode position yet.");
 				else
-					System.out.println("Now at position ("+c0.getLatitude()+","+c0.getLongitude()+")");
-				System.out.println("          Horizontal containment radius is "+ap0.getHorizontalContainmentRadiusLimit()+" m");
-				System.out.println("          Altitude is "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" m");
-				// TODO uncertainty etc
+					System.out.println("Now at position (" + c0.getLatitude() + "," + c0.getLongitude() + ")");
+				System.out.println("          Horizontal containment radius limit/protection level: " +
+						ap0.getHorizontalContainmentRadiusLimit() + " m");
+				System.out.println("          Altitude: "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" m");
+				System.out.println("          Navigation Integrity Category: " + ap0.getNIC());
+				System.out.println("          Surveillance status: " + ap0.getSurveillanceStatusDescription());
+
+				// we want to inspect fields for ADS-B of different versions
+				switch(msg.getType()) {
+					case ADSB_AIRBORN_POSITION_V0:
+						// NACp and SIL for newer ADS-B versions contained in operational status message
+						System.out.println("          Navigation Accuracy Category for position (NACp): " + ap0.getNACp());
+						System.out.println("          Position Uncertainty (based on NACp): " + ap0.getPositionUncertainty());
+						System.out.println("          Surveillance Integrity Level (SIL): " + ap0.getSIL());
+						break;
+					case ADSB_AIRBORN_POSITION_V1:
+						AirbornePositionV1Msg ap1 = (AirbornePositionV1Msg) msg;
+						System.out.println("          NIC supplement A set: " + ap1.hasNICSupplementA());
+						break;
+					case ADSB_AIRBORN_POSITION_V2:
+						AirbornePositionV2Msg ap2 = (AirbornePositionV2Msg) msg;
+						// NIC supplement A contained in operational status messages is set by the decoder if present
+						System.out.println("          NIC supplement A set: " + ap2.hasNICSupplementA());
+						System.out.println("          NIC supplement B set: " + ap2.hasNICSupplementB());
+						break;
+				}
 				break;
 			case ADSB_SURFACE_POSITION_V0:
 			case ADSB_SURFACE_POSITION_V1:
@@ -105,14 +126,41 @@ public class ExampleDecoder {
 				if (sPos0 == null)
 					System.out.println("Cannot decode position yet or no reference available (yet).");
 				else
-					System.out.println("Now at position ("+sPos0.getLatitude()+","+sPos0.getLongitude()+")");
+					System.out.println("Now at position (" + sPos0.getLatitude() + "," + sPos0.getLongitude() + ")");
 
-				System.out.println("          Horizontal containment radius is "+sp0.getHorizontalContainmentRadiusLimit()+" m");
+				System.out.println("          Horizontal containment radius limit/protection level is " +
+						sp0.getHorizontalContainmentRadiusLimit() + "m");
 				if (sp0.hasValidHeading())
-					System.out.println("          Heading is "+sp0.getHeading()+" m");
+					System.out.println("          Heading: " + sp0.getHeading() + " m");
 				System.out.println("          Airplane is on the ground.");
+
+				if (sp0.hasGroundSpeed()) {
+					System.out.println("          Ground speed: " + sp0.getGroundSpeed() + "m/s");
+					System.out.println("          Ground speed resolution: " + sp0.getGroundSpeedResolution() + "m/s");
+				}
+
+				// we want to inspect fields for ADS-B of different versions
+				switch(msg.getType()) {
+					case ADSB_SURFACE_POSITION_V0:
+						// NACp and SIL for newer ADS-B versions contained in operational status message
+						// Use the following only with version 0 as the others are more accurate
+						System.out.println("          Navigation Accuracy Category for position (NACp): " + sp0.getNACp());
+						System.out.println("          Position Uncertainty (based on NACp): " + sp0.getPositionUncertainty() + "m");
+						System.out.println("          Surveillance Integrity Level (SIL): " + sp0.getSIL());
+						break;
+					case ADSB_SURFACE_POSITION_V1:
+						SurfacePositionV1Msg sp1 = (SurfacePositionV1Msg) msg;
+						System.out.println("          NIC supplement A set: "+sp1.hasNICSupplementA());
+						break;
+					case ADSB_SURFACE_POSITION_V2:
+						SurfacePositionV2Msg sp2 = (SurfacePositionV2Msg) msg;
+						// NIC supplement C contained in operational status messages is set by the decoder if present
+						System.out.println("          NIC supplement A set: "+sp2.hasNICSupplementA());
+						System.out.println("          NIC supplement C set: "+sp2.hasNICSupplementC());
+						break;
+				}
+
 				break;
-				// TODO nic suppl etc
 			case ADSB_EMERGENCY:
 				EmergencyOrPriorityStatusMsg status = (EmergencyOrPriorityStatusMsg) msg;
 				System.out.println("["+icao24+"]: "+status.getEmergencyStateText());
@@ -121,44 +169,90 @@ public class ExampleDecoder {
 				break;
 			case ADSB_AIRSPEED:
 				AirspeedHeadingMsg airspeed = (AirspeedHeadingMsg) msg;
-				System.out.println("["+icao24+"]: Airspeed is "+
+				System.out.println("["+icao24+"]: Airspeed: "+
 						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" m/s" : "unkown"));
 				if (airspeed.headingStatusFlag())
-					System.out.println("          Heading is "+
+					System.out.println("          Heading: "+
 							(airspeed.headingStatusFlag() ? airspeed.getHeading()+"°" : "unkown"));
 				if (airspeed.hasVerticalRateInfo())
-					System.out.println("          Vertical rate is "+
+					System.out.println("          Vertical rate: "+
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
 				break;
 			case ADSB_IDENTIFICATION:
 				IdentificationMsg ident = (IdentificationMsg) msg;
-				System.out.println("["+icao24+"]: Callsign is "+new String(ident.getIdentity()));
+				System.out.println("["+icao24+"]: Callsign: "+new String(ident.getIdentity()));
 				System.out.println("          Category: "+ident.getCategoryDescription());
 				break;
 			case ADSB_STATUS_V0:
+				OperationalStatusV0Msg opstat0 = (OperationalStatusV0Msg) msg;
+				System.out.println("["+icao24+"]: Using ADS-B version "+opstat0.getVersion());
+				System.out.println("          Has operational TCAS: "+ opstat0.hasOperationalTCAS());
+				System.out.println("          Has operational CDTI: "+ opstat0.hasOperationalCDTI());
 				break;
 			case ADSB_AIRBORN_STATUS_V1:
-				break;
 			case ADSB_AIRBORN_STATUS_V2:
+				AirborneOperationalStatusV1Msg opstatA1 = (AirborneOperationalStatusV1Msg) msg;
+				System.out.println("["+icao24+"]: Using ADS-B version "+opstatA1.getVersion());
+				System.out.println("          Barometric altitude cross-checked: "+opstatA1.getBarometricAltitudeIntegrityCode());
+				System.out.println("          Gemoetric vertical accuracy: "+opstatA1.getGeometricVerticalAccuracy()+"m");
+
+				if (opstatA1.getHorizontalReferenceDirection())
+					System.out.println("          Horizontal reference: true north");
+				else
+					System.out.println("          Horizontal reference: true north");
+				System.out.println("          Navigation Accuracy Category for position (NACp): " + opstatA1.getNACp());
+				System.out.println("          Position Uncertainty (based on NACp): " + opstatA1.getPositionUncertainty());
+				System.out.println("          Has NIC supplement A: " + opstatA1.hasNICSupplementA());
+				System.out.println("          Surveillance/Source Integrity Level (SIL): " + opstatA1.getSIL());
+				System.out.println("          System design assurance: " + opstatA1.getSystemDesignAssurance());
+				System.out.println("          Has 1090ES in: " + opstatA1.has1090ESIn());
+				System.out.println("          IDENT switch active: " + opstatA1.hasActiveIDENTSwitch());
+				System.out.println("          Has operational TCAS: " + opstatA1.hasOperationalTCAS());
+				System.out.println("          Has TCAS resolution advisory: " + opstatA1.hasTCASResolutionAdvisory());
+				System.out.println("          Has UAT in: " + opstatA1.hasUATIn());
+				System.out.println("          Uses single antenna: " + opstatA1.hasSingleAntenna());
+				System.out.println("          Supports air-referenced velocity reports: " + opstatA1.hasAirReferencedVelocity());
+
+				// SIL supplement in version 2
+				if (msg instanceof AirborneOperationalStatusV2Msg) {
+					System.out.println("          Has SIL supplement: " + ((AirborneOperationalStatusV2Msg) msg).hasSILSupplement());
+				}
+
 				break;
 			case ADSB_SURFACE_STATUS_V1:
-				break;
 			case ADSB_SURFACE_STATUS_V2:
-				/* TODO
-				OperationalStatusV2Msg opstat = (OperationalStatusV2Msg) msg;
-				PositionDecoder dec;
-				if (decs.containsKey(icao24))
-					dec = decs.get(icao24);
-				else {
-					dec = new PositionDecoder();
-					decs.put(icao24, dec);
+				SurfaceOperationalStatusV1Msg opstatS1 = (SurfaceOperationalStatusV1Msg) msg;
+
+				System.out.println("["+icao24+"]: Using ADS-B version "+opstatS1.getVersion());
+				System.out.println("          Gemoetric vertical accuracy: "+opstatS1.getGeometricVerticalAccuracy()+"m");
+
+				if (opstatS1.getHorizontalReferenceDirection())
+					System.out.println("          Horizontal reference: true north");
+				else
+					System.out.println("          Horizontal reference: true north");
+				System.out.println("          Navigation Accuracy Category for position (NACp): " + opstatS1.getNACp());
+				System.out.println("          Position Uncertainty (based on NACp): " + opstatS1.getPositionUncertainty());
+				System.out.println("          Has NIC supplement A: " + opstatS1.hasNICSupplementA());
+				System.out.println("          Has NIC supplement C: " + opstatS1.getNICSupplementC());
+				System.out.println("          Surveillance/Source Integrity Level (SIL): " + opstatS1.getSIL());
+				System.out.println("          System design assurance: " + opstatS1.getSystemDesignAssurance());
+				System.out.println("          Has 1090ES in: " + opstatS1.has1090ESIn());
+				System.out.println("          IDENT switch active: " + opstatS1.hasActiveIDENTSwitch());
+				System.out.println("          Has TCAS resolution advisory: " + opstatS1.hasTCASResolutionAdvisory());
+				System.out.println("          Has UAT in: " + opstatS1.hasUATIn());
+				System.out.println("          Uses single antenna: " + opstatS1.hasSingleAntenna());
+				System.out.println("          Airplane length: " + opstatS1.getAirplaneLength() + "m");
+				System.out.println("          Airplane width: " + opstatS1.getAirplaneWidth() + "m");
+				System.out.println("          Navigation Accuracy Category for velocity (NACv): " + opstatS1.getNACv());
+				System.out.println("          Low (<70W) TX power: " + opstatS1.hasLowTxPower());
+				System.out.println("          Encoded GPS antenna offset: " + opstatS1.getGPSAntennaOffset());
+				System.out.println("          Has track heading info: " + opstatS1.hasTrackHeadingInfo());
+
+				// SIL supplement in version 2
+				if (msg instanceof SurfaceOperationalStatusV2Msg) {
+					System.out.println("          Has SIL supplement: " + ((SurfaceOperationalStatusV2Msg) msg).hasSILSupplement());
 				}
-				dec.setNICSupplementA(opstat.hasNICSupplementA());
-				if (opstat.getSubtypeCode() == 1)
-					dec.setNICSupplementC(opstat.getNICSupplementC());
-				System.out.println("["+icao24+"]: Using ADS-B version "+opstat.getVersion());
-				System.out.println("          Has ADS-B IN function: "+opstat.has1090ESIn());
-				*/
+
 				break;
 			case ADSB_TCAS:
 				TCASResolutionAdvisoryMsg tcas = (TCASResolutionAdvisoryMsg) msg;
@@ -169,9 +263,9 @@ public class ExampleDecoder {
 				break;
 			case ADSB_VELOCITY:
 				VelocityOverGroundMsg veloc = (VelocityOverGroundMsg) msg;
-				System.out.println("["+icao24+"]: Velocity is "+(veloc.hasVelocityInfo() ? veloc.getVelocity() : "unknown")+" m/s");
-				System.out.println("          Heading is "+(veloc.hasVelocityInfo() ? veloc.getHeading() : "unknown")+" degrees");
-				System.out.println("          Vertical rate is "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" m/s");
+				System.out.println("["+icao24+"]: Velocity: "+(veloc.hasVelocityInfo() ? veloc.getVelocity() : "unknown")+" m/s");
+				System.out.println("          Heading: "+(veloc.hasVelocityInfo() ? veloc.getHeading() : "unknown")+" degrees");
+				System.out.println("          Vertical rate: "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" m/s");
 				break;
 			case EXTENDED_SQUITTER:
 				System.out.println("["+icao24+"]: Unknown extended squitter with type code "+((ExtendedSquitter)msg).getFormatTypeCode()+"!");
@@ -248,15 +342,19 @@ public class ExampleDecoder {
 		while(sc.hasNext()) {
 		  String[] values = sc.nextLine().split(",");
 
-		  if (values.length == 4) {
+		  if (values.length == 5) {
+			  // time,serial,lat,lon,msg
+			  rec.setLatitude(Double.parseDouble(values[2]));
+			  rec.setLongitude(Double.parseDouble(values[3]));
+			  dec.decodeMsg((long) Double.parseDouble(values[0])*1000, values[4], rec);
+		  } else if (values.length == 4) {
 			  // time,lat,lon,msg
-			  rec.setLongitude(Double.parseDouble(values[2]));
 			  rec.setLatitude(Double.parseDouble(values[1]));
-			  dec.decodeMsg((long) Double.parseDouble(values[0]), values[3], rec);
-		  }
-		  else if (values.length == 2) {
+			  rec.setLongitude(Double.parseDouble(values[2]));
+			  dec.decodeMsg((long) Double.parseDouble(values[0])*1000, values[3], rec);
+		  } else if (values.length == 2) {
 			  // time,msg
-			  dec.decodeMsg((long) Double.parseDouble(values[0]), values[1], null);
+			  dec.decodeMsg((long) Double.parseDouble(values[0])*1000, values[1], null);
 		  }
 		}
 		sc.close();

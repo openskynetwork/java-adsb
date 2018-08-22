@@ -72,7 +72,7 @@ public class AirborneOperationalStatusV2Msg extends AirborneOperationalStatusV1M
 	 * @return true if SIL (Source Integrity Level) is based on "per sample" probability, otherwise
 	 * 			it's based on "per hour".
 	 */
-	public boolean getSILSupplement() {
+	public boolean hasSILSupplement() {
 		return sil_supplement;
 	}
 

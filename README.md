@@ -29,7 +29,7 @@ The Comm-B registers, Comm-D data link and military ES are not parsed. Comm-B an
 
 The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. The decoder takes care of proper older versions.
 
-Note: format type code 29 (target state and status information) is missing since it has been abandoned in ADS-B version 2 and is virtually non-existent in current ADS-B deployments.
+Note: format type code 29 (target state and status information) is missing at the moment.
 
 ### Packaging
 

@@ -159,7 +159,6 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	/**
 	 * The 95% accuracy for horizontal velocity. We interpret the coding according to
 	 * DO-260B Table 2-22 for all ADS-B versions.
-	 * TODO harmonize name with operationalstatus and position messages
 	 * @return Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5 in m/s, -1 means
 	 * "unknown" or &gt;10m
 	 */
