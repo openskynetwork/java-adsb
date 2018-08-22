@@ -376,9 +376,10 @@ public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializa
 		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
 		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
 
+		Integer alt = this.getAltitude();
 		return new Position(isOddFormat()?Rlon1:Rlon0,
 				isOddFormat()?Rlat1:Rlat0,
-				this.hasAltitude() ? this.getAltitude() : null);
+				alt != null ? alt.doubleValue() : null);
 	}
 
 	/**
@@ -416,7 +417,8 @@ public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializa
 		// and finally the longitude
 		double Rlon = Dlon * (m + getCPREncodedLongitude()/((double)(1<<17)));
 
-		return new Position(Rlon, Rlat, this.hasAltitude() ? this.getAltitude() : null);
+		Integer alt = this.getAltitude();
+		return new Position(Rlon, Rlat, alt != null ? alt.doubleValue() : null);
 	}
 
 	/**
@@ -433,17 +435,17 @@ public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * @return the decoded altitude in meters or null if altitude is not available. The latter can be checked with
+	 * @return the decoded altitude in feet or null if altitude is not available. The latter can be checked with
 	 * {@link #hasAltitude()}.
 	 */
-	public Double getAltitude() {
+	public Integer getAltitude() {
 		if (!altitude_available) return null;
 
 		boolean Qbit = (altitude_encoded&0x10)!=0;
 		int N;
 		if (Qbit) { // altitude reported in 25ft increments
 			N = (altitude_encoded&0xF) | ((altitude_encoded&0xFE0)>>>1);
-			return (25*N-1000)*0.3048;
+			return 25*N-1000;
 		}
 		else { // altitude is above 50175ft, so we use 100ft increments
 
@@ -468,7 +470,7 @@ public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializa
 			if (N100 == 6) N100=4;
 			if (N500%2 != 0) N100=4-N100; // invert it
 
-			return (-1200+N500*500+N100*100)*0.3048;
+			return -1200+N500*500+N100*100;
 		}
 	}
 

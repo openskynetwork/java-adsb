@@ -148,13 +148,12 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * Note: only in ADS-B version 1 transponders!!
+	 * Note: only in ADS-B version 1 transponders, not used in all other ADS-B versions!!
 	 * @return true, iff aircraft has equipage class A1 or higher
 	 */
 	public boolean hasIFRCapability() {
 		return ifr_capability;
 	}
-
 
 	/**
 	 * The 95% accuracy for horizontal velocity. We interpret the coding according to
@@ -162,7 +161,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	 * @return Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5 in m/s, -1 means
 	 * "unknown" or &gt;10m
 	 */
-	public float getNACv() {
+	public double getNACv() {
 		switch(navigation_accuracy_category) {
 			case 1:
 				return 10;
@@ -171,7 +170,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 			case 3:
 				return 1;
 			case 4:
-				return 0.3F;
+				return 0.3;
 			default:
 				return -1;
 		}
@@ -179,20 +178,20 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 
 	/**
-	 * @return velocity from east to south in m/s or null if information is not available
+	 * @return velocity from east to south in knots or null if information is not available
 	 */
-	public Double getEastToWestVelocity() {
+	public Integer getEastToWestVelocity() {
 		if (!velocity_info_available) return null;
-		return (direction_west ? east_west_velocity : -east_west_velocity) * 0.514444;
+		return (direction_west ? east_west_velocity : -east_west_velocity);
 	}
 
 
 	/**
-	 * @return velocity from north to south in m/s or null if information is not available
+	 * @return velocity from north to south in knots or null if information is not available
 	 */
-	public Double getNorthToSouthVelocity() {
+	public Integer getNorthToSouthVelocity() {
 		if (!velocity_info_available) return null;
-		return (direction_south ? north_south_velocity : -north_south_velocity) * 0.514444;
+		return (direction_south ? north_south_velocity : -north_south_velocity);
 	}
 
 
@@ -205,22 +204,22 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 
 	/**
-	 * @return vertical rate in m/s (negative value means descending) or null if information is not available. The
+	 * @return vertical rate in feet/min (negative value means descending) or null if information is not available. The
 	 * latter can also be checked with {@link #hasVerticalRateInfo()}
 	 */
-	public Double getVerticalRate() {
+	public Integer getVerticalRate() {
 		if (!vertical_rate_info_available) return null;
-		return (vertical_rate_down ? -vertical_rate : vertical_rate) * 0.00508;
+		return (vertical_rate_down ? -vertical_rate : vertical_rate);
 	}
 
 
 	/**
-	 * @return difference between barometric and geometric altitude in m or null if information is not available. The
+	 * @return difference between barometric and geometric altitude in feet or null if information is not available. The
 	 * latter can also be checked with {@link #hasGeoMinusBaroInfo()}
 	 */
-	public Double getGeoMinusBaro() {
+	public Integer getGeoMinusBaro() {
 		if (!geo_minus_baro_available) return null;
-		return geo_minus_baro * 0.3048;
+		return geo_minus_baro;
 	}
 
 	/**
@@ -239,12 +238,12 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * @return speed over ground in m/s or null if information is not available. The latter can also be checked
+	 * @return speed over ground in knots or null if information is not available. The latter can also be checked
 	 * with {@link #hasVelocityInfo()}.
 	 */
 	public Double getVelocity() {
 		if (!velocity_info_available) return null;
-		return Math.hypot(north_south_velocity, east_west_velocity) * 0.514444;
+		return Math.hypot(north_south_velocity, east_west_velocity);
 	}
 
 	public String toString() {

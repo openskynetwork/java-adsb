@@ -94,6 +94,7 @@ ADS-B messages from avro-files with the OpenSky schema. A sample of such data an
 **!!Version 3 is not a drop-in replacement. You have to adapt your existing code!!**
 
 With libadsb version 3, many things have changed, including:
+* **Switched to nautical units for altitude and speed.** We keep the values according to the standard.
 * Introduction of a stateful decoder to correctly handle transmitters with different ADS-B versions
 * Removal `MissingInformationException` - return `null` values instead
 * Split operational status message into separate classes for different ADS-B versions

@@ -191,6 +191,10 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	 * </ul>
 	 */
 	public String getIdentity() {
+		return decodeIdentity(identity);
+	}
+
+	static String decodeIdentity(short identity) {
 		int C1 = (0x1000&identity)>>>12;
 		int A1 = (0x800&identity)>>>11;
 		int C2 = (0x400&identity)>>>10;

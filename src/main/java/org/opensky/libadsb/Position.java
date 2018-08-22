@@ -86,14 +86,14 @@ public class Position implements Serializable {
 	}
 
 	/**
-	 * @return altitude in meters
+	 * @return altitude in feet
 	 */
 	public Double getAltitude() {
 		return altitude;
 	}
 
 	/**
-	 * @param altitude in meters
+	 * @param altitude in feet
 	 */
 	public void setAltitude(Double altitude) {
 		this.altitude = altitude;

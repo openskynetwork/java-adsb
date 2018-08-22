@@ -125,17 +125,21 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	}
 
 	/**
-	 * @return the maximum airspeed in m/s as specified in ICAO Annex 10V4 3.1.2.8.2.2<br>
-	 * null if unknown<br>Double.MAX_VALUE if unbound
+	 * @return the maximum airspeed in kn as specified in ICAO Annex 10V4 3.1.2.8.2.2<br>
+	 * null if unknown<br>Integer.MAX_VALUE if unbound
 	 */
-	public Double getMaximumAirspeed() {
-		switch (getReplyInformation()) {
-		case 9: return 140/3.6;
-		case 10: return 280/3.6;
-		case 11: return 560/3.6;
-		case 12: return 1110/3.6;
-		case 13: return 2220/3.6;
-		case 14: return Double.MAX_VALUE;
+	public Integer getMaximumAirspeed() {
+		return decodeMaximumAirspeed(getReplyInformation());
+	}
+
+	static Integer decodeMaximumAirspeed(byte reply_information) {
+		switch (reply_information) {
+		case 9: return 75;
+		case 10: return 150;
+		case 11: return 300;
+		case 12: return 600;
+		case 13: return 1200;
+		case 14: return Integer.MAX_VALUE;
 		default: return null;
 		}
 	}
@@ -148,59 +152,10 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	}
 
 	/**
-	 * This method converts a gray code encoded int to a standard decimal int
-	 * @param gray gray code encoded int of length bitlength
-	 *        bitlength bitlength of gray code
-	 * @return radix 2 encoded integer
+	 * @return the decoded altitude in feet
 	 */
-	private static int grayToBin(int gray, int bitlength) {
-		int result = 0;
-		for (int i = bitlength-1; i >= 0; --i)
-			result = result|((((0x1<<(i+1))&result)>>>1)^((1<<i)&gray));
-		return result;
-	}
-
-	/**
-	 * @return the decoded altitude in meters
-	 */
-	public Double getAltitude() {
-		// altitude unavailable
-		if (altitude_code == 0) return null;
-
-		boolean Mbit = (altitude_code&0x40)!=0;
-		if (!Mbit) {
-			boolean Qbit = (altitude_code&0x10)!=0;
-			if (Qbit) { // altitude reported in 25ft increments
-				int N = (altitude_code&0x0F) | ((altitude_code&0x20)>>>1) | ((altitude_code&0x1F80)>>>2);
-				return (25*N-1000)*0.3048;
-			}
-			else { // altitude is above 50175ft, so we use 100ft increments
-
-				// it's decoded using the Gillham code
-				int C1 = (0x1000&altitude_code)>>>12;
-				int A1 = (0x0800&altitude_code)>>>11;
-				int C2 = (0x0400&altitude_code)>>>10;
-				int A2 = (0x0200&altitude_code)>>>9;
-				int C4 = (0x0100&altitude_code)>>>8;
-				int A4 = (0x0080&altitude_code)>>>7;
-				int B1 = (0x0020&altitude_code)>>>5;
-				int B2 = (0x0008&altitude_code)>>>3;
-				int D2 = (0x0004&altitude_code)>>>2;
-				int B4 = (0x0002&altitude_code)>>>1;
-				int D4 = (0x0001&altitude_code);
-
-				// this is standard gray code
-				int N500 = grayToBin(D2<<7|D4<<6|A1<<5|A2<<4|A4<<3|B1<<2|B2<<1|B4, 8);
-
-				// 100-ft steps must be converted
-				int N100 = grayToBin(C1<<2|C2<<1|C4, 3)-1;
-				if (N100 == 6) N100=4;
-				if (N500%2 != 0) N100=4-N100; // invert it
-
-				return (-1200+N500*500+N100*100)*0.3048;
-			}
-		}
-		else return null; // unspecified metric encoding
+	public Integer getAltitude() {
+		return AltitudeReply.decodeAltitude(altitude_code);
 	}
 
 	public String toString() {

@@ -180,7 +180,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	 * @return Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5 in m/s, -1 means
 	 * "unknown" or &gt;10m
 	 */
-	public float getNACv() {
+	public double getNACv() {
 		switch(navigation_accuracy_category) {
 			case 1:
 				return 10;
@@ -196,12 +196,12 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	}
 
 	/**
-	 * @return airspeed in m/s or null if information is not available. The latter can also be checked using
+	 * @return airspeed in knots or null if information is not available. The latter can also be checked using
 	 * {@link #hasAirspeedInfo()}.
 	 */
-	public Double getAirspeed() {
+	public Integer getAirspeed() {
 		if (!airspeed_available) return null;
-		return airspeed * 0.514444;
+		return (int) airspeed;
 	}
 
 
@@ -214,22 +214,22 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 
 
 	/**
-	 * @return vertical rate in m/s (negative value means descending) or null if information is not available. The
+	 * @return vertical rate in feet/min (negative value means descending) or null if information is not available. The
 	 * latter can also be checked with {@link #hasVerticalRateInfo()}.
 	 */
-	public Double getVerticalRate() {
+	public Integer getVerticalRate() {
 		if (!vertical_rate_info_available) return null;
-		return (vertical_rate_down ? -vertical_rate : vertical_rate) * 0.00508;
+		return (vertical_rate_down ? -vertical_rate : vertical_rate);
 	}
 
 
 	/**
-	 * @return difference between barometric and geometric altitude in m or null if no information is available.
+	 * @return difference between barometric and geometric altitude in feet or null if no information is available.
 	 * The latter can also be checked using {@link #hasGeoMinusBaroInfo()}.
 	 */
-	public Double getGeoMinusBaro() {
+	public Short getGeoMinusBaro() {
 		if (!geo_minus_baro_available) return null;
-		return geo_minus_baro * 0.3048;
+		return geo_minus_baro;
 	}
 	
 	/**

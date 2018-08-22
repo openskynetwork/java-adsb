@@ -181,7 +181,7 @@ public class SurfacePositionV0Msg extends ExtendedSquitter implements Serializab
 	}
 
 	/**
-	 * @return speed in m/s or null if ground speed is not available. The latter can also be checked with
+	 * @return speed in knots or null if ground speed is not available. The latter can also be checked with
 	 * {@link #hasGroundSpeed()}.
 	 */
 	public Double getGroundSpeed() {
@@ -206,11 +206,11 @@ public class SurfacePositionV0Msg extends ExtendedSquitter implements Serializab
 		else
 			return null;
 
-		return speed*0.514444;
+		return speed;
 	}
 
 	/**
-	 * @return speed resolution (accuracy) in m/s or null if ground speed is not available. The latter can also be
+	 * @return speed resolution (accuracy) in knots or null if ground speed is not available. The latter can also be
 	 * checked with {@link #hasGroundSpeed()}.
 	 */
 	public Double getGroundSpeedResolution() {
@@ -233,7 +233,7 @@ public class SurfacePositionV0Msg extends ExtendedSquitter implements Serializab
 		else
 			return null;
 
-		return resolution*0.514444;
+		return resolution;
 	}
 
 	/**
@@ -282,13 +282,6 @@ public class SurfacePositionV0Msg extends ExtendedSquitter implements Serializab
 	 */
 	public boolean isOddFormat() {
 		return cpr_format;
-	}
-
-	/**
-	 * @return true, if barometric altitude. False if GNSS is used to determine altitude
-	 */
-	public boolean isBarometricAltitude() {
-		return this.getFormatTypeCode() < 20;
 	}
 
 	/**

@@ -23,6 +23,7 @@ import java.io.Serializable;
  */
 
 /**
+ * @author Matthias Schaefer (schaefer@opensky-network.org)
  * @author Markus Fuchs (fuchs@opensky-network.org)
  */
 public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements Serializable {

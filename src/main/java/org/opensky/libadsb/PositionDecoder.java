@@ -102,8 +102,9 @@ public class PositionDecoder {
 	/**
 	 * @param time time of applicability/reception of position report
 	 * @param msg airborne position message
-	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in meters. altitude might be null if unavailable
-	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in feet. altitude might be null
+	 *         if unavailable. On error, the returned position is null. Check the .isReasonable() flag before using
+	 *         the position.
 	 */
 	public Position decodePosition(double time, AirbornePositionV0Msg msg) {
 		boolean local = false, global = false;

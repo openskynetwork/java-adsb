@@ -192,9 +192,13 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 	}
 
 	/**
-	 * @return the decoded altitude in meters
+	 * @return the decoded altitude in feet
 	 */
-	public Double getAltitude() {
+	public Integer getAltitude() {
+		return decodeAltitude(altitude_code);
+	}
+
+	static Integer decodeAltitude(short altitude_code) {
 		// altitude unavailable
 		if (altitude_code == 0) return null;
 
@@ -203,7 +207,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 			boolean Qbit = (altitude_code&0x10)!=0;
 			if (Qbit) { // altitude reported in 25ft increments
 				int N = (altitude_code&0x0F) | ((altitude_code&0x20)>>>1) | ((altitude_code&0x1F80)>>>2);
-				return (25*N-1000)*0.3048;
+				return 25*N-1000;
 			}
 			else { // altitude is above 50175ft, so we use 100ft increments
 
@@ -228,7 +232,7 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 				if (N100 == 6) N100=4;
 				if (N500%2 != 0) N100=4-N100; // invert it
 
-				return (-1200+N500*500+N100*100)*0.3048;
+				return -1200+N500*500+N100*100;
 			}
 		}
 		else return null; // unspecified metric encoding

@@ -91,7 +91,7 @@ public class ExampleDecoder {
 					System.out.println("Now at position (" + c0.getLatitude() + "," + c0.getLongitude() + ")");
 				System.out.println("          Horizontal containment radius limit/protection level: " +
 						ap0.getHorizontalContainmentRadiusLimit() + " m");
-				System.out.println("          Altitude: "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" m");
+				System.out.println("          Altitude: "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" ft");
 				System.out.println("          Navigation Integrity Category: " + ap0.getNIC());
 				System.out.println("          Surveillance status: " + ap0.getSurveillanceStatusDescription());
 
@@ -131,12 +131,12 @@ public class ExampleDecoder {
 				System.out.println("          Horizontal containment radius limit/protection level is " +
 						sp0.getHorizontalContainmentRadiusLimit() + "m");
 				if (sp0.hasValidHeading())
-					System.out.println("          Heading: " + sp0.getHeading() + " m");
+					System.out.println("          Heading: " + sp0.getHeading() + "°");
 				System.out.println("          Airplane is on the ground.");
 
 				if (sp0.hasGroundSpeed()) {
-					System.out.println("          Ground speed: " + sp0.getGroundSpeed() + "m/s");
-					System.out.println("          Ground speed resolution: " + sp0.getGroundSpeedResolution() + "m/s");
+					System.out.println("          Ground speed: " + sp0.getGroundSpeed() + "kt");
+					System.out.println("          Ground speed resolution: " + sp0.getGroundSpeedResolution() + "kt");
 				}
 
 				// we want to inspect fields for ADS-B of different versions
@@ -170,13 +170,13 @@ public class ExampleDecoder {
 			case ADSB_AIRSPEED:
 				AirspeedHeadingMsg airspeed = (AirspeedHeadingMsg) msg;
 				System.out.println("["+icao24+"]: Airspeed: "+
-						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" m/s" : "unkown"));
+						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" kt" : "unkown"));
 				if (airspeed.headingStatusFlag())
 					System.out.println("          Heading: "+
 							(airspeed.headingStatusFlag() ? airspeed.getHeading()+"°" : "unkown"));
 				if (airspeed.hasVerticalRateInfo())
 					System.out.println("          Vertical rate: "+
-							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
+							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" ft/min" : "unkown"));
 				break;
 			case ADSB_IDENTIFICATION:
 				IdentificationMsg ident = (IdentificationMsg) msg;
@@ -263,9 +263,14 @@ public class ExampleDecoder {
 				break;
 			case ADSB_VELOCITY:
 				VelocityOverGroundMsg veloc = (VelocityOverGroundMsg) msg;
-				System.out.println("["+icao24+"]: Velocity: "+(veloc.hasVelocityInfo() ? veloc.getVelocity() : "unknown")+" m/s");
+				System.out.println("["+icao24+"]: Velocity: "+(veloc.hasVelocityInfo() ? veloc.getVelocity() : "unknown")+" kt");
 				System.out.println("          Heading: "+(veloc.hasVelocityInfo() ? veloc.getHeading() : "unknown")+" degrees");
-				System.out.println("          Vertical rate: "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" m/s");
+				System.out.println("          Vertical rate: "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" ft/min");
+
+				// the IFR flag is only used in ADS-B version 1. Although equipage is low, we still support it
+				if (decoder.getAdsbVersion(veloc) == 1)
+					System.out.println("          Has IFR capability: " + veloc.hasIFRCapability());
+
 				break;
 			case EXTENDED_SQUITTER:
 				System.out.println("["+icao24+"]: Unknown extended squitter with type code "+((ExtendedSquitter)msg).getFormatTypeCode()+"!");
@@ -279,14 +284,14 @@ public class ExampleDecoder {
 				break;
 			case SHORT_ACAS:
 				ShortACAS acas = (ShortACAS)msg;
-				System.out.println("["+icao24+"]: Altitude is "+acas.getAltitude()+" and ACAS is "+
+				System.out.println("["+icao24+"]: Altitude is "+acas.getAltitude()+"ft and ACAS is "+
 						(acas.hasOperatingACAS() ? "operating." : "not operating."));
 				System.out.println("          A/C is "+(acas.isAirborne() ? "airborne" : "on the ground")+
 						" and sensitivity level is "+acas.getSensitivityLevel());
 				break;
 			case ALTITUDE_REPLY:
 				AltitudeReply alti = (AltitudeReply)msg;
-				System.out.println("["+icao24+"]: Short altitude reply: "+alti.getAltitude()+"m");
+				System.out.println("["+icao24+"]: Short altitude reply: "+alti.getAltitude()+"ft");
 				break;
 			case IDENTIFY_REPLY:
 				IdentifyReply identify = (IdentifyReply)msg;
@@ -299,13 +304,13 @@ public class ExampleDecoder {
 				break;
 			case LONG_ACAS:
 				LongACAS long_acas = (LongACAS)msg;
-				System.out.println("["+icao24+"]: Altitude is "+long_acas.getAltitude()+" and ACAS is "+
+				System.out.println("["+icao24+"]: Altitude is "+long_acas.getAltitude()+"ft and ACAS is "+
 						(long_acas.hasOperatingACAS() ? "operating." : "not operating."));
 				System.out.println("          A/C is "+(long_acas.isAirborne() ? "airborne" : "on the ground")+
 						" and sensitivity level is "+long_acas.getSensitivityLevel());
 				System.out.println("          RAC is "+(long_acas.hasValidRAC() ? "valid" : "not valid")+
 						" and is "+long_acas.getResolutionAdvisoryComplement()+" (MTE="+long_acas.hasMultipleThreats()+")");
-				System.out.println("          Maximum airspeed is "+long_acas.getMaximumAirspeed()+"m/s.");
+				System.out.println("          Maximum airspeed is "+long_acas.getMaximumAirspeed()+"kn.");
 				break;
 			case MILITARY_EXTENDED_SQUITTER:
 				MilitaryExtendedSquitter mil = (MilitaryExtendedSquitter)msg;
@@ -314,7 +319,7 @@ public class ExampleDecoder {
 				break;
 			case COMM_B_ALTITUDE_REPLY:
 				CommBAltitudeReply commBaltitude = (CommBAltitudeReply)msg;
-				System.out.println("["+icao24+"]: Long altitude reply: "+commBaltitude.getAltitude()+"m");
+				System.out.println("["+icao24+"]: Long altitude reply: "+commBaltitude.getAltitude()+"ft");
 				break;
 			case COMM_B_IDENTIFY_REPLY:
 				CommBIdentifyReply commBidentify = (CommBIdentifyReply)msg;

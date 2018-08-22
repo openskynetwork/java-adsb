@@ -195,6 +195,13 @@ public class ModeSDecoder {
 		}
 	}
 
+	/**
+	 * @param time time of applicability/reception of position report in milliseconds
+	 * @param surfPos surface position message
+	 * @param receiverPos position of the receiver to check if received position was more than 600km away (optional)
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in feet. Altitude is null
+	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
+	 */
 	public <T extends SurfacePositionV0Msg> Position decodePosition(long time, T surfPos, Position receiverPos) {
 		latestTimestamp = Math.max(latestTimestamp, time);
 		DecoderData dd = this.decoderData.get(tools.toHexString(surfPos.getIcao24()));
@@ -205,6 +212,14 @@ public class ModeSDecoder {
 		return dd.posDec.decodePosition(time/1000, surfPos, receiverPos);
 	}
 
+	/**
+	 * @param time time of applicability/reception of position report in milliseconds
+	 * @param airPos airborne position message
+	 * @param receiverPos position of the receiver to check if received position was more than 600km away (optional)
+	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in feet. altitude might be null
+	 *         if unavailable. On error, the returned position is null. Check the .isReasonable() flag before using
+	 *         the position.
+	 */
 	public <T extends AirbornePositionV0Msg> Position decodePosition(long time, T airPos, Position receiverPos) {
 		latestTimestamp = Math.max(latestTimestamp, time);
 		DecoderData dd = this.decoderData.get(tools.toHexString(airPos.getIcao24()));
@@ -213,6 +228,17 @@ public class ModeSDecoder {
 			decoderData.put(tools.toHexString(airPos.getIcao24()), dd);
 		}
 		return dd.posDec.decodePosition(time/1000, receiverPos, airPos);
+	}
+
+	/**
+	 * @param reply a Mode S message
+	 * @return the ADS-B version as tracked by the decoder. Version 0 is assumed until an Operational Status message
+	 * for a higher version is received for the given aircraft.
+	 */
+	public <T extends ModeSReply> byte getAdsbVersion(ModeSReply reply) {
+		if (reply == null) return 0;
+		DecoderData dd = this.decoderData.get(tools.toHexString(reply.getIcao24()));
+		return dd == null ? 0 : dd.adsbVersion;
 	}
 
 	/**
