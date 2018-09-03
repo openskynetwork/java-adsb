@@ -91,7 +91,7 @@ With libadsb version 3, many things have changed, including:
       * `hasVelocityInfo()`
       * `hasGeoMinusBaroInfo()`
 * Altitudes are Integers (not doubles)
-* Altitude in feet, not meters (multiply with 0.3048 to keep metric system);
+* Altitude in feet, not meters (use `tools.feet2Meters()` for conversion);
   The following message types are affected:
   * `AltitudeReply`
   * `CommBAltitudeReply`
@@ -119,7 +119,7 @@ With libadsb version 3, many things have changed, including:
 
 * NIC supplements only available in versions 1 and 2 (new method hasNICSupplementX)
 * Method for time flag renamed to `hasTimeFlag`
-* Ground speed in surface positions in knots instead of m/s (multiply with 0.514444 to keep metric system)
+* Ground speed in surface positions in knots instead of m/s (use `tools.knots2MetersPerSecond()` for conversion)
 
 #### Operational Status Messages
 
@@ -144,11 +144,11 @@ With libadsb version 3, many things have changed, including:
 
 * VelocityOverground: NACv replaced `getNavigationAccuracyCategory` and returns meters, 
   not the category as byte
-* Velocity now in knots instead of m/s (multiply with 0.514444 to keep metric system)
-* Vertical rate in feet/min instead of m/s (multiply with 0.00508 to keep metric system)
-* geoMinurBaro in feet, not meters (multiply with 0.3048 to keep metric system)
+* Velocity now in knots instead of m/s (use `tools.knots2MetersPerSecond()` for conversion)
+* Vertical rate in feet/min instead of m/s (use `tools.feetPerMinute2MetersPerSecond()` for conversion)
+* geoMinurBaro in feet, not meters (use `tools.feet2Meters()` for conversion)
 
 
 #### Long/Short ACAS
 
-* MaximumAirspeed in knots instead of m/s (multiply with 0.514444 to keep metric system)
+* MaximumAirspeed in knots instead of m/s (use `tools.knots2MetersPerSecond()` for conversion)

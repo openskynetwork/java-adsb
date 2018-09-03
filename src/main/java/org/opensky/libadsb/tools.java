@@ -140,4 +140,34 @@ public class tools {
 		}
 		return x == 0;
 	}
+
+	/**
+	 * Convert feet to meters, handling null inputs
+	 * @param ft value in feet
+	 * @return value in meters or null if input was null
+	 */
+	public static Double feet2Meters(Integer ft) {
+		if (ft == null) return null;
+		return ft.doubleValue() * 0.3048;
+	}
+
+	/**
+	 * Convert knots to meters per second, handling null inputs
+	 * @param kn value in knots
+	 * @return value in m/s or null if input was null
+	 */
+	public static Double knots2MetersPerSecond(Integer kn) {
+		if (kn == null) return null;
+		return kn.doubleValue() * 0.514444;
+	}
+
+	/**
+	 * Convert  feet per minute to meters per second, handling null inputs
+	 * @param ftmin value in ft/min
+	 * @return value in m/s or null if input was null
+	 */
+	public static Double feetPerMinute2MetersPerSecond(Integer ftmin) {
+		if (ftmin == null) return null;
+		return ftmin.doubleValue() * 0.00508;
+	}
 }
