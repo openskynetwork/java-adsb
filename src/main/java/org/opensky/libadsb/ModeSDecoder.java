@@ -122,10 +122,15 @@ public class ModeSDecoder {
 					if (ftc == 19) { // possible velocity message, check subtype
 						int subtype = es1090.getMessage()[0] & 0x7;
 
-						if (subtype == 1 || subtype == 2) // velocity over ground
-							return new VelocityOverGroundMsg(es1090);
-						else if (subtype == 3 || subtype == 4) // airspeed & heading
-							return new AirspeedHeadingMsg(es1090);
+						if (subtype == 1 || subtype == 2) { // velocity over ground
+							VelocityOverGroundMsg velocity = new VelocityOverGroundMsg(es1090);
+							if (velocity.hasGeoMinusBaroInfo()) dd.geoMinusBaro = velocity.getGeoMinusBaro();
+							return velocity;
+						} else if (subtype == 3 || subtype == 4) {  // airspeed & heading
+							AirspeedHeadingMsg airspeed = new AirspeedHeadingMsg(es1090);
+							if (airspeed.hasGeoMinusBaroInfo()) dd.geoMinusBaro = airspeed.getGeoMinusBaro();
+							return airspeed;
+						}
 					}
 
 					if (ftc == 28) { // aircraft status message, check subtype
@@ -251,6 +256,19 @@ public class ModeSDecoder {
 	}
 
 	/**
+	 * Get the difference between geometric and barometric altitude as tracked by the decoder. The value is derived
+	 * from ADS-B {@link AirspeedHeadingMsg} and {@link VelocityOverGroundMsg}. The method returns the most recent
+	 * value.
+	 * @param reply a Mode S message
+	 * @return the difference between geometric and barometric altitude in feet
+	 */
+	public <T extends ModeSReply> Integer getGeoMinusBaro(T reply) {
+		if (reply == null) return null;
+		DecoderData dd = this.decoderData.get(reply.getTransponderAddress());
+		return dd == null ? null : dd.geoMinusBaro;
+	}
+
+	/**
 	 * @param raw_message the Mode S message as byte array
 	 * @return an instance of the most specialized ModeSReply possible
 	 * @throws UnspecifiedFormatError if format is not specified
@@ -313,6 +331,7 @@ public class ModeSDecoder {
 		byte adsbVersion = 0;
 		boolean nicSupplA;
 		boolean nicSupplC;
+		Integer geoMinusBaro;
 		PositionDecoder posDec = new PositionDecoder();
 	}
 }
