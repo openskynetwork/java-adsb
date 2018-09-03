@@ -78,20 +78,20 @@ With libadsb version 3, many things have changed, including:
   * Navigation Integrity Category (NIC)
 * Added Source Integrity Level to position messages of version 0
 * `getTransponderAddress()` returning integer representation of the ICAO 24 bit
-  transponder addressin addition to `getIcao24()`
+  transponder address in addition to `getIcao24()` which returns raw bytes
 
 ### Migration Guide
 
 #### General
 
 * Remove MissingInformationExceptions, missing values are given as null instead
-  Checking if info available is still possible, examples:
+* Checking if info available is still possible:
     * Velocity:
       * `hasVerticalRateInfo()`
       * `hasVelocityInfo()`
       * `hasGeoMinusBaroInfo()`
 * Altitudes are Integers (not doubles)
-* Altitude in feet, not meters (multiply with 0.3048 to keep metric system)
+* Altitude in feet, not meters (multiply with 0.3048 to keep metric system);
   The following message types are affected:
   * `AltitudeReply`
   * `CommBAltitudeReply`
