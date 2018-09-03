@@ -94,6 +94,9 @@ public class ModeSDecoder {
 								s2.setNICSupplementA(dd.nicSupplA);
 								s2.setNICSupplementC(dd.nicSupplC);
 								return s2;
+							default:
+								// implicit by version 0
+								return new SurfacePositionV0Msg(es1090);
 						}
 					}
 
@@ -110,6 +113,9 @@ public class ModeSDecoder {
 								AirbornePositionV2Msg a2 = new AirbornePositionV2Msg(es1090);
 								a2.setNICSupplementA(dd.nicSupplA);
 								return a2;
+							default:
+								// implicit by version 0
+								return new AirbornePositionV0Msg(es1090);
 						}
 					}
 
@@ -134,7 +140,7 @@ public class ModeSDecoder {
 					if (ftc == 31) { // operational status message
 						int subtype = es1090.getMessage()[0] & 0x7;
 
-						dd.adsbVersion = (byte) (es1090.getMessage()[5]>>>5);
+						dd.adsbVersion = (byte) ((es1090.getMessage()[5]>>>5) & 0x7);
 						if (subtype == 0) {
 							// airborne
 							switch (dd.adsbVersion) {
@@ -148,6 +154,8 @@ public class ModeSDecoder {
 									AirborneOperationalStatusV2Msg s2 = new AirborneOperationalStatusV2Msg(es1090);
 									dd.nicSupplA = s2.hasNICSupplementA();
 									return s2;
+								default:
+									throw new BadFormatException("Airborne operational status has invalid version");
 							}
 						} else if (subtype == 1) {
 							// surface
@@ -164,6 +172,8 @@ public class ModeSDecoder {
 									dd.nicSupplA = s2.hasNICSupplementA();
 									dd.nicSupplC = s2.getNICSupplementC();
 									return s2;
+								default:
+									throw new BadFormatException("Surface operational status has invalid version");
 							}
 						}
 					}
