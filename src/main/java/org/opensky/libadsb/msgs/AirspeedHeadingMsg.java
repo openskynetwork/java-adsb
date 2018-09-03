@@ -41,7 +41,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	private boolean vertical_rate_down; // 0 = up, 1 = down
 	private short vertical_rate; // in ft/s
 	private boolean vertical_rate_info_available;
-	private short geo_minus_baro; // in ft
+	private int geo_minus_baro; // in ft
 	private boolean geo_minus_baro_available;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
@@ -121,7 +121,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	 * 	    <li><strong>Version 1+</strong> the flag indicates whether heading information is available or not</li>
 	 * 	</ul>
 	 */
-	public boolean headingStatusFlag() {
+	public boolean hasHeadingStatusFlag() {
 		return heading_status_bit;
 	}
 
@@ -227,14 +227,14 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	 * @return difference between barometric and geometric altitude in feet or null if no information is available.
 	 * The latter can also be checked using {@link #hasGeoMinusBaroInfo()}.
 	 */
-	public Short getGeoMinusBaro() {
+	public Integer getGeoMinusBaro() {
 		if (!geo_minus_baro_available) return null;
 		return geo_minus_baro;
 	}
 	
 	/**
 	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north or null if no information is available.
-	 * The latter can also be checked using {@link #headingStatusFlag()}.
+	 * The latter can also be checked using {@link #hasHeadingStatusFlag()}.
 	 */
 	public Double getHeading() {
 		if (!heading_status_bit) return null;
