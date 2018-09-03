@@ -281,6 +281,13 @@ public class ModeSReply implements Serializable {
 	}
 
 	/**
+	 * @return the icao24 in integer representation
+	 */
+	public int getTransponderAddress() {
+		return (icao24[0]&0xff) << 16 | (icao24[1]&0xff) << 8 | (icao24[2]&0xff);
+	}
+
+	/**
 	 * @return payload as 3- or 10-byte array containing the Mode S
 	 * reply without the first and the last three bytes. 
 	 */

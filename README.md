@@ -53,35 +53,7 @@ We have also published this project on Maven Central. Just include the following
 
 Get the latest version number [here](https://mvnrepository.com/artifact/org.opensky-network/libadsb).
 
-### Example decoding of position message
-```java
-import org.opensky.libadsb.*;
-
-// ...
-
-// Example messages for position (47.0063,8.0254)
-ModeSReply odd = Decoder.genericDecoder("8dc0ffee58b986d0b3bd25000000");
-ModeSReply even = Decoder.genericDecoder("8dc0ffee58b9835693c897000000");
-
-// test for message types
-if (odd.getType() != ADSB_AIRBORN_POSITION ||
-    even.getType() != ADSB_AIRBORN_POSITION) {
-    System.out.println("Airborne position reports expected!");
-    System.exit(1);
-}
-
-// now we know it's an airborne position message
-AirbornePositionMsg odd_pos = (AirbornePositionMsg) odd;
-AirbornePositionMsg even_pos = (AirbornePositionMsg) even;
-double[] lat_lon = odd_pos.getGlobalPosition(even_pos);
-double altitude = odd_pos.getAltitude();
-
-System.out.println("Latitude  = "+ lat_lon[0]+ "°\n"+
-                   "Longitude = "+ lat_lon[1]+ "°\n"+
-                   "Altitude  = "+ altitude+ "m");
-
-// ...
-```
+## Usage
 
 A complete working decoder can be found in [ExampleDecoder.java](src/main/java/org/opensky/example/ExampleDecoder.java). A demonstration how this
 decoder can be used is provided in [OskySampleReader.java](https://github.com/openskynetwork/osky-sample/blob/master/src/main/java/org/opensky/tools/OskySampleReader.java). It reads, decodes, and prints serialized
@@ -105,3 +77,78 @@ With libadsb version 3, many things have changed, including:
   * Navigation Accuracy Category for position (NACp)
   * Navigation Integrity Category (NIC)
 * Added Source Integrity Level to position messages of version 0
+* `getTransponderAddress()` returning integer representation of the ICAO 24 bit
+  transponder addressin addition to `getIcao24()`
+
+### Migration Guide
+
+#### General
+
+* Remove MissingInformationExceptions, missing values are given as null instead
+  Checking if info available is still possible, examples:
+    * Velocity:
+      * `hasVerticalRateInfo()`
+      * `hasVelocityInfo()`
+      * `hasGeoMinusBaroInfo()`
+* Altitudes are Integers (not doubles)
+* Altitude in feet, not meters (multiply with 0.3048 to keep metric system)
+  The following message types are affected:
+  * `AltitudeReply`
+  * `CommBAltitudeReply`
+  * `ShortACAS`
+  * `LongACAS`
+  * `AirbornePositionV?Msg`
+
+#### Position Messages
+
+* Replace ModeSReply.subtype.ADSB_AIRBORN_POSITION with
+  * ModeSReply.subtype.ADSB_AIRBORN_POSITION_V0
+  * ModeSReply.subtype.ADSB_AIRBORN_POSITION_V1
+  * ModeSReply.subtype.ADSB_AIRBORN_POSITION_V2
+
+* Replace ModeSReply.subtype.ADSB_SURFACE_POSITION with
+  * ModeSReply.subtype.ADSB_SURFACE_POSITION_V0
+  * ModeSReply.subtype.ADSB_SURFACE_POSITION_V1
+  * ModeSReply.subtype.ADSB_SURFACE_POSITION_V2
+
+* No need to distinguish position messages of different versions for Decoder.
+  Their common super class is `SurfacePositionV0Msg`/`AirbornePositionV0Msg` and
+  ADS-B version is irrelevant for position decoding
+
+* No `isBarometricAltitude` for surface position messages anymore
+
+* NIC supplements only available in versions 1 and 2 (new method hasNICSupplementX)
+* Method for time flag renamed to `hasTimeFlag`
+* Ground speed in surface positions in knots instead of m/s (multiply with 0.514444 to keep metric system)
+
+#### Operational Status Messages
+
+* Operational Status now in four different classes. No need to distinguish
+  subtype codes by the user (airborne = 0, surface = 1)
+  * Have a look at the API to see available fields of different ADS-B versions
+  * V0: only TCAS and CDTI, no distinction between airborne and surface
+  * V2: only SIL supplement is new in version 2, if not needed you can use V1
+    for both versions
+
+* Replace ModeSReply.subtype.ADSB_STATUS with
+  * ModeSReply.subtype.ADSB_STATUS_V0
+  * ModeSReply.subtype.ADSB_AIRBORN_STATUS_V1
+  * ModeSReply.subtype.ADSB_AIRBORN_STATUS_V2
+
+* Replace ModeSReply.subtype.ADSB_STATUS with
+  * ModeSReply.subtype.ADSB_STATUS_V0
+  * ModeSReply.subtype.ADSB_SURFACE_STATUS_V1
+  * ModeSReply.subtype.ADSB_SURFACE_STATUS_V2
+
+#### Velocity and Airspeed Messages
+
+* VelocityOverground: NACv replaced `getNavigationAccuracyCategory` and returns meters, 
+  not the category as byte
+* Velocity now in knots instead of m/s (multiply with 0.514444 to keep metric system)
+* Vertical rate in feet/min instead of m/s (multiply with 0.00508 to keep metric system)
+* geoMinurBaro in feet, not meters (multiply with 0.3048 to keep metric system)
+
+
+#### Long/Short ACAS
+
+* MaximumAirspeed in knots instead of m/s (multiply with 0.514444 to keep metric system)

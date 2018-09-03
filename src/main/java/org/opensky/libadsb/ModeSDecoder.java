@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ModeSDecoder {
 	// mapping from icao24 to Decoder, note that we cannot use byte[] as key!
-	private Map<String, DecoderData> decoderData = new HashMap<String, DecoderData>();
+	private Map<Integer, DecoderData> decoderData = new HashMap<Integer, DecoderData>();
 	private int afterLastCleanup;
 	private long latestTimestamp;
 
@@ -66,12 +66,12 @@ public class ModeSDecoder {
 
 					// we need stateful decoding, because ADS-B version > 0 can only be assumed
 					// if matching version info in operational status has been found.
-					DecoderData dd = this.decoderData.get(tools.toHexString(modes.getIcao24()));
+					DecoderData dd = this.decoderData.get(modes.getTransponderAddress());
 					if (dd == null) {
 						// create new DecoderData
 						// assume ADS-B version 0 (as demanded by DO-260B N.1.2)
 						dd = new DecoderData();
-						this.decoderData.put(tools.toHexString(modes.getIcao24()), dd);
+						this.decoderData.put(modes.getTransponderAddress(), dd);
 					}
 
 					// what kind of extended squitter?
@@ -135,7 +135,6 @@ public class ModeSDecoder {
 						int subtype = es1090.getMessage()[0] & 0x7;
 
 						dd.adsbVersion = (byte) (es1090.getMessage()[5]>>>5);
-						System.out.println("Set ADS-B version " + dd.adsbVersion);
 						if (subtype == 0) {
 							// airborne
 							switch (dd.adsbVersion) {
@@ -204,10 +203,10 @@ public class ModeSDecoder {
 	 */
 	public <T extends SurfacePositionV0Msg> Position decodePosition(long time, T surfPos, Position receiverPos) {
 		latestTimestamp = Math.max(latestTimestamp, time);
-		DecoderData dd = this.decoderData.get(tools.toHexString(surfPos.getIcao24()));
+		DecoderData dd = this.decoderData.get(surfPos.getTransponderAddress());
 		if (dd == null) {
 			dd = new DecoderData();
-			decoderData.put(tools.toHexString(surfPos.getIcao24()), dd);
+			decoderData.put(surfPos.getTransponderAddress(), dd);
 		}
 		return dd.posDec.decodePosition(time/1000, surfPos, receiverPos);
 	}
@@ -222,10 +221,10 @@ public class ModeSDecoder {
 	 */
 	public <T extends AirbornePositionV0Msg> Position decodePosition(long time, T airPos, Position receiverPos) {
 		latestTimestamp = Math.max(latestTimestamp, time);
-		DecoderData dd = this.decoderData.get(tools.toHexString(airPos.getIcao24()));
+		DecoderData dd = this.decoderData.get(airPos.getTransponderAddress());
 		if (dd == null) {
 			dd = new DecoderData();
-			decoderData.put(tools.toHexString(airPos.getIcao24()), dd);
+			decoderData.put(airPos.getTransponderAddress(), dd);
 		}
 		return dd.posDec.decodePosition(time/1000, receiverPos, airPos);
 	}
@@ -235,9 +234,9 @@ public class ModeSDecoder {
 	 * @return the ADS-B version as tracked by the decoder. Version 0 is assumed until an Operational Status message
 	 * for a higher version is received for the given aircraft.
 	 */
-	public <T extends ModeSReply> byte getAdsbVersion(ModeSReply reply) {
+	public <T extends ModeSReply> byte getAdsbVersion(T reply) {
 		if (reply == null) return 0;
-		DecoderData dd = this.decoderData.get(tools.toHexString(reply.getIcao24()));
+		DecoderData dd = this.decoderData.get(reply.getTransponderAddress());
 		return dd == null ? 0 : dd.adsbVersion;
 	}
 
@@ -288,13 +287,13 @@ public class ModeSDecoder {
 	 * every 1 Mio messages if more than 50000 aircraft are tracked.
 	 */
 	public void gc() {
-		List<String> toRemove = new ArrayList<String>();
-		for (String key : decoderData.keySet())
-			if (decoderData.get(key).posDec.getLastUsedTime()<latestTimestamp-3600000)
-				toRemove.add(key);
+		List<Integer> toRemove = new ArrayList<Integer>();
+		for (Integer transponder : decoderData.keySet())
+			if (decoderData.get(transponder).posDec.getLastUsedTime()<latestTimestamp-3600000)
+				toRemove.add(transponder);
 
-		for (String key : toRemove)
-			decoderData.remove(key);
+		for (Integer transponder : toRemove)
+			decoderData.remove(transponder);
 	}
 
 	/**
