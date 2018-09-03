@@ -1,6 +1,6 @@
 package org.opensky.libadsb.msgs;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.tools;
 
@@ -99,6 +99,7 @@ public class MilitaryExtendedSquitter extends ModeSReply implements Serializable
 		return application_code;
 	}
 
+	@Override
 	public String toString() {
 		return super.toString()+"\n"+
 				"Extended Squitter:\n"+

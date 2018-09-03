@@ -1,9 +1,5 @@
 package org.opensky.libadsb;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
 import java.io.Serializable;
 
 import static java.lang.Math.*;
@@ -99,31 +95,6 @@ public class Position implements Serializable {
 		this.altitude = altitude;
 	}
 
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null) return false;
-		if (o instanceof Position) {
-			final Position p = (Position) o;
-			return new EqualsBuilder().append(getLatitude(), 
-					p.getLatitude())
-					.append(getLongitude(), p.getLongitude())
-					.append(getAltitude(), p.getAltitude()).isEquals();
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return new HashCodeBuilder().append(longitude)
-				.append(latitude).append(altitude).toHashCode();
-	}
-	
 	/**
 	 * Calculates the two-dimensional great circle distance (haversine)
 	 * @param other position to which we calculate the distance
@@ -159,4 +130,35 @@ public class Position implements Serializable {
 		this.reasonable = reasonable;
 	}
 
+	@Override
+	public String toString() {
+		return "Position{" +
+				"longitude=" + longitude +
+				", latitude=" + latitude +
+				", altitude=" + altitude +
+				", reasonable=" + reasonable +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Position)) return false;
+
+		Position position = (Position) o;
+
+		if (reasonable != position.reasonable) return false;
+		if (longitude != null ? !longitude.equals(position.longitude) : position.longitude != null) return false;
+		if (latitude != null ? !latitude.equals(position.latitude) : position.latitude != null) return false;
+		return altitude != null ? altitude.equals(position.altitude) : position.altitude == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = longitude != null ? longitude.hashCode() : 0;
+		result = 31 * result + (latitude != null ? latitude.hashCode() : 0);
+		result = 31 * result + (altitude != null ? altitude.hashCode() : 0);
+		result = 31 * result + (reasonable ? 1 : 0);
+		return result;
+	}
 }
