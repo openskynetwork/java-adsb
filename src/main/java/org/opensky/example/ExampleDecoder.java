@@ -91,7 +91,17 @@ public class ExampleDecoder {
 					System.out.println("Now at position (" + c0.getLatitude() + "," + c0.getLongitude() + ")");
 				System.out.println("          Horizontal containment radius limit/protection level: " +
 						ap0.getHorizontalContainmentRadiusLimit() + " m");
-				System.out.println("          Altitude: "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" ft");
+
+				if (ap0.isBarometricAltitude())
+					System.out.println("          Altitude (barom.): "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" ft");
+				else
+					System.out.println("          Height (geom.): "+ (ap0.hasAltitude() ? ap0.getAltitude() : "unknown") +" ft");
+
+				Integer geoMinusBaro = decoder.getGeoMinusBaro(msg);
+				if (ap0.hasAltitude() && ap0.isBarometricAltitude() && geoMinusBaro != null) {
+					System.out.println("          Height (geom.): " + ap0.getAltitude() + geoMinusBaro + " ft");
+				}
+
 				System.out.println("          Navigation Integrity Category: " + ap0.getNIC());
 				System.out.println("          Surveillance status: " + ap0.getSurveillanceStatusDescription());
 
@@ -171,9 +181,17 @@ public class ExampleDecoder {
 				AirspeedHeadingMsg airspeed = (AirspeedHeadingMsg) msg;
 				System.out.println("["+icao24+"]: Airspeed: "+
 						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" kt" : "unkown"));
-				if (airspeed.headingStatusFlag())
+
+				if (decoder.getAdsbVersion(msg) == 0) {
+					// version 0 flag indicates true or magnetic north
+					System.out.println("          Heading: " + airspeed.getHeading() + "° relative to " +
+							(airspeed.hasHeadingStatusFlag() ? "magnetic north" : "true north"));
+				} else {
+					// version 1+ flag indicates if heading is available at all
 					System.out.println("          Heading: "+
-							(airspeed.headingStatusFlag() ? airspeed.getHeading()+"°" : "unkown"));
+							(airspeed.hasHeadingStatusFlag() ? airspeed.getHeading()+"°" : "unkown"));
+				}
+
 				if (airspeed.hasVerticalRateInfo())
 					System.out.println("          Vertical rate: "+
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" ft/min" : "unkown"));
@@ -264,7 +282,7 @@ public class ExampleDecoder {
 			case ADSB_VELOCITY:
 				VelocityOverGroundMsg veloc = (VelocityOverGroundMsg) msg;
 				System.out.println("["+icao24+"]: Velocity: "+(veloc.hasVelocityInfo() ? veloc.getVelocity() : "unknown")+" kt");
-				System.out.println("          Heading: "+(veloc.hasVelocityInfo() ? veloc.getHeading() : "unknown")+" degrees");
+				System.out.println("          Heading: "+(veloc.hasVelocityInfo() ? veloc.getHeading() : "unknown")+" °");
 				System.out.println("          Vertical rate: "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" ft/min");
 
 				// the IFR flag is only used in ADS-B version 1. Although equipage is low, we still support it
