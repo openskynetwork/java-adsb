@@ -213,6 +213,7 @@ public class ModeSDecoder {
 	 * @param time time of applicability/reception of position report in milliseconds
 	 * @param surfPos surface position message
 	 * @param receiverPos position of the receiver to check if received position was more than 600km away (optional)
+	 * @param <T> {@link SurfacePositionV0Msg} or one of its sub classes where position is encoded using CPR
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in feet. Altitude is null
 	 *         On error, the returned position is null. Check the .isReasonable() flag before using the position.
 	 */
@@ -230,6 +231,7 @@ public class ModeSDecoder {
 	 * @param time time of applicability/reception of position report in milliseconds
 	 * @param airPos airborne position message
 	 * @param receiverPos position of the receiver to check if received position was more than 600km away (optional)
+	 * @param <T> {@link AirbornePositionV0Msg} or one of its sub classes where position is encoded using CPR
 	 * @return WGS84 coordinates with latitude and longitude in dec degrees, and altitude in feet. altitude might be null
 	 *         if unavailable. On error, the returned position is null. Check the .isReasonable() flag before using
 	 *         the position.
@@ -247,6 +249,7 @@ public class ModeSDecoder {
 	/**
 	 * @param reply a Mode S message
 	 * @return the ADS-B version as tracked by the decoder. Version 0 is assumed until an Operational Status message
+	 * @param <T> {@link ModeSReply} or one of its sub classes
 	 * for a higher version is received for the given aircraft.
 	 */
 	public <T extends ModeSReply> byte getAdsbVersion(T reply) {
@@ -260,6 +263,7 @@ public class ModeSDecoder {
 	 * from ADS-B {@link AirspeedHeadingMsg} and {@link VelocityOverGroundMsg}. The method returns the most recent
 	 * value.
 	 * @param reply a Mode S message
+	 * @param <T> {@link ModeSReply} or one of its sub classes
 	 * @return the difference between geometric and barometric altitude in feet
 	 */
 	public <T extends ModeSReply> Integer getGeoMinusBaro(T reply) {

@@ -300,7 +300,7 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	}
 
 	/**
-	 * 0: unknown or > 1e-3, 1: <= 1e-3, 2: <= 1e-5, 3: <= 1e-7
+	 * 0: unknown or &gt; 1e-3, 1: &lt;= 1e-3, 2: &lt;= 1e-5, 3: &lt;= 1e-7
 	 * @return the source integrity level (SIL) which indicates the propability of exceeding
 	 *         the NIC containment radius (see table A-15 in RCTA DO-260B)
 	 */
