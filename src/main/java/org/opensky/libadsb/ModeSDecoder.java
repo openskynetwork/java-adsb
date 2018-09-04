@@ -315,6 +315,45 @@ public class ModeSDecoder {
 	}
 
 	/**
+	 * Check whether a ModeSReply is an airborne position (of any version), i.e., it
+	 * is of type {@link AirbornePositionV0Msg}, {@link AirbornePositionV1Msg} or {@link AirbornePositionV2Msg}
+	 * @param reply the ModeSReply to check
+	 * @param <T> {@link ModeSReply} or one of its sub classes
+	 */
+	public static <T extends ModeSReply> boolean isAirbornePosition(T reply) {
+		if (reply == null) return false;
+		ModeSReply.subtype t = reply.getType();
+		return (t == ModeSReply.subtype.ADSB_AIRBORN_POSITION_V0 ||
+				t == ModeSReply.subtype.ADSB_AIRBORN_POSITION_V1 ||
+				t == ModeSReply.subtype.ADSB_AIRBORN_POSITION_V2);
+	}
+
+	/**
+	 * Check whether a ModeSReply is a surface position (of any version), i.e., it
+	 * is of type {@link SurfacePositionV0Msg}, {@link SurfacePositionV1Msg} or {@link SurfacePositionV2Msg}
+	 * @param reply the ModeSReply to check
+	 * @param <T> {@link ModeSReply} or one of its sub classes
+	 */
+	public static <T extends ModeSReply> boolean isSurfacePosition(T reply) {
+		if (reply == null) return false;
+		ModeSReply.subtype t = reply.getType();
+		return (t == ModeSReply.subtype.ADSB_SURFACE_POSITION_V0 ||
+				t == ModeSReply.subtype.ADSB_SURFACE_POSITION_V1 ||
+				t == ModeSReply.subtype.ADSB_SURFACE_POSITION_V2);
+	}
+
+	/**
+	 * Check whether a ModeSReply is either an airborne or a surface position
+	 * @see #isAirbornePosition(ModeSReply)
+	 * @see #isSurfacePosition(ModeSReply)
+	 * @param reply the ModeSReply to check
+	 * @param <T> {@link ModeSReply} or one of its sub classes
+	 */
+	public static <T extends ModeSReply> boolean isPosition(T reply) {
+		return isAirbornePosition(reply) || isSurfacePosition(reply);
+	}
+
+	/**
 	 * Clean state by removing decoders not used for more than an hour. This happens automatically
 	 * every 1 Mio messages if more than 50000 aircraft are tracked.
 	 */
