@@ -37,7 +37,8 @@ This is a Maven project. You can simply generate a jar file with `mvn package`.
 All the output can afterwards be found in the `target` directory. There will
 be two jar files
 
-* `libadsb-VERSION.jar` contains libadsb, only. You should use this in your projects
+* `libadsb-VERSION.jar` contains libadsb, only.
+* `libadsb-VERSION-fat.jar` includes libadsb and all its dependencies.
 
 #### Maven Central
 
@@ -55,15 +56,29 @@ Get the latest version number [here](https://mvnrepository.com/artifact/org.open
 
 ## Usage
 
-A complete working decoder can be found in [ExampleDecoder.java](src/main/java/org/opensky/example/ExampleDecoder.java). A demonstration how this
-decoder can be used is provided in [OskySampleReader.java](https://github.com/openskynetwork/osky-sample/blob/master/src/main/java/org/opensky/tools/OskySampleReader.java). It reads, decodes, and prints serialized
+There are three different versions of ADS-B in the wild: 0, 1 and 2.
+Transmitters' ADS-B version affects interpretation of certain messages. This holds in particular for aircraft's 
+operational status information such as position accuracy and system equipage.
+
+When decoding ADS-B, a receiver by default assumes version 0, unless told otherwise. This has no effect on basic 
+information such as position and velocity. These fields are compatible between different versions. However, for full
+awareness about an aircraft's capabilities, version information has to be taken into account. It is encoded in the
+operational status message which is sent around every five seconds. Thus, decoding ADS-B has to be done in a stateful 
+manner. Libadsb includes a stateful decoder which can be found in the class `ModeSDecoder`. Given a stream of encoded
+messages, it returns decoded results of the inferred ADS-B version. This is represented by different types, e.g.,
+`AirbornePositionV0Msg` and `AirbornePositionV1Msg` for versions 0 and 1. 
+
+We recommend having a look at the [ExampleDecoder.java](src/main/java/org/opensky/example/ExampleDecoder.java) which
+gives a detailed explanation on how to use libadsb.
+
+A demonstration how this decoder can be used is provided in [OskySampleReader.java](https://github.com/openskynetwork/osky-sample/blob/master/src/main/java/org/opensky/tools/OskySampleReader.java). It reads, decodes, and prints serialized
 ADS-B messages from avro-files with the OpenSky schema. A sample of such data and the schema is provided in the
 [osky-sample repository](https://github.com/openskynetwork/osky-sample).
 
 
 ## Migration to Version 3
 
-**!!Version 3 is not a drop-in replacement. You have to adapt your existing code!!**
+**!!If you have been using libadsb version 2.x and earlier: Version 3 is not a drop-in replacement. You have to adapt your existing code!!**
 
 With libadsb version 3, many things have changed, including:
 * **Switched to nautical units for altitude and speed.** We keep the values according to the standard.
@@ -113,7 +128,7 @@ With libadsb version 3, many things have changed, including:
 
 * No need to distinguish position messages of different versions for Decoder.
   Their common super class is `SurfacePositionV0Msg`/`AirbornePositionV0Msg` and
-  ADS-B version is irrelevant for position decoding
+  the ADS-B version is irrelevant for *position* decoding
 
 * No `isBarometricAltitude` for surface position messages anymore
 
@@ -125,7 +140,7 @@ With libadsb version 3, many things have changed, including:
 
 * Operational Status now in four different classes. No need to distinguish
   subtype codes by the user (airborne = 0, surface = 1)
-  * Have a look at the API to see available fields of different ADS-B versions
+  * Have a look at the API to see available fields of different ADS-B versions. Many things have changed here.
   * V0: only TCAS and CDTI, no distinction between airborne and surface
   * V2: only SIL supplement is new in version 2, if not needed you can use V1
     for both versions
@@ -142,7 +157,7 @@ With libadsb version 3, many things have changed, including:
 
 #### Velocity and Airspeed Messages
 
-* VelocityOverground: NACv replaced `getNavigationAccuracyCategory` and returns meters, 
+* VelocityOverground: `getNavigationAccuracyCategory` replaced by `getNACv` and returns meters,
   not the category as byte
 * Velocity now in knots instead of m/s (use `tools.knots2MetersPerSecond()` for conversion)
 * Vertical rate in feet/min instead of m/s (use `tools.feetPerMinute2MetersPerSecond()` for conversion)
@@ -152,3 +167,5 @@ With libadsb version 3, many things have changed, including:
 #### Long/Short ACAS
 
 * MaximumAirspeed in knots instead of m/s (use `tools.knots2MetersPerSecond()` for conversion)
+
+# FIXME knots2MetersPerSecond should accept double from velocitymsg - integrate into OpenSky to see
