@@ -23,7 +23,7 @@ import static java.lang.Math.*;
 
 /**
  * Container class for WGS84 positions
- * 
+ *
  * @author Markus Fuchs (fuchs@opensky-network.org)
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
@@ -100,7 +100,7 @@ public class Position implements Serializable {
 	 * @param other position to which we calculate the distance
 	 * @return distance between the this and other position in meters
 	 */
-	public Double distanceTo(Position other) {
+	public Double haversine(Position other) {
 		double lon0r = toRadians(this.longitude);
 		double lat0r = toRadians(this.latitude);
 		double lon1r = toRadians(other.longitude);
@@ -109,6 +109,37 @@ public class Position implements Serializable {
 		double b = cos(lat0r) * cos(lat1r) * pow(sin((lon1r - lon0r) / 2.0), 2);
 
 		return 6371000.0 * 2 * asin(sqrt(a + b));
+	}
+
+	private double[] toECEF () {
+		double lon0r = toRadians(this.longitude);
+		double lat0r = toRadians(this.latitude);
+
+		// WGS84 ellipsoid constants
+		double a = 6378137.0;
+		double b = 6356752.314245;
+		double f = (a-b)/a;
+
+		double e2 = f*(2-f);
+		double v = a / Math.sqrt(1 - e2*Math.sin(lat0r)*Math.sin(lat0r));
+
+		return new double[] {
+				(v + this.altitude) * Math.cos(lat0r) * Math.cos(lon0r), // x
+				(v + this.altitude) * Math.cos(lat0r) * Math.sin(lon0r), // y
+				(v * (1 - e2) + this.altitude) * Math.sin(lat0r) // z
+		};
+
+	}
+
+	public Double WGS84Distance3D (Position other) {
+		double[] xyz1 = this.toECEF();
+		double[] xyz2 = other.toECEF();
+
+		return Math.sqrt(
+				Math.pow(xyz2[0] - xyz1[0], 2) +
+						Math.pow(xyz2[1] - xyz1[1], 2) +
+						Math.pow(xyz2[2] - xyz1[2], 2)
+		);
 	}
 
 	/**

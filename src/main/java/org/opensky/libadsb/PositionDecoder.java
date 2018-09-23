@@ -96,7 +96,7 @@ public class PositionDecoder {
 	 * @return true is the distance between the two positions is reasonable
 	 */
 	public static boolean withinReasonableRange(Position receiver, Position sender) {
-		return receiver.distanceTo(sender)<=MAX_DIST_TO_SENDER;
+		return receiver.haversine(sender)<=MAX_DIST_TO_SENDER;
 	}
 
 	/**
@@ -157,17 +157,17 @@ public class PositionDecoder {
 		double distance_threshold = 10.0; // 10 is a random small distance
 
 		// check distance between global and local position if possible
-		if (local && global && global_pos.distanceTo(local_pos) > distance_threshold) {  // should be almost equal
+		if (local && global && global_pos.haversine(local_pos) > distance_threshold) {  // should be almost equal
 			logger.debug("Local and global differ by {} (icao24: {})",
-					global_pos.distanceTo(local_pos), tools.toHexString(msg.getIcao24()));
+					global_pos.haversine(local_pos), tools.toHexString(msg.getIcao24()));
 			reasonable = false;
 		}
 
 		// check if it's realistic that the airplane covered this distance
 		if (global && last_pos != null &&
-				!withinThreshold(time-last_time, global_pos.distanceTo(last_pos))) { // faster than 1000 knots???
+				!withinThreshold(time-last_time, global_pos.haversine(last_pos))) { // faster than 1000 knots???
 			logger.debug("'{}' would have been too fast ({} m/s) from other position.",
-					tools.toHexString(msg.getIcao24()), global_pos.distanceTo(last_pos)/abs(time-last_time));
+					tools.toHexString(msg.getIcao24()), global_pos.haversine(last_pos)/abs(time-last_time));
 			reasonable = false;
 		}
 
@@ -175,7 +175,7 @@ public class PositionDecoder {
 		if (global) {
 			try {
 				// check local/global dist of new message
-				double dist = global_pos.distanceTo(msg.getLocalPosition(global_pos));
+				double dist = global_pos.haversine(msg.getLocalPosition(global_pos));
 				if (dist > distance_threshold) {
 					reasonable = false;
 					logger.debug("Local/Global differ for new message by {} m (icao24: {})",
@@ -184,17 +184,17 @@ public class PositionDecoder {
 
 				// check local/global dist of old message
 				Position other_pos = last_other.getGlobalPosition(msg);
-				dist = other_pos.distanceTo(last_other.getLocalPosition(other_pos));
+				dist = other_pos.haversine(last_other.getLocalPosition(other_pos));
 				if (dist > distance_threshold) {
 					reasonable = false;
 					logger.debug("Local/Global differ for old message by {} m (icao24: {})",
 							dist, tools.toHexString(msg.getIcao24()));
 				}
 
-				if (!withinThreshold(time-last_other_time, global_pos.distanceTo(other_pos))) { // faster than 1000 knots
+				if (!withinThreshold(time-last_other_time, global_pos.haversine(other_pos))) { // faster than 1000 knots
 					reasonable = false;
 					logger.debug("'{}' would have been too fast ({} m/s) for global.",
-							tools.toHexString(msg.getIcao24()), global_pos.distanceTo(other_pos)/abs(last_other_time-time));
+							tools.toHexString(msg.getIcao24()), global_pos.haversine(other_pos)/abs(last_other_time-time));
 				}
 			} catch (BadFormatException e) {
 				reasonable = false;
@@ -205,11 +205,11 @@ public class PositionDecoder {
 
 		// check if it's realistic that the airplane covered this distance
 		if (local_pos != null && last_pos != null &&
-				!withinThreshold(last_time-time, local_pos.distanceTo(last_pos))) { // faster than 1000 knots???
+				!withinThreshold(last_time-time, local_pos.haversine(last_pos))) { // faster than 1000 knots???
 			logger.debug("'{}' would be too fast ({}/{} = {} m/s).",
 					tools.toHexString(msg.getIcao24()),
-					local_pos.distanceTo(last_pos), abs(time-last_time),
-					local_pos.distanceTo(last_pos)/abs(time-last_time));
+					local_pos.haversine(last_pos), abs(time-last_time),
+					local_pos.haversine(last_pos)/abs(time-last_time));
 			reasonable = false;
 		}
 
@@ -344,17 +344,17 @@ public class PositionDecoder {
 		double distance_threshold = 10.0; // 10 is a random small distance
 
 		// check distance between global and local position if possible
-		if (local && global && global_pos.distanceTo(local_pos) > distance_threshold) {  // should be almost equal
+		if (local && global && global_pos.haversine(local_pos) > distance_threshold) {  // should be almost equal
 			logger.debug("Local and global differ by {} (icao24: {})\n",
-					global_pos.distanceTo(local_pos), tools.toHexString(msg.getIcao24()));
+					global_pos.haversine(local_pos), tools.toHexString(msg.getIcao24()));
 			reasonable = false;
 		}
 
 		// check if it's realistic that the airplane covered this distance
 		if (global && last_pos != null &&
-				!withinThreshold(time-last_time, global_pos.distanceTo(last_pos), true)) { // faster than 1000 knots???
+				!withinThreshold(time-last_time, global_pos.haversine(last_pos), true)) { // faster than 1000 knots???
 			logger.debug("'{}' would have been too fast ({} m/s) from other position.\n",
-					tools.toHexString(msg.getIcao24()), global_pos.distanceTo(last_pos)/abs(time-last_time));
+					tools.toHexString(msg.getIcao24()), global_pos.haversine(last_pos)/abs(time-last_time));
 			reasonable = false;
 		}
 
@@ -362,7 +362,7 @@ public class PositionDecoder {
 		if (global) {
 			try {
 				// check local/global dist of new message
-				double dist = global_pos.distanceTo(msg.getLocalPosition(global_pos));
+				double dist = global_pos.haversine(msg.getLocalPosition(global_pos));
 				if (dist > distance_threshold) {
 					reasonable = false;
 					logger.debug("Local/Global differ for new message by {} m (icao24: {})",
@@ -371,17 +371,17 @@ public class PositionDecoder {
 
 				// check local/global dist of old message
 				Position other_pos = last_other.getGlobalPosition(msg, real_ref);
-				dist = other_pos.distanceTo(last_other.getLocalPosition(other_pos));
+				dist = other_pos.haversine(last_other.getLocalPosition(other_pos));
 				if (dist > distance_threshold) {
 					reasonable = false;
 					logger.debug("Local/Global differ for old message by {} m (icao24: {})",
 							dist, tools.toHexString(msg.getIcao24()));
 				}
 
-				if (!withinThreshold(time-last_other_time, global_pos.distanceTo(other_pos), true)) { // faster than 1000 knots
+				if (!withinThreshold(time-last_other_time, global_pos.haversine(other_pos), true)) { // faster than 1000 knots
 					reasonable = false;
 					logger.debug("'{}' would have been too fast ({} m/s) for global.",
-							tools.toHexString(msg.getIcao24()), global_pos.distanceTo(other_pos)/abs(last_other_time-time));
+							tools.toHexString(msg.getIcao24()), global_pos.haversine(other_pos)/abs(last_other_time-time));
 				}
 			} catch (BadFormatException e) {
 				reasonable = false;
@@ -392,11 +392,11 @@ public class PositionDecoder {
 
 		// check if it's realistic that the airplane covered this distance
 		if (local_pos != null && last_pos != null &&
-				!withinThreshold(last_time-time, local_pos.distanceTo(last_pos), true)) { // faster than 1000 knots???
+				!withinThreshold(last_time-time, local_pos.haversine(last_pos), true)) { // faster than 1000 knots???
 			logger.debug("'{}' would be too fast ({}/{} = {} m/s).",
 					tools.toHexString(msg.getIcao24()),
-					local_pos.distanceTo(last_pos), abs(time-last_time),
-					local_pos.distanceTo(last_pos)/abs(time-last_time));
+					local_pos.haversine(last_pos), abs(time-last_time),
+					local_pos.haversine(last_pos)/abs(time-last_time));
 			reasonable = false;
 		}
 

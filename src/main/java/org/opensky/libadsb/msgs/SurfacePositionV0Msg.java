@@ -378,7 +378,7 @@ public class SurfacePositionV0Msg extends ExtendedSquitter implements Serializab
 		Position tmp, result = new Position(lon, lat, 0.);
 		for (int o : lon_offs) {
 			tmp = new Position(lon+o, lat, 0.0);
-			if (tmp.distanceTo(ref) < result.distanceTo(ref))
+			if (tmp.haversine(ref) < result.haversine(ref))
 				result = tmp;
 		}
 
