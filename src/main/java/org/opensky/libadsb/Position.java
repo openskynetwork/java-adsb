@@ -44,7 +44,7 @@ public class Position implements Serializable {
 	/**
 	 * @param lon longitude in decimal degrees
 	 * @param lat latitude in decimal degrees
-	 * @param alt altitude in meters
+	 * @param alt altitude in feet
 	 */
 	public Position(Double lon, Double lat, Double alt) {
 		longitude = lon;
