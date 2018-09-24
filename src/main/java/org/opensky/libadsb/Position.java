@@ -114,6 +114,7 @@ public class Position implements Serializable {
 	private double[] toECEF () {
 		double lon0r = toRadians(this.longitude);
 		double lat0r = toRadians(this.latitude);
+		double height = tools.feet2Meters(altitude);
 
 		// WGS84 ellipsoid constants
 		double a = 6378137.0;
@@ -124,14 +125,23 @@ public class Position implements Serializable {
 		double v = a / Math.sqrt(1 - e2*Math.sin(lat0r)*Math.sin(lat0r));
 
 		return new double[] {
-				(v + this.altitude) * Math.cos(lat0r) * Math.cos(lon0r), // x
-				(v + this.altitude) * Math.cos(lat0r) * Math.sin(lon0r), // y
-				(v * (1 - e2) + this.altitude) * Math.sin(lat0r) // z
+				(v + height) * Math.cos(lat0r) * Math.cos(lon0r), // x
+				(v + height) * Math.cos(lat0r) * Math.sin(lon0r), // y
+				(v * (1 - e2) + height) * Math.sin(lat0r) // z
 		};
 
 	}
 
+	/**
+	 * Calculate the three-dimensional distance between this and another position.
+	 * This method assumes that the coordinates are WGS84.
+	 * @param other position
+	 * @return 3d distance or null if lat, lon, or alt is missing
+	 */
 	public Double WGS84Distance3D (Position other) {
+		if (latitude == null || longitude == null || altitude == null)
+			return null;
+
 		double[] xyz1 = this.toECEF();
 		double[] xyz2 = other.toECEF();
 
