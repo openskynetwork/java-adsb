@@ -136,10 +136,10 @@ public class Position implements Serializable {
 	 * Calculate the three-dimensional distance between this and another position.
 	 * This method assumes that the coordinates are WGS84.
 	 * @param other position
-	 * @return 3d distance or null if lat, lon, or alt is missing
+	 * @return 3d distance in meters or null if lat, lon, or alt is missing
 	 */
-	public Double WGS84Distance3D (Position other) {
-		if (latitude == null || longitude == null || altitude == null)
+	public Double distance3d(Position other) {
+		if (other == null || latitude == null || longitude == null || altitude == null)
 			return null;
 
 		double[] xyz1 = this.toECEF();
