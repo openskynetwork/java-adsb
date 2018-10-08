@@ -94,6 +94,8 @@ With libadsb version 3, many things have changed, including:
 * Added Source Integrity Level to position messages of version 0
 * `getTransponderAddress()` returning integer representation of the ICAO 24 bit
   transponder address in addition to `getIcao24()` which returns raw bytes
+* Added `distance3d()` method to `Position` and renamed `distanceTo()` to `haversine()`
+
 
 ### Migration Guide
 
@@ -113,6 +115,7 @@ With libadsb version 3, many things have changed, including:
   * `ShortACAS`
   * `LongACAS`
   * `AirbornePositionV?Msg`
+* Replace all occurences of `Position.distanceTo()` with `Position.haversine()`
 
 #### Position Messages
 
@@ -168,4 +171,3 @@ With libadsb version 3, many things have changed, including:
 
 * MaximumAirspeed in knots instead of m/s (use `tools.knots2MetersPerSecond()` for conversion)
 
-# FIXME knots2MetersPerSecond should accept double from velocitymsg - integrate into OpenSky to see
