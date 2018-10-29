@@ -81,9 +81,8 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 		if (subtype_code > 1) // currently only 0 and 1 specified, 2-7 are reserved
 			throw new UnspecifiedFormatError("Operational status message subtype "+subtype_code+" reserved.");
 
-		if (subtype_code == 0) { // airborne
-			capability_class_code = (msg[1]<<8)|msg[2];
-		} else { // surface
+		capability_class_code = (msg[1]<<8)|msg[2];
+		if (subtype_code != 0) {
 			throw new BadFormatException("Not an airborne operational status message");
 		}
 		operational_mode_code = (msg[3]<<8)|msg[4];
@@ -142,7 +141,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	 * @return whether aircraft has an UAT receiver
 	 */
 	public boolean hasUATIn() {
-		return (capability_class_code & (subtype_code == 0 ? 0x20 : 0x100)) != 0;
+		return (capability_class_code & 0x20) != 0;
 	}
 
 	/**

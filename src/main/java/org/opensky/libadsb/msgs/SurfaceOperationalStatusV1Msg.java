@@ -81,10 +81,9 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 		if (subtype_code > 1) // currently only 0 and 1 specified, 2-7 are reserved
 			throw new UnspecifiedFormatError("Operational status message subtype "+subtype_code+" reserved.");
 
-		if (subtype_code == 1) { // surface
-			capability_class_code = (msg[1]<<4)|(msg[2]&0xF0)>>>4;
-			airplane_len_width = (byte) (msg[2]&0xF);
-		} else {
+		capability_class_code = (msg[1]<<4)|(msg[2]&0xF0)>>>4;
+		airplane_len_width = (byte) (msg[2]&0xF);
+		if (subtype_code != 1) {
 			throw new BadFormatException("Not surface operational status message");
 		}
 
@@ -129,7 +128,7 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 	 * @return whether aircraft has an UAT receiver
 	 */
 	public boolean hasUATIn() {
-		return (capability_class_code & (subtype_code == 0 ? 0x20 : 0x100)) != 0;
+		return (capability_class_code & 0x100) != 0;
 	}
 
 	/**
