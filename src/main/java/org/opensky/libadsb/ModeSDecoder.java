@@ -160,7 +160,7 @@ public class ModeSDecoder {
 									dd.nicSupplA = s2.hasNICSupplementA();
 									return s2;
 								default:
-									throw new BadFormatException("Airborne operational status has invalid version");
+									throw new BadFormatException("Airborne operational status has invalid version: " + dd.adsbVersion);
 							}
 						} else if (subtype == 1) {
 							// surface
@@ -178,7 +178,7 @@ public class ModeSDecoder {
 									dd.nicSupplC = s2.getNICSupplementC();
 									return s2;
 								default:
-									throw new BadFormatException("Surface operational status has invalid version");
+									throw new BadFormatException("Surface operational status has invalid version: " + dd.adsbVersion);
 							}
 						}
 					}
