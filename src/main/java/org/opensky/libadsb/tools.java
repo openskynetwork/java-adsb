@@ -162,6 +162,26 @@ public class tools {
 	}
 
 	/**
+	 * Convert feet to meters, handling null inputs
+	 * @param m value in meters
+	 * @return value in feet or null if input was null
+	 */
+	public static Double meters2Feet(Integer m) {
+		if (m == null) return null;
+		return m.doubleValue() / 0.3048;
+	}
+
+	/**
+	 * Convert feet to meters, handling null inputs
+	 * @param m value in meters
+	 * @return value in feet or null if input was null
+	 */
+	public static Double meters2Feet(Double m) {
+		if (m == null) return null;
+		return m / 0.3048;
+	}
+
+	/**
 	 * Convert knots to meters per second, handling null inputs
 	 * @param kn value in knots
 	 * @return value in m/s or null if input was null
@@ -189,5 +209,35 @@ public class tools {
 	public static Double feetPerMinute2MetersPerSecond(Integer ftmin) {
 		if (ftmin == null) return null;
 		return ftmin.doubleValue() * 0.00508;
+	}
+
+	/**
+	 * Convert meters per second to knots, handling null inputs
+	 * @param mps value in meters per second
+	 * @return value in m/s or null if input was null
+	 */
+	public static Double metersPerSecond2Knots(Integer mps) {
+		if (mps == null) return null;
+		return mps.doubleValue() / 0.514444;
+	}
+
+	/**
+	 * Convert meters per second to knots, handling null inputs
+	 * @param mps value in meters per second
+	 * @return value in knots or null if input was null
+	 */
+	public static Double metersPerSecond2Knots(Double mps) {
+		if (mps == null) return null;
+		return mps / 0.514444;
+	}
+
+	/**
+	 * Convert meters per second to feet per minute, handling null inputs
+	 * @param mps value in meters per second
+	 * @return value in ft/min or null if input was null
+	 */
+	public static Double metersPerSecond2FeetPerMinute(Integer mps) {
+		if (mps == null) return null;
+		return mps.doubleValue() / 0.00508;
 	}
 }
