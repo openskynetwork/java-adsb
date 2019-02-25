@@ -117,14 +117,14 @@ public class PositionDecoder {
 		}
 
 		// decide whether to use global or local position decoding
-		if (last_pos != null && abs(time-last_time) < 640) { // 640 seconds corresponds to 180NM with 1000 knots
+		if (last_pos != null && abs(time-last_time) < 640.0) { // 640 seconds corresponds to 180NM with 1000 knots
 			local = true;
 		}
 
 		// can I do global decoding?
 		AirbornePositionV0Msg last_other = msg.isOddFormat() ? last_even_airborne : last_odd_airborne;
 		double last_other_time = msg.isOddFormat() ? last_even_airborne_time : last_odd_airborne_time;
-		if (last_other != null && abs(time-last_other_time) < 10) { // less than 10 seconds; see 1090 MOPS
+		if (last_other != null && abs(time-last_other_time) < 10.0) { // less than 10 seconds; see 1090 MOPS
 			global = true;
 		}
 
@@ -235,8 +235,10 @@ public class PositionDecoder {
 		last_pos = ret;
 		last_time = time;
 
-		if (!reasonable)
+		if (!reasonable) {
 			num_reasonable = 0;
+			ret = null;
+		}
 		else if (num_reasonable++<2) // at least n good msgs before
 			ret = null;
 
@@ -304,15 +306,21 @@ public class PositionDecoder {
 		}
 
 		// decide whether to use global or local position decoding
-		if (last_pos != null && abs(time-last_time) < 1620) { // 45NM with 100 knots; see 1090 MOPS
+		if (last_pos != null && abs(time-last_time) < 1620.0) { // 45NM with 100 knots; see 1090 MOPS
 			local = true;
 		}
 
 		// can I do global decoding?
 		SurfacePositionV0Msg last_other = msg.isOddFormat() ? last_even_surface : last_odd_surface;
 		double last_other_time = msg.isOddFormat() ? last_even_surface_time : last_odd_surface_time;
-		if (last_other != null && abs(time-last_other_time) < 25) { // less than 25 seconds; see 1090 MOPS
-			global = true;
+		if (last_other != null) {
+			if (last_other.hasGroundSpeed() && last_other.getGroundSpeed() <= 25.0 && msg.hasGroundSpeed()
+					&& msg.getGroundSpeed() <= 25.0 && abs(time - last_other_time) <= 50.0) { // <= 50 seconds and speeds <= 25 knots; see 1090 MOPS
+				global = true;
+
+			} else if (abs(time - last_other_time) <= 25.0) { // <= 25 seconds; see 1090 MOPS
+				global = true;
+			}
 		}
 
 		// if I can do both, use them for validation
@@ -414,8 +422,7 @@ public class PositionDecoder {
 
 		if (ret != null) {
 			// is it a valid coordinate?
-			if (Math.abs(ret.getLongitude()) > 90.0 ||
-					ret.getLatitude() < 0.0 || ret.getLatitude() > 180.0) {
+			if (Math.abs(ret.getLongitude()) > 180.0 || Math.abs(ret.getLatitude()) > 90.0) {
 				reasonable = false;
 			}
 			ret.setReasonable(reasonable);
@@ -424,9 +431,10 @@ public class PositionDecoder {
 		last_pos = ret;
 		last_time = time;
 
-		if (!reasonable)
+		if (!reasonable) {
 			num_reasonable = 0;
-		else if (reasonable && num_reasonable++<2) // at least n good msgs before
+			ret = null;
+		} else if (reasonable && num_reasonable++ < 2) // at least n good msgs before
 			ret = null;
 
 		return ret;
