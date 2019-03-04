@@ -235,10 +235,8 @@ public class PositionDecoder {
 		last_pos = ret;
 		last_time = time;
 
-		if (!reasonable) {
+		if (!reasonable)
 			num_reasonable = 0;
-			ret = null;
-		}
 		else if (num_reasonable++<2) // at least n good msgs before
 			ret = null;
 
@@ -431,10 +429,9 @@ public class PositionDecoder {
 		last_pos = ret;
 		last_time = time;
 
-		if (!reasonable) {
+		if (!reasonable)
 			num_reasonable = 0;
-			ret = null;
-		} else if (reasonable && num_reasonable++ < 2) // at least n good msgs before
+		else if (num_reasonable++ < 2) // at least n good msgs before
 			ret = null;
 
 		return ret;
