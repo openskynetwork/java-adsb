@@ -318,68 +318,75 @@ public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializa
 	 * @throws PositionStraddleError if position messages straddle latitude transition
 	 * @throws BadFormatException other has the same format (even/odd)
 	 */
-	public Position getGlobalPosition(AirbornePositionV0Msg other) throws BadFormatException,
-			PositionStraddleError {
+	public Position getGlobalPosition(AirbornePositionV0Msg other) throws BadFormatException, PositionStraddleError {
 		if (!tools.areEqual(other.getIcao24(), getIcao24()))
 			throw new IllegalArgumentException(
 					String.format("Transmitter of other message (%s) not equal to this (%s).",
 							tools.toHexString(other.getIcao24()), tools.toHexString(this.getIcao24())));
 
 		if (other.isOddFormat() == this.isOddFormat())
-			throw new BadFormatException("Expected "+(isOddFormat()?"even":"odd")+" message format.", other.toString());
+			throw new BadFormatException("Expected " + (isOddFormat() ? "even" : "odd") + " message format.",
+					other.toString());
 
-		if (!horizontal_position_available || !other.hasPosition()) return null;
+		if (!horizontal_position_available || !other.hasPosition())
+			return null;
 
-		AirbornePositionV0Msg even = isOddFormat()?other:this;
-		AirbornePositionV0Msg odd = isOddFormat()?this:other;
+		AirbornePositionV0Msg even = isOddFormat() ? other : this;
+		AirbornePositionV0Msg odd = isOddFormat() ? this : other;
 
 		// Helper for latitude (Number of zones NZ is set to 15)
-		double Dlat0 = 360.0/60.0;
-		double Dlat1 = 360.0/59.0;
+		double Dlat0 = 360.0 / 60.0;
+		double Dlat1 = 360.0 / 59.0;
 
 		// latitude index
-		double j = Math.floor((59.0*even.getCPREncodedLatitude()-60.0*odd.getCPREncodedLatitude())/((double)(1<<17))+0.5);
+		double j = Math
+				.floor((59.0 * ((double) even.getCPREncodedLatitude()) - 60.0 * ((double) odd.getCPREncodedLatitude()))
+						/ ((double) (1 << 17)) + 0.5);
 
 		// global latitudes
-		double Rlat0 = Dlat0 * (mod(j,60)+even.getCPREncodedLatitude()/((double)(1<<17)));
-		double Rlat1 = Dlat1 * (mod(j,59)+odd.getCPREncodedLatitude()/((double)(1<<17)));
+		double Rlat0 = Dlat0 * (mod(j, 60.0) + ((double) even.getCPREncodedLatitude()) / ((double) (1 << 17)));
+		double Rlat1 = Dlat1 * (mod(j, 59.0) + ((double) odd.getCPREncodedLatitude()) / ((double) (1 << 17)));
 
 		// Southern hemisphere?
-		if (Rlat0 >= 270 && Rlat0 <= 360) Rlat0 -= 360;
-		if (Rlat1 >= 270 && Rlat1 <= 360) Rlat1 -= 360;
+		if (Rlat0 >= 270.0 && Rlat0 <= 360.0)
+			Rlat0 -= 360.0;
+		if (Rlat1 >= 270.0 && Rlat1 <= 360.0)
+			Rlat1 -= 360.0;
 
 		// Northern hemisphere?
-		if (Rlat0 <= -270 && Rlat0 >= -360) Rlat0 += 360;
-		if (Rlat1 <= -270 && Rlat1 >= -360) Rlat1 += 360;
+		//if (Rlat0 <= -270.0 && Rlat0 >= -360.0)
+		//	Rlat0 += 360.0;
+		//if (Rlat1 <= -270.0 && Rlat1 >= -360.0)
+		//	Rlat1 += 360.0;
 
 		// ensure that the number of even longitude zones are equal
 		if (NL(Rlat0) != NL(Rlat1))
 			throw new org.opensky.libadsb.exceptions.PositionStraddleError(
-					"The two given position straddle a transition latitude "+
-							"and cannot be decoded. Wait for positions where they are equal.");
+					"The two given position straddle a transition latitude "
+							+ "and cannot be decoded. Wait for positions where they are equal.");
 
 		// Helper for longitude
-		double Dlon0 = 360.0/Math.max(1.0, NL(Rlat0));
-		double Dlon1 = 360.0/Math.max(1.0, NL(Rlat1)-1);
+		double NL_helper = NL(Rlat0);// NL(Rlat0) and NL(Rlat1) are equal
+		double n_helper = Math.max(1.0, NL_helper - (isOddFormat() ? 1.0 : 0.0));
+		double Dlon = 360.0 / n_helper;
 
 		// longitude index
-		double NL_helper = NL(isOddFormat()?Rlat1:Rlat0); // assuming that this is the newer message
-		double m = Math.floor((even.getCPREncodedLongitude()*(NL_helper-1)-odd.getCPREncodedLongitude()*NL_helper)/((double)(1<<17))+0.5);
+		double m = Math.floor(((double) even.getCPREncodedLongitude() * (NL_helper - 1.0)
+				- (double) odd.getCPREncodedLongitude() * NL_helper) / ((double) (1 << 17)) + 0.5);
 
 		// global longitude
-		double Rlon0 = Dlon0 * (mod(m,Math.max(1.0, NL(Rlat0))) + even.getCPREncodedLongitude()/((double)(1<<17)));
-		double Rlon1 = Dlon1 * (mod(m,Math.max(1.0, NL(Rlat1)-1)) + odd.getCPREncodedLongitude()/((double)(1<<17)));
+		double Rlon = Dlon * (mod(m, n_helper)
+				+ ((double) (isOddFormat() ? odd.getCPREncodedLongitude() : even.getCPREncodedLongitude()))
+						/ ((double) (1 << 17)));
 
 		// correct longitude
-		if (Rlon0 < -180 && Rlon0 > -360) Rlon0 += 360;
-		if (Rlon1 < -180 && Rlon1 > -360) Rlon1 += 360;
-		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
-		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
+		if (Rlon < -180.0 && Rlon > -360.0)
+			Rlon += 360.0;
+		if (Rlon > 180.0 && Rlon < 360.0)
+			Rlon -= 360.0;
 
 		Integer alt = this.getAltitude();
-		return new Position(isOddFormat()?Rlon1:Rlon0,
-				isOddFormat()?Rlat1:Rlat0,
-				alt != null ? alt.doubleValue() : null);
+		return new Position(Rlon, isOddFormat() ? Rlat1 : Rlat0, alt != null ? alt.doubleValue() : null);
 	}
 
 	/**
@@ -394,28 +401,28 @@ public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializa
 	 *         This can also be checked with {@link #hasPosition()}.
 	 */
 	public Position getLocalPosition(Position ref) {
-		if (!horizontal_position_available) return null;
+		if (!horizontal_position_available)
+			return null;
 
 		// latitude zone size
-		double Dlat = isOddFormat() ? 360.0/59.0 : 360.0/60.0;
+		double Dlat = isOddFormat() ? 360.0 / 59.0 : 360.0 / 60.0;
 
 		// latitude zone index
-		double j = Math.floor(ref.getLatitude()/Dlat) +
-				Math.floor(0.5+(mod(ref.getLatitude(), Dlat))/Dlat-getCPREncodedLatitude()/((double)(1<<17)));
+		double j = Math.floor(ref.getLatitude() / Dlat) + Math.floor(
+				0.5 + mod(ref.getLatitude(), Dlat) / Dlat - ((double) getCPREncodedLatitude()) / ((double) (1 << 17)));
 
 		// decoded position latitude
-		double Rlat = Dlat*(j+getCPREncodedLatitude()/((double)(1<<17)));
+		double Rlat = Dlat * (j + ((double) getCPREncodedLatitude()) / ((double) (1 << 17)));
 
 		// longitude zone size
-		double Dlon = 360.0/Math.max(1.0, NL(Rlat)-(isOddFormat()?1.0:0.0));
+		double Dlon = 360.0 / Math.max(1.0, NL(Rlat) - (isOddFormat() ? 1.0 : 0.0));
 
 		// longitude zone coordinate
-		double m =
-				Math.floor(ref.getLongitude()/Dlon) +
-						Math.floor(0.5+(mod(ref.getLongitude(),Dlon))/Dlon-(double)getCPREncodedLongitude()/((double)(1<<17)));
+		double m = Math.floor(ref.getLongitude() / Dlon) + Math.floor(0.5 + mod(ref.getLongitude(), Dlon) / Dlon
+				- ((double) getCPREncodedLongitude()) / ((double) (1 << 17)));
 
 		// and finally the longitude
-		double Rlon = Dlon * (m + getCPREncodedLongitude()/((double)(1<<17)));
+		double Rlon = Dlon * (m + ((double) getCPREncodedLongitude()) / ((double) (1 << 17)));
 
 		Integer alt = this.getAltitude();
 		return new Position(Rlon, Rlat, alt != null ? alt.doubleValue() : null);
