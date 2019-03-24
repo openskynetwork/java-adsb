@@ -138,17 +138,12 @@ public class Position implements Serializable {
 
 	/**
 	 * Converts a cartesian earth-centered earth-fixed coordinate into an WGS84 LLA position
-	 * @param ecef array containing the ECEF coordinate as [x, y, z]
+	 * @param x coordinate in meters
+	 * @param y coordinate in meters
+	 * @param z coordinate in meters
 	 * @return a position object representing the WGS84 position
 	 */
-	public static Position fromECEF (double[] ecef) {
-		if (ecef.length != 3)
-			throw new RuntimeException("ECEF coordinate arrays must have a size of 3 (x, y, z)");
-
-		// just for better readability
-		double x = ecef[0];
-		double y = ecef[1];
-		double z = ecef[2];
+	public static Position fromECEF (double x, double y, double z) {
 
 		double p = sqrt(x*x + y*y);
 		double th = atan2(a * z, b * p);
