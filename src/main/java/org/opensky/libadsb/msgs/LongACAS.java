@@ -79,12 +79,12 @@ public class LongACAS extends ModeSReply implements Serializable {
 		reply_information = (byte) ((payload[0]&0x7)<<1 | (payload[1]>>>7)&0x1);
 		altitude_code = (short) ((payload[1]<<8 | payload[2]&0xFF)&0x1FFF);
 
-		// extract MV/air-air coordination info
-		valid_rac = payload[3] != 0x30;
-		active_resolution_advisories = (short) ((payload[4]<<6 | (payload[5]>>>2)&0x3)&0x3FFF);
+		// extract MV/air-air coordination info; see Annex 10 Vol 4: 4.3.8.4.2.4
+		valid_rac = payload[3] == 0x30;
+		active_resolution_advisories = (short) ((payload[4]<<6 | (payload[5]>>>2)&0x3F)&0x3FFF);
 		racs_record = (byte) ((payload[5]<<2 | (payload[6]>>>6)&0x3)&0xF);
 		ra_terminated = (payload[6]>>>5&0x1) == 1;
-		multiple_threat_encounter = (payload[6]>>>4&0x1) == 1;	
+		multiple_threat_encounter = (payload[6]>>>4&0x1) == 1;
 	}
 
 	/**
@@ -225,6 +225,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 				"\tMaximum airspeed:\t\t"+getMaximumAirspeed()+"\n"+
 				"\tAltitude:\t\t"+getAltitude()+"\n"+
 				"\tHas valid RAC:\t"+hasValidRAC()+"\n"+
+				"\tActive resolution advisories:\t"+getActiveResolutionAdvisories()+"\n"+
 				"\tHas multiple threats:\t"+hasMultipleThreats()+"\n"+
 				"\tResolution advisory complement:\t"+getResolutionAdvisoryComplement();
 	}
