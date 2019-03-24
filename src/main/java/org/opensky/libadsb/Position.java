@@ -29,6 +29,13 @@ import static java.lang.Math.*;
  */
 public class Position implements Serializable {
 	private static final long serialVersionUID = 1562401753853965728L;
+
+	// WGS84 ellipsoid constants
+	private final static double a = 6378137.0; // semi-major axis
+	private final static double f = 1/298.257223563; // flattening
+	private final static double b = a*(1-f); // semi-minor axis
+	private final static double e2 = 2*f-f*f; // eccentricity squared
+
 	private Double longitude;
 	private Double latitude;
 	private Double altitude;
@@ -111,17 +118,15 @@ public class Position implements Serializable {
 		return 6371000.0 * 2 * asin(sqrt(a + b));
 	}
 
-	private double[] toECEF () {
+	/**
+	 * Converts the WGS84 position to cartesian coordinates
+	 * @return earth-centered earth-fixed coordinates as [x, y, z]
+	 */
+	public double[] toECEF () {
 		double lon0r = toRadians(this.longitude);
 		double lat0r = toRadians(this.latitude);
 		double height = tools.feet2Meters(altitude);
 
-		// WGS84 ellipsoid constants
-		double a = 6378137.0;
-		double b = 6356752.314245;
-		double f = (a-b)/a;
-
-		double e2 = f*(2-f);
 		double v = a / Math.sqrt(1 - e2*Math.sin(lat0r)*Math.sin(lat0r));
 
 		return new double[] {
@@ -129,7 +134,38 @@ public class Position implements Serializable {
 				(v + height) * Math.cos(lat0r) * Math.sin(lon0r), // y
 				(v * (1 - e2) + height) * Math.sin(lat0r) // z
 		};
+	}
 
+	/**
+	 * Converts a cartesian earth-centered earth-fixed coordinate into an WGS84 LLA position
+	 * @param ecef array containing the ECEF coordinate as [x, y, z]
+	 * @return a position object representing the WGS84 position
+	 */
+	public static Position fromECEF (double[] ecef) {
+		if (ecef.length != 3)
+			throw new RuntimeException("ECEF coordinate arrays must have a size of 3 (x, y, z)");
+
+		// just for better readability
+		double x = ecef[0];
+		double y = ecef[1];
+		double z = ecef[2];
+
+		double p = sqrt(x*x + y*y);
+		double th = atan2(a * z, b * p);
+		double lon = atan2(y, x);
+		double lat = atan2(
+				(z + (a*a - b*b) / (b*b) * b * pow(sin(th), 3)),
+				p - e2 * a * pow(cos(th), 3));
+		double N = a / sqrt(1 - pow(sqrt(e2) * sin(lat), 2));
+		double alt = p / cos(lat) - N;
+
+		// correct for numerical instability in altitude near exact poles:
+		// after this correction, error is about 2 millimeters, which is about
+		// the same as the numerical precision of the overall function
+		if (abs(x) < 1 & abs(y) < 1)
+			alt = abs(z) - b;
+
+		return new Position(toDegrees(lon), toDegrees(lat), tools.meters2Feet(alt));
 	}
 
 	/**
