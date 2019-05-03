@@ -317,8 +317,8 @@ public class ExampleDecoder {
 				break;
 			case ALL_CALL_REPLY:
 				AllCallReply allcall = (AllCallReply)msg;
-				System.out.println("["+icao24+"]: All-call reply for "+tools.toHexString(allcall.getInterrogatorID())+
-						" ("+(allcall.hasValidInterrogatorID()?"valid":"invalid")+")");
+				System.out.println("["+icao24+"]: All-call reply for "+tools.toHexString(allcall.getInterrogatorCode())+
+						" ("+(allcall.hasValidInterrogatorCode()?"valid":"invalid")+")");
 				break;
 			case LONG_ACAS:
 				LongACAS long_acas = (LongACAS)msg;

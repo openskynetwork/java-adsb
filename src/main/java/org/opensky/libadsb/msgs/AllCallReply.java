@@ -31,7 +31,8 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	private static final long serialVersionUID = -1156158096293306435L;
 
 	private byte capabilities;
-	private byte[] interrogator; // 3 bytes
+	private byte[] parity_interrogator; // 3 bytes
+	private int code_label;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected AllCallReply() { }
@@ -70,7 +71,9 @@ public class AllCallReply extends ModeSReply implements Serializable {
 		capabilities = getFirstField();
 
 		// extract interrogator ID
-		interrogator = tools.xor(calcParity(), getParity());
+		this.parity_interrogator = tools.xor(calcParity(), getParity());
+
+		code_label = (parity_interrogator[2]>>4)&0x7;
 	}
 
 	/**
@@ -84,11 +87,32 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	 * Some receivers already subtract the crc checksum
 	 * from the parity field right after reception.
 	 * In that case, use {@link #getParity()} to get the interrogator ID.<br><br>
-	 * Note: Use {@link #hasValidInterrogatorID()} to check the validity of this field.
-	 * @return the interrogator ID as a 3-byte array
+	 * Note: Use {@link #hasValidInterrogatorCode()} to check the validity of this field.
+	 * @return the interrogator code which can either be the interrogator id or the surveillance id.
+	 *         Check {@link #isSurveillanceID()} for interpretation of the result.
 	 */
-	public byte[] getInterrogatorID() {
-		return interrogator;
+	public byte getInterrogatorCode() {
+
+		switch (code_label) {
+			case 0:
+			case 1:
+				return (byte) (parity_interrogator[2]&0xF);
+			case 2:
+				return (byte) (parity_interrogator[2]&0xF + 15);
+			case 3:
+				return (byte) (parity_interrogator[2]&0xF + 31);
+			default: // 4 and >= 4 (illegal)
+				return (byte) (parity_interrogator[2]&0xF + 47);
+		}
+
+	}
+
+	/**
+	 * If true, {@link #getInterrogatorCode()} returns the SI-Code, otherwise it returns the II-Code.
+	 * @return true if the interrogator has a surveillance identifier, false if it has an interrogator identifier.
+	 */
+	public boolean isSurveillanceID() {
+		return code_label > 0;
 	}
 
 	/**
@@ -96,21 +120,17 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	 * has been received correctly without knowing the interrogator in advance.
 	 * @return true if the interrogator ID is conformant with Annex 10 V4
 	 */
-	public boolean hasValidInterrogatorID() {
-		assert(interrogator.length == 3);
+	public boolean hasValidInterrogatorCode() {
+		assert(parity_interrogator.length == 3);
 
 		// 3.1.2.3.3.2
 		// the first 17 bits have to be zero
-		if (interrogator[0] != 0 ||
-				interrogator[1] != 0 ||
-				(interrogator[2]&0x80) != 0)
+		if (parity_interrogator[0] != 0 || parity_interrogator[1] != 0 || (parity_interrogator[2]&0x80) != 0)
 			return false;
-
-		int cl = (interrogator[2]>>4)&0x7;
 
 		// 3.1.2.5.2.1.3
 		// code label is only defined for 0-4
-		if (cl>4) return false;
+		if (code_label > 4) return false;
 
 		// Note: seems to be used by ACAS
 //		int ii = interrogator[2]&0xF;
@@ -125,8 +145,9 @@ public class AllCallReply extends ModeSReply implements Serializable {
 		return super.toString()+"\n"+
 				"All-call Reply:\n"+
 				"\tCapabilities:\t\t"+getCapabilities()+"\n"+
-				"\tValid Interrogator ID:\t\t"+hasValidInterrogatorID()+"\n"+
-				"\tInterrogator:\t\t"+tools.toHexString(getInterrogatorID());
+				"\tValid Interrogator ID:\t\t"+hasValidInterrogatorCode()+"\n"+
+				(isSurveillanceID() ? "\tSI-Code:\t\t" : "\tII-Code:\t\t")+
+				getInterrogatorCode();
 	}
 
 }
