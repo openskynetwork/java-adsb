@@ -107,10 +107,17 @@ public class ShortACAS extends ModeSReply implements Serializable {
 
 	/**
 	 * This field is used to report the aircraft's maximum cruising 
-	 * true airspeed capability and type of reply to interrogating aircraft
+	 * true airspeed capability and TCAS capabilities. Capabilities are:<br>
+	 *     <ul>
+	 *         <li>code 2: On-board TCAS with resolution capability inhibited</li>
+	 *         <li>code 3: On-board TCAS with vertical-only resolution capability</li>
+	 *         <li>code 4: On-board TCAS with vertical and horizontal resolution capability</li>
+	 *     </ul>
 	 * @return the air-to-air reply information according to 3.1.2.8.2.2
 	 * @see #getMaximumAirspeed()
 	 * @see #hasOperatingACAS()
+	 * @see #hasHorizontalResolutionCapability()
+	 * @see #hasVerticalResolutionCapability()
 	 */
 	public byte getReplyInformation() {
 		return reply_information;
@@ -145,6 +152,42 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	}
 
 	/**
+	 * @return true if vertical resolution capability announced; false if explicitly not available; null if information
+	 * not provided in this reply
+	 *
+	 */
+	public Boolean hasVerticalResolutionCapability () {
+		switch (reply_information) {
+			case 0:
+			case 1:
+				return false;
+			case 3:
+			case 4:
+				return true;
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * @return true if horizontal resolution capability announced; false if explicitly not available; null if
+	 * information not provided in this reply
+	 *
+	 */
+	public Boolean hasHorizontalResolutionCapability () {
+		switch (reply_information) {
+			case 0:
+			case 1:
+			case 3:
+				return false;
+			case 4:
+				return true;
+			default:
+				return null;
+		}
+	}
+
+	/**
 	 * @return The 13 bits altitude code (see ICAO Annex 10 V4)
 	 */
 	public short getAltitudeCode() {
@@ -161,12 +204,14 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	public String toString() {
 		return super.toString()+"\n"+
 				"Short air-air ACAS reply:\n"+
-				"\tAircraft is airborne:\t\t"+isAirborne()+"\n"+
-				"\tHas cross-link capability:\t\t"+hasCrossLinkCapability()+"\n"+
-				"\tSensitivity level:\t\t"+getSensitivityLevel()+"\n"+
-				"\tHas operating ACAS:\t\t"+hasOperatingACAS()+"\n"+
-				"\tMaximum airspeed:\t\t"+getMaximumAirspeed()+"\n"+
-				"\tAltitude:\t\t"+getAltitude();
+				"\tAircraft is airborne:\t\t\t\t"+isAirborne()+"\n"+
+				"\tHas cross-link capability:\t\t\t"+hasCrossLinkCapability()+"\n"+
+				"\tSensitivity level:\t\t\t\t\t"+getSensitivityLevel()+"\n"+
+				"\tHas operating ACAS:\t\t\t\t\t"+hasOperatingACAS()+"\n"+
+				"\tMaximum airspeed:\t\t\t\t\t"+getMaximumAirspeed()+"\n"+
+				"\tVertical resolution capability:\t\t"+hasVerticalResolutionCapability()+"\n"+
+				"\tHorizontal resolution capability:\t"+hasHorizontalResolutionCapability()+"\n"+
+				"\tAltitude:\t\t\t\t\t\t\t"+getAltitude();
 	}
 
 }
