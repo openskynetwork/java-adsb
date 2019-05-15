@@ -198,7 +198,11 @@ public class AltitudeReply extends ModeSReply implements Serializable {
 		return decodeAltitude(altitude_code);
 	}
 
-	static Integer decodeAltitude(short altitude_code) {
+	/**
+	 * @param altitude_code as provided in most Mode S replies
+	 * @return altitude in feet
+	 */
+	public static Integer decodeAltitude(short altitude_code) {
 		// altitude unavailable
 		if (altitude_code == 0) return null;
 
