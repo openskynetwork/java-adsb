@@ -1,8 +1,10 @@
 package org.opensky.libadsb.msgs;
 
+import org.opensky.libadsb.bds.BinaryDataStore;
 import org.opensky.libadsb.exceptions.BadFormatException;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /*
  *  This file is part of org.opensky.libadsb.
@@ -33,11 +35,8 @@ public class LongACAS extends ModeSReply implements Serializable {
 	private byte sensitivity_level;
 	private byte reply_information;
 	private short altitude_code;
-	private boolean valid_rac;
-	private short active_resolution_advisories;
-	private byte racs_record; // RAC = resolution advisory complement
-	private boolean ra_terminated;
-	private boolean multiple_threat_encounter;
+
+	BinaryDataStore mv = null;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected LongACAS() { }
@@ -79,93 +78,14 @@ public class LongACAS extends ModeSReply implements Serializable {
 		reply_information = (byte) ((payload[0]&0x7)<<1 | (payload[1]>>>7)&0x1);
 		altitude_code = (short) ((payload[1]<<8 | payload[2]&0xFF)&0x1FFF);
 
-		// extract MV/air-air coordination info; see Annex 10 Vol 4: 4.3.8.4.2.4
-		valid_rac = payload[3] == 0x30;
-		active_resolution_advisories = (short) ((payload[4]<<6 | (payload[5]>>>2)&0x3F)&0x3FFF);
-		racs_record = (byte) ((payload[5]<<2 | (payload[6]>>>6)&0x3)&0xF);
-		ra_terminated = (payload[6]>>>5&0x1) == 1;
-		multiple_threat_encounter = (payload[6]>>>4&0x1) == 1;
+		mv = BinaryDataStore.parseRegister(Arrays.copyOfRange(payload, 3, payload.length), getAltitude());
 	}
-
-	/**
-	 * Important note: check this before using any of
-	 * {@link #getActiveResolutionAdvisories()},
-	 * {@link #noPassBelow()}, {@link #noPassAbove()},
-	 * {@link #noTurnLeft()}, {@link #noTurnRight()},
-	 * {@link #hasTerminated()}, {@link #hasMultipleThreats()}
-	 * @return true if resolution advisory complement is valid
-	 */
-	public boolean hasValidRAC() {
-		return valid_rac;
-	}
-
-	/**
-	 * @return the binary encoded information about active
-	 * resolution advisories (see Annex 10V4; 4.3.8.4.2.2.1.1)
-	 */
-	public short getActiveResolutionAdvisories() {
-		return active_resolution_advisories;
-	}
-
-	/**
-	 * @return the binary encoded resolution advisory complement
-	 * @see #noPassBelow()
-	 * @see #noPassAbove()
-	 * @see #noTurnLeft()
-	 * @see #noTurnRight()
-	 */
-	public byte getResolutionAdvisoryComplement() {
-		return racs_record;
-	}
-
-	/**
-	 * @return true iff do not pass below advisory is active
-	 */
-	public boolean noPassBelow() {
-		return (racs_record&8)==8;
-	}
-
-	/**
-	 * @return true iff do not pass above advisory is active
-	 */
-	public boolean noPassAbove() {
-		return (racs_record&4)==4;
-	}
-
-	/**
-	 * @return true iff do not turn left advisory is active
-	 */
-	public boolean noTurnLeft() {
-		return (racs_record&2)==2;
-	}
-
-	/**
-	 * @return true iff do not turn right advisory is active
-	 */
-	public boolean noTurnRight() {
-		return (racs_record&1)==1;
-	}
-
 
 	/**
 	 * @return true if aircraft is airborne, false if it is on the ground
 	 */
 	public boolean isAirborne() {
 		return airborne;
-	}
-
-	/**
-	 * @return true iff the RA from {@link #getActiveResolutionAdvisories()} has been terminated
-	 */
-	public boolean hasTerminated() {
-		return ra_terminated;
-	}
-
-	/**
-	 * @return true iff two or more threats are being processed
-	 */
-	public boolean hasMultipleThreats() {
-		return multiple_threat_encounter;
 	}
 
 	/**
@@ -177,10 +97,17 @@ public class LongACAS extends ModeSReply implements Serializable {
 
 	/**
 	 * This field is used to report the aircraft's maximum cruising 
-	 * true airspeed capability and type of reply to interrogating aircraft
+	 * true airspeed capability and TCAS capabilities. Capabilities are:<br>
+	 *     <ul>
+	 *         <li>code 2: On-board TCAS with resolution capability inhibited</li>
+	 *         <li>code 3: On-board TCAS with vertical-only resolution capability</li>
+	 *         <li>code 4: On-board TCAS with vertical and horizontal resolution capability</li>
+	 *     </ul>
 	 * @return the air-to-air reply information according to 3.1.2.8.2.2
 	 * @see #getMaximumAirspeed()
 	 * @see #hasOperatingACAS()
+	 * @see #hasHorizontalResolutionCapability()
+	 * @see #hasVerticalResolutionCapability()
 	 */
 	public byte getReplyInformation() {
 		return reply_information;
@@ -203,6 +130,42 @@ public class LongACAS extends ModeSReply implements Serializable {
 	}
 
 	/**
+	 * @return true if vertical resolution capability announced; false if explicitly not available; null if information
+	 * not provided in this reply
+	 *
+	 */
+	public Boolean hasVerticalResolutionCapability () {
+		switch (reply_information) {
+			case 0:
+			case 1:
+				return false;
+			case 3:
+			case 4:
+				return true;
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * @return true if horizontal resolution capability announced; false if explicitly not available; null if
+	 * information not provided in this reply
+	 *
+	 */
+	public Boolean hasHorizontalResolutionCapability () {
+		switch (reply_information) {
+			case 0:
+			case 1:
+			case 3:
+				return false;
+			case 4:
+				return true;
+			default:
+				return null;
+		}
+	}
+
+	/**
 	 * @return The 13 bits altitude code (see ICAO Annex 10 V4)
 	 */
 	public short getAltitudeCode() {
@@ -216,18 +179,21 @@ public class LongACAS extends ModeSReply implements Serializable {
 		return AltitudeReply.decodeAltitude(altitude_code);
 	}
 
+	public BinaryDataStore getBinaryDataStore () {
+		return mv;
+	}
+
 	public String toString() {
 		return super.toString()+"\n"+
-				"Long air-air ACAS reply:\n"+
-				"\tAircraft is airborne:\t\t"+isAirborne()+"\n"+
-				"\tSensitivity level:\t\t"+getSensitivityLevel()+"\n"+
-				"\tHas operating ACAS:\t\t"+hasOperatingACAS()+"\n"+
-				"\tMaximum airspeed:\t\t"+getMaximumAirspeed()+"\n"+
-				"\tAltitude:\t\t"+getAltitude()+"\n"+
-				"\tHas valid RAC:\t"+hasValidRAC()+"\n"+
-				"\tActive resolution advisories:\t"+getActiveResolutionAdvisories()+"\n"+
-				"\tHas multiple threats:\t"+hasMultipleThreats()+"\n"+
-				"\tResolution advisory complement:\t"+getResolutionAdvisoryComplement();
+				"\tAircraft is airborne:\t\t\t\t"+isAirborne()+"\n"+
+				"\tSensitivity level:\t\t\t\t\t"+getSensitivityLevel()+"\n"+
+				"\tHas operating ACAS:\t\t\t\t\t"+hasOperatingACAS()+"\n"+
+				"\tMaximum airspeed:\t\t\t\t\t"+getMaximumAirspeed()+"\n"+
+				"\tVertical resolution capability:\t\t"+hasVerticalResolutionCapability()+"\n"+
+				"\tHorizontal resolution capability:\t"+hasHorizontalResolutionCapability()+"\n"+
+				"\tAltitude:\t\t\t\t\t\t\t"+getAltitude()+"\n"+
+				mv.toString();
+
 	}
 
 }

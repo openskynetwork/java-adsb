@@ -326,8 +326,6 @@ public class ExampleDecoder {
 						(long_acas.hasOperatingACAS() ? "operating." : "not operating."));
 				System.out.println("          A/C is "+(long_acas.isAirborne() ? "airborne" : "on the ground")+
 						" and sensitivity level is "+long_acas.getSensitivityLevel());
-				System.out.println("          RAC is "+(long_acas.hasValidRAC() ? "valid" : "not valid")+
-						" and is "+long_acas.getResolutionAdvisoryComplement()+" (MTE="+long_acas.hasMultipleThreats()+")");
 				System.out.println("          Maximum airspeed is "+long_acas.getMaximumAirspeed()+"kn.");
 				break;
 			case MILITARY_EXTENDED_SQUITTER:
