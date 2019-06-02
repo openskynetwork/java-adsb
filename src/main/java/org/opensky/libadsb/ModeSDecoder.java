@@ -368,6 +368,25 @@ public class ModeSDecoder {
 	}
 
 	/**
+	 * Sets the ADS-B Version for a specific transponder
+	 * @param transponderAddress ICAO 24-bit transponder address
+	 * @param version ADS-B version
+	 */
+	public void setADSBVersion (int transponderAddress, byte version) {
+		// we need stateful decoding, because ADS-B version > 0 can only be assumed
+		// if matching version info in operational status has been found.
+		DecoderData dd = this.decoderData.get(transponderAddress);
+		if (dd == null) {
+			// create new DecoderData
+			// assume ADS-B version 0 (as demanded by DO-260B N.1.2)
+			dd = new DecoderData();
+			this.decoderData.put(transponderAddress, dd);
+		}
+
+		dd.adsbVersion = version;
+	}
+
+	/**
 	 * Represents the state of a decoder for a certain aircraft
 	 */
 	private static class DecoderData {
