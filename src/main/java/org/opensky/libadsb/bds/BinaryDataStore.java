@@ -164,7 +164,7 @@ public class BinaryDataStore {
         updateConfirmedBits((short) 0x0c, (payload[6] & 0x07) == 0, 3, regs);
 
         updateConfirmedBits((short) 0x10, (payload[0] & 0xff) == 0x10, 8 * 2, regs);
-        updateConfirmedBits((short) 0x10, (payload[1] & 0x7c) == 0, 6, regs);
+        updateConfirmedBits((short) 0x10, (payload[1] & 0x7e) == 0, 5, regs);
 
         updateConfirmedBits((short) 0x17, (payload[3] & 0x07) == 0, 3, regs);
         updateConfirmedBits((short) 0x17, (payload[4] & 0xff) == 0, 8, regs);
@@ -253,6 +253,10 @@ public class BinaryDataStore {
         return regs;
     }
 
+    public static BinaryDataStore parseRegister (byte[] payload) throws BadFormatException {
+        return parseRegister(payload, null);
+    }
+
     public static BinaryDataStore parseRegister (byte[] payload, Integer altitude) throws BadFormatException {
         if (payload.length != 7)
             throw new BadFormatException("BDS payload has an invalid length of "+payload.length);
@@ -281,6 +285,12 @@ public class BinaryDataStore {
                         if (altitude != null && tmp05.hasAltitude() && Math.abs(tmp05.getAltitude() - altitude) <= 50)
                             updateConfirmedBits(e.getKey(), true, 12, regs);
 
+                        break;
+                    case 0x10:
+                        new BDS10(payload);
+
+                        // just to acknowledge some additional checks in the constructor
+                        updateConfirmedBits(e.getKey(), true, 3, regs);
                         break;
                     case 0x08:
                     case 0x20:
@@ -320,7 +330,8 @@ public class BinaryDataStore {
                     default:
                 }
             } catch (BadFormatException reason) {
-                //System.out.println(String.format("Skipping BDS %02x. Reason: %s ", e.getKey(), reason.getMessage()));
+                if (e.getKey() == (short) 0x10)
+                    System.out.println(String.format("Skipping BDS %02x. Reason: %s ", e.getKey(), reason.getMessage()));
                 updateConfirmedBits(e.getKey(), false, 0, regs);
             }
         }
@@ -350,6 +361,8 @@ public class BinaryDataStore {
                 return new BDS05V0(payload);
             case 0x08:
                 return new BDS08(payload);
+            case 0x10:
+                return new BDS10(payload);
             case 0x20:
                 return new BDS20(payload);
             case 0x30:
