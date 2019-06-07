@@ -1,9 +1,10 @@
 package org.opensky.libadsb.msgs;
 
+import org.opensky.libadsb.bds.BinaryDataStore;
 import org.opensky.libadsb.exceptions.BadFormatException;
-import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /*
  *  This file is part of org.opensky.libadsb.
@@ -34,7 +35,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	private byte downlink_request;
 	private byte utility_msg;
 	private short altitude_code;
-	private byte[] message;
+	private BinaryDataStore mb;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected CommBAltitudeReply() { }
@@ -77,9 +78,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 		altitude_code = (short) ((payload[1]<<8 | payload[2]&0xFF)&0x1FFF);
 
 		// extract Comm-B message
-		message = new byte[7];
-		for (int i=0; i<7; i++)
-			message[i] = payload[i+3];
+		mb = BinaryDataStore.parseRegister(Arrays.copyOfRange(payload, 3, payload.length), getAltitude());
 	}
 
 	/**
@@ -192,11 +191,8 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 		return AltitudeReply.decodeAltitude(altitude_code);
 	}
 
-	/**
-	 * @return the 7-byte Comm-B message (BDS register)
-	 */
-	public byte[] getMessage() {
-		return message;
+	public BinaryDataStore getBinaryDataStore () {
+		return mb;
 	}
 
 	public String toString() {
@@ -206,7 +202,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 				"\tDownlink request:\t\t"+getDownlinkRequest()+"\n"+
 				"\tUtility Message:\t\t"+getUtilityMsg()+"\n"+
 				"\tAltitude:\t\t"+getAltitude()+"\n"+
-				"\tComm-B Message:\t\t"+tools.toHexString(getMessage());
+				mb.toString();
 	}
 
 }

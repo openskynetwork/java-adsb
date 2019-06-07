@@ -1,9 +1,10 @@
 package org.opensky.libadsb.msgs;
 
+import org.opensky.libadsb.bds.BinaryDataStore;
 import org.opensky.libadsb.exceptions.BadFormatException;
-import org.opensky.libadsb.tools;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /*
  *  This file is part of org.opensky.libadsb.
@@ -34,7 +35,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	private byte downlink_request;
 	private byte utility_msg;
 	private short identity;
-	private byte[] message;
+	private BinaryDataStore mb;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected CommBIdentifyReply() { }
@@ -77,9 +78,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 		identity = (short) ((payload[1]<<8 | (payload[2]&0xFF))&0x1FFF);
 
 		// extract Comm-B message
-		message = new byte[7];
-		for (int i=0; i<7; i++)
-			message[i] = payload[i+3];
+		mb = BinaryDataStore.parseRegister(Arrays.copyOfRange(payload, 3, payload.length));
 	}
 
 	/**
@@ -187,11 +186,8 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 		return identity;
 	}
 
-	/**
-	 * @return the 7-byte Comm-B message (BDS register)
-	 */
-	public byte[] getMessage() {
-		return message;
+	public BinaryDataStore getBinaryDataStore () {
+		return mb;
 	}
 
 	/**
@@ -215,7 +211,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 				"\tDownlink request:\t\t"+getDownlinkRequest()+"\n"+
 				"\tUtility Message:\t\t"+getUtilityMsg()+"\n"+
 				"\tIdentity:\t\t"+getIdentity()+"\n"+
-				"\tComm-B Message:\t\t"+tools.toHexString(getMessage());
+				mb.toString();
 	}
 
 }
