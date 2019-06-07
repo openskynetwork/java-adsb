@@ -3,7 +3,7 @@ package org.opensky.libadsb.bds;
 import org.opensky.libadsb.exceptions.BadFormatException;
 
 /**
- * Parser for BDS 0,8 registers (aircraft identification)
+ * Parser for BDS 2,0 registers (aircraft identification)
  * <br><br>
  * Note: most of the code was copied from the ADS-B decoders!
  */
