@@ -20,6 +20,7 @@ package org.opensky.libadsb.bds;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.tools;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -27,7 +28,7 @@ import java.util.*;
  *
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
-public class BinaryDataStore {
+public class BinaryDataStore implements Serializable {
 
     // Comm-B data selector code
     private Byte BDS = null;
@@ -370,5 +371,20 @@ public class BinaryDataStore {
             default:
                 return new BinaryDataStore(payload);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BinaryDataStore that = (BinaryDataStore) o;
+
+        return Arrays.equals(payload, that.payload);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(payload);
     }
 }
