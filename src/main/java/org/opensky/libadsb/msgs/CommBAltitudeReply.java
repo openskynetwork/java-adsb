@@ -192,6 +192,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	}
 
 	public BinaryDataStore getBinaryDataStore () {
+		// XXX lazy decoding for performance?
 		return mb;
 	}
 

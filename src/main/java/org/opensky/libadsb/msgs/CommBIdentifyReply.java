@@ -187,6 +187,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	}
 
 	public BinaryDataStore getBinaryDataStore () {
+		// XXX lazy decoding for performance?
 		return mb;
 	}
 

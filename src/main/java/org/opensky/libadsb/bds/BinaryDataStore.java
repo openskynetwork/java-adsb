@@ -288,6 +288,7 @@ public class BinaryDataStore implements Serializable {
 
                         break;
                     case 0x10:
+                        // FIXME Exceptions should only be used for exceptional events such as programming errors. Bit errors are common
                         new BDS10(payload);
 
                         // just to acknowledge some additional checks in the constructor
@@ -326,6 +327,7 @@ public class BinaryDataStore implements Serializable {
 
                         break;
                     case 0xf1:
+                        // FIXME Exceptions should only be used for exceptional events such as programming errors. Bit errors are common
                         // simply try do decode (will raise exception if format is bad)
                         new BDSF1(payload);
                     default:
@@ -354,6 +356,7 @@ public class BinaryDataStore implements Serializable {
         }
 
         // not conclusive
+        // XXX how can happen?
         if (regs_sorted.size() > 1 && regs_sorted.get(0).getValue().equals(regs_sorted.get(1).getValue()))
             return new BinaryDataStore(payload);
 

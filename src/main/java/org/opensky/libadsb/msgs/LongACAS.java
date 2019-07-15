@@ -24,7 +24,7 @@ import java.util.Arrays;
  */
 
 /**
- * Decoder for Mode S long air-air ACAS replies (DF 0)
+ * Decoder for Mode S long air-air ACAS replies (DF 16)
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
 public class LongACAS extends ModeSReply implements Serializable {
@@ -180,6 +180,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	}
 
 	public BinaryDataStore getBinaryDataStore () {
+		// XXX lazy decoding for performance?
 		return mv;
 	}
 
