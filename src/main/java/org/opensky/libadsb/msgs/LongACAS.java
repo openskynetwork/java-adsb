@@ -36,7 +36,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 	private byte reply_information;
 	private short altitude_code;
 
-	BinaryDataStore mv = null;
+	private BinaryDataStore mv = null;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected LongACAS() { }
@@ -179,8 +179,7 @@ public class LongACAS extends ModeSReply implements Serializable {
 		return AltitudeReply.decodeAltitude(altitude_code);
 	}
 
-	public BinaryDataStore getBinaryDataStore () {
-		// XXX lazy decoding for performance?
+	public BinaryDataStore getBinaryDataStore() {
 		return mv;
 	}
 
