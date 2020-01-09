@@ -98,11 +98,11 @@ public class AllCallReply extends ModeSReply implements Serializable {
 			case 1:
 				return (byte) (parity_interrogator[2]&0xF);
 			case 2:
-				return (byte) (parity_interrogator[2]&0xF + 15);
+				return (byte) (parity_interrogator[2]&0xF + 16);
 			case 3:
-				return (byte) (parity_interrogator[2]&0xF + 31);
+				return (byte) (parity_interrogator[2]&0xF + 32);
 			default: // 4 and >= 4 (illegal)
-				return (byte) (parity_interrogator[2]&0xF + 47);
+				return (byte) (parity_interrogator[2]&0xF + 48);
 		}
 
 	}
