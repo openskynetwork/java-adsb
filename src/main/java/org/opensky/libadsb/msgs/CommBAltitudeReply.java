@@ -30,7 +30,7 @@ import java.util.Arrays;
 public class CommBAltitudeReply extends ModeSReply implements Serializable {
 
 	private static final long serialVersionUID = -1156158096293306435L;
-	
+
 	private byte flight_status;
 	private byte downlink_request;
 	private byte utility_msg;
@@ -192,6 +192,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 	}
 
 	public BinaryDataStore getBinaryDataStore () {
+		// XXX lazy decoding for performance?
 		return mb;
 	}
 
