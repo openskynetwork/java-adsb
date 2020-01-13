@@ -92,17 +92,16 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	 *         Check {@link #isSurveillanceID()} for interpretation of the result.
 	 */
 	public byte getInterrogatorCode() {
-
 		switch (code_label) {
 			case 0:
 			case 1:
 				return (byte) (parity_interrogator[2]&0xF);
 			case 2:
-				return (byte) (parity_interrogator[2]&0xF + 16);
+				return (byte) ((parity_interrogator[2]&0xF) + 16);
 			case 3:
-				return (byte) (parity_interrogator[2]&0xF + 32);
+				return (byte) ((parity_interrogator[2]&0xF) + 32);
 			default: // 4 and >= 4 (illegal)
-				return (byte) (parity_interrogator[2]&0xF + 48);
+				return (byte) ((parity_interrogator[2]&0xF) + 48);
 		}
 
 	}
