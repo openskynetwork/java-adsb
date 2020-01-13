@@ -32,7 +32,7 @@ public class AllCallReply extends ModeSReply implements Serializable {
 
 	private byte capabilities;
 	private byte[] parity_interrogator; // 3 bytes
-	private int code_label;
+	private byte code_label;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected AllCallReply() { }
@@ -73,7 +73,7 @@ public class AllCallReply extends ModeSReply implements Serializable {
 		// extract interrogator ID
 		this.parity_interrogator = tools.xor(calcParity(), getParity());
 
-		code_label = (parity_interrogator[2]>>4)&0x7;
+		code_label = (byte) ((parity_interrogator[2]>>4)&0x7);
 	}
 
 	/**
@@ -113,6 +113,21 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	 */
 	public boolean isSurveillanceID() {
 		return code_label > 0;
+	}
+
+	/**
+	 * Coding of the 3 bit code label (DL) is:<br>
+	 * <ul>
+	 * <li>000 - signifies that the IC field contains the II code</li>
+	 * <li>001 - signifies that the IC field contains SI codes 1 to 15</li>
+	 * <li>010 - signifies that the IC field contains SI codes 16 to 31</li>
+	 * <li>011 - signifies that the IC field contains SI codes 32 to 47</li>
+	 * <li>100 - signifies that the IC field contains SI codes 48 to 63</li>
+	 * </ul>
+	 * @return code label
+	 */
+	public byte getCodeLabel () {
+		return code_label;
 	}
 
 	/**
