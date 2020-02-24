@@ -133,8 +133,8 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	 * @return whether target change reports are supported
 	 */
 	public boolean supportsTargetChangeReport() {
-		byte target_change_report_capability = (byte) (capability_class_code & 0xC0);
-		return target_change_report_capability == 1 | target_change_report_capability == 2;
+		byte target_change_report_capability = (byte) ((capability_class_code & 0xC0)>>>6);
+		return target_change_report_capability == 1 || target_change_report_capability == 2;
 	}
 
 	/**
