@@ -231,6 +231,13 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 	}
 
 	/**
+	 * @return the encoded geometric vertical accuracy (see DO-260B 2.2.3.2.7.2.8)
+	 */
+	public byte getGVA() {
+		return geometric_vertical_accuracy;
+	}
+
+	/**
 	 * @return the source integrity level (SIL) which indicates the propability of exceeding
 	 *         the NIC containment radius (see table A-15 in RCTA DO-260B)
 	 */

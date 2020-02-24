@@ -176,6 +176,13 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		}
 	}
 
+	/**
+	 * @return the raw encoded Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5
+	 */
+	public byte getRawNACv() {
+		return navigation_accuracy_category;
+	}
+
 
 	/**
 	 * @return velocity from east to south in knots or null if information is not available
