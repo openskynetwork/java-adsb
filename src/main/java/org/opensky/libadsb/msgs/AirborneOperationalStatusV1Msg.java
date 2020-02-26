@@ -93,7 +93,7 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 
 		nic_suppl = ((msg[5] & 0x10) != 0);
 		nac_pos = (byte) (msg[5] & 0xF);
-		geometric_vertical_accuracy = (byte) (msg[6]>>>6);
+		geometric_vertical_accuracy = (byte) ((msg[6] >>> 6) & 0x3);
 		sil = (byte) ((msg[6]>>>4)&0x3);
 		nic_trk_hdg = ((msg[6] & 0x8) != 0);
 		hrd = ((msg[6] & 0x4) != 0);
@@ -310,4 +310,5 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 
 		return super.toString()+"\n"+retstr;
 	}
+
 }
