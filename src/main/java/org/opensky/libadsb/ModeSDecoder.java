@@ -47,7 +47,7 @@ public class ModeSDecoder {
 	 * @throws BadFormatException if format contains error
 	 */
 	public ModeSReply decode(ModeSReply modes) throws BadFormatException, UnspecifiedFormatError {
-		if (++afterLastCleanup > 100000 && decoderData.size() > 30000) gc();
+		if (++afterLastCleanup > 1000000 && decoderData.size() > 30000) gc();
 
 		switch (modes.getDownlinkFormat()) {
 			case 0: return new ShortACAS(modes);
@@ -264,7 +264,7 @@ public class ModeSDecoder {
 	 * value.
 	 * @param reply a Mode S message
 	 * @param <T> {@link ModeSReply} or one of its sub classes
-	 * @return the difference between geometric and barometric altitude in feet
+	 * @return the difference between geometric and barometric altitude in feet or null if not present
 	 */
 	public <T extends ModeSReply> Integer getGeoMinusBaro(T reply) {
 		if (reply == null) return null;
@@ -355,7 +355,7 @@ public class ModeSDecoder {
 
 	/**
 	 * Clean state by removing decoders not used for more than an hour. This happens automatically
-	 * every 1 Mio messages if more than 50000 aircraft are tracked.
+	 * every 1 Mio messages if more than 30000 aircraft are tracked.
 	 */
 	public void gc() {
 		List<Integer> toRemove = new ArrayList<Integer>();
