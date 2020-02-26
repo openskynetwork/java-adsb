@@ -88,7 +88,7 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 		}
 
 		operational_mode_code = (msg[3]<<8)|msg[4];
-		version = (byte) (msg[5]>>>5);
+		version = (byte) ((msg[5]>>>5) & 0x07);
 
 		if ((capability_class_code & 0xC000) != 0)
 			throw new BadFormatException("Unknown capability class code!");
