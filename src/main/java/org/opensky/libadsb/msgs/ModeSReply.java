@@ -142,8 +142,7 @@ public class ModeSReply implements Serializable {
 	 *
 	 * @param reply the bytes of the reply
 	 * @param noCRC indicates whether the CRC has been subtracted from the parity field
-	 * @throws BadFormatException if message has invalid length or payload does
-	 * not match specification or parity has invalid length
+	 * @throws BadFormatException if message has invalid length or downlink format
 	 */
 	public ModeSReply (byte[] reply, boolean noCRC) throws BadFormatException {
 		// check format invariants
@@ -186,8 +185,9 @@ public class ModeSReply implements Serializable {
 				System.arraycopy(payload, 0, icao24, 0, 3);
 				break;
 			default: // unkown downlink format
-				// leave everything 0
-				throw new BadFormatException(String.format("Invalid downlink format %d detected.", downlink_format));
+				// throw exception
+				throw new BadFormatException(
+						String.format("Invalid downlink format %d detected.", downlink_format));
 		}
 
 		setType(subtype.MODES_REPLY);
