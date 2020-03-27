@@ -187,6 +187,7 @@ public class ModeSReply implements Serializable {
 				break;
 			default: // unkown downlink format
 				// leave everything 0
+				throw new BadFormatException(String.format("Invalid downlink format %d detected.", downlink_format));
 		}
 
 		setType(subtype.MODES_REPLY);
