@@ -111,11 +111,21 @@ public class IdentifyReply extends ModeSReply implements Serializable {
 	}
 
 	/**
-	 * @return whether flight status indicates that aircraft is
-	 * airborne or on the ground; For flight status &gt;= 4, this flag is unknown
+	 * @return whether flight status indicates that aircraft is on the ground.
+	 * For flight status &gt;= 4, this flag is unknown. Thus, a return value of false
+	 * does not indicate that the aircraft is airborne! See also {@link #isAirborne()}.
 	 */
 	public boolean isOnGround() {
 		return flight_status==1 || flight_status==3;
+	}
+
+	/**
+	 * @return whether flight status indicates that aircraft is airborne.
+	 * For flight status &gt;= 4, this flag is unknown. Thus, a return value of false
+	 * does not indicate that the aircraft is on ground! See also {@link #isOnGround()} .
+	 */
+	public boolean isAirborne() {
+		return flight_status == 0 || flight_status == 2;
 	}
 
 	/**

@@ -84,6 +84,25 @@ public class AllCallReply extends ModeSReply implements Serializable {
 	}
 
 	/**
+	 * @return whether capabilities indicate that aircraft is on the ground.
+	 * Note that returning false does not indicate that the aircraft is airborne as status might be unknown!
+	 * See also {@link #isAirborne()}.
+	 */
+	public boolean isOnGround() {
+		return capabilities == 4;
+	}
+
+	/**
+	 * @return whether capabilities indicate that aircraft is airborne.
+	 * Note that returning false does not indicate that the aircraft is on ground as status might be unknown!
+	 * See also {@link #isOnGround()}.
+	 */
+	public boolean isAirborne() {
+		return capabilities == 5;
+	}
+
+
+	/**
 	 * Some receivers already subtract the crc checksum
 	 * from the parity field right after reception.
 	 * In that case, use {@link #getParity()} to get the interrogator ID.<br><br>
