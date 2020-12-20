@@ -156,12 +156,19 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
+	 * @return the raw encoded Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5
+	 */
+	public byte getNACv() {
+		return navigation_accuracy_category;
+	}
+
+	/**
 	 * The 95% accuracy for horizontal velocity. We interpret the coding according to
 	 * DO-260B Table 2-22 for all ADS-B versions.
 	 * @return Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5 in m/s, -1 means
 	 * "unknown" or &gt;10m
 	 */
-	public double getNACv() {
+	public float getAccuracyBound() {
 		switch(navigation_accuracy_category) {
 			case 1:
 				return 10;
@@ -170,17 +177,10 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 			case 3:
 				return 1;
 			case 4:
-				return 0.3;
+				return 0.3f;
 			default:
 				return -1;
 		}
-	}
-
-	/**
-	 * @return the raw encoded Navigation Accuracy Category for velocity according to RTCA DO-260B 2.2.3.2.6.1.5
-	 */
-	public byte getRawNACv() {
-		return navigation_accuracy_category;
 	}
 
 
