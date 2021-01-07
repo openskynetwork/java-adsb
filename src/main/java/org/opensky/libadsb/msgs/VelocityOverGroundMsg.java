@@ -230,7 +230,7 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 
 	/**
-	 * @return heading in decimal degrees ([0, 360]). 0° = geographic north or null if information is not available.
+	 * @return heading in decimal degrees ([0, 360]) clockwise from geographic north or null if information is not available.
 	 * The latter can also be checked with {@link #hasVelocityInfo()}.
 	 */
 	public Double getHeading() {
