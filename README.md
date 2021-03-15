@@ -3,33 +3,32 @@ java-adsb
 
 This is a Mode S and ADS-B decoding library for Java. It is a product of the OpenSky Network project (http://www.opensky-network.org). It is based on these two references:
 * ICAO Aeronautical Telecommunications Annex 10 Volume 4 (Surveillance Radar and Collision Avoidance Systems)
-* RTCA DO-260 "Minimum Operational Performance Standards (MOPS) for 1090ES"
+* RTCA DO-260B "Minimum Operational Performance Standards (MOPS) for 1090ES"
 
 It supports the following Mode S downlink formats:
-* Short air-air ACAS (DF 0)
-* Short altitude reply (DF 4)
-* Short identify reply (DF 5)
-* All-call reply (DF 11)
-* Long air-air ACAS (DF 16)
-* Extended Squitter (DF 17, 18; see ADS-B formats below)
-* Military Extended Squitter (DF 19)
-* Comm-B altitude reply (DF 20)
-* Comm-B identify reply (DF 21)
-* Comm-D Extended Length Message (DF >24)
+* DF 0: Short air-air ACAS
+* DF 4: Short altitude reply
+* DF 5: Short identify reply
+* DF 11: All-call reply
+* DF 16: Long air-air ACAS
+* DF 17/18: Extended Squitter (see ADS-B formats below)
+* DF 19: Military Extended Squitter
+* DF 20: Comm-B altitude reply
+* DF 21: Comm-B identify reply
+* DF >24: Comm-D Extended Length Message
 
-Currently it supports the following ADS-B formats:
-* Identification messages
-* Airborne velocity messages
-* Airborne position messages (including global and local CPR)
-* Surface position messages (including global and local CPR)
-* Operational status reports (airborne and surface)
-* Aircraft status reports (emergency/priority, TCAS RA)
+The following ADS-B formats are supported:
+* BDS 0,5: Airborne position messages (including global and local CPR)
+* BDS 0,6: Surface position messages (including global and local CPR)
+* BDS 0,8: Identification messages
+* BDS 0,9: Airborne velocity messages
+* BDS 6,1: Aircraft status reports (emergency/priority, TCAS RA)
+* BDS 6,2: Target state and status messages
+* BDS 6,5: Operational status reports (airborne and surface)
 
-The Comm-B registers, Comm-D data link and military ES are not parsed. Comm-B and D will follow soon.
+The Comm-B registers, Comm-D data link and military ES are not parsed. Comm-B and D will follow at some point.
 
-The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. The decoder takes care of proper older versions.
-
-Note: format type code 29 (target state and status information) is missing at the moment.
+The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. The decoder properly takes care of older versions.
 
 ### Packaging
 
