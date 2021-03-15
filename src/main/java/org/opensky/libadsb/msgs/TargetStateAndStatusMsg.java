@@ -317,4 +317,17 @@ public class TargetStateAndStatusMsg extends ExtendedSquitter implements Seriali
 	public boolean hasOperationalTCAS() {
 		return has_operational_tcas;
 	}
+
+	/**
+	 * LNAV Mode Engaged flag according to DO-260B 2.2.3.2.7.1.3.18
+	 *
+	 * Information is only available if {@link #hasModeInfo()} is true.
+	 *
+	 * @return true if the lateral navigation mode is active, false otherwise or if status unknown, null if information
+	 *         is not available
+	 */
+	public Boolean hasLNAVModeEngaged() {
+		if (!mcp_fcu_status) return null;
+		return lnav_mode_engaged;
+	}
 }

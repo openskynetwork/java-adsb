@@ -322,6 +322,7 @@ public class ExampleDecoder {
 					System.out.printf("          VNAV mode is%s enganged\n", tStatus.hasVNAVModeEngaged() ? "" : " not");
 					System.out.printf("          Altitude hold mode is%s enganged\n", tStatus.hasActiveAltitudeHoldMode() ?	"" : " not");
 					System.out.printf("          Approach mode is%s enganged\n", tStatus.hasActiveApproachMode() ? "" : " not");
+					System.out.printf("          LNAV mode is%s enganged\n", tStatus.hasLNAVModeEngaged() ? "" : " not");
 				} else {
 					System.out.println("          No MCP/FCU mode info");
 				}
