@@ -72,7 +72,8 @@ public class ModeSReply implements Serializable {
 		ADSB_AIRBORN_STATUS_V1,
 		ADSB_SURFACE_STATUS_V1,
 		ADSB_AIRBORN_STATUS_V2,
-		ADSB_SURFACE_STATUS_V2
+		ADSB_SURFACE_STATUS_V2,
+		ADSB_TARGET_STATE_AND_STATUS
 	}
 	private subtype type;
 

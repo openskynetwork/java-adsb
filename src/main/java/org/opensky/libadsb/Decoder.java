@@ -135,6 +135,17 @@ public class Decoder {
 							return new TCASResolutionAdvisoryMsg(es1090);
 					}
 
+					if (ftc == 29) {
+						int subtype = (es1090.getMessage()[0]>>>1) & 0x3;
+						if (subtype == 1) {
+							// According to DO-260B 2.2.3.2.7.1 the message shall be ignored if transmitted by an
+							// ADS-B v0 transponder and ME bit 11 != 0.
+							// Stateless decoding does not allow this check, so it is left to the user of this method.
+							// Better use the ModeSDecoder class.
+							return new TargetStateAndStatusMsg(es1090);
+						}
+					}
+
 					if (ftc == 31) { // operational status message
 						int subtype = es1090.getMessage()[0] & 0x7;
 
