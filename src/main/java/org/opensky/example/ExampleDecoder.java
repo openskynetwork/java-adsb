@@ -290,6 +290,43 @@ public class ExampleDecoder {
 					System.out.println("          Has IFR capability: " + veloc.hasIFRCapability());
 
 				break;
+			case ADSB_TARGET_STATE_AND_STATUS:
+					TargetStateAndStatusMsg tStatus = (TargetStateAndStatusMsg) msg;
+					System.out.println("["+icao24+"]: Target State and Status reported");
+					System.out.println("          Navigation Accuracy Category for position (NACp): " + tStatus.getNACp());
+					System.out.println("          Has operational TCAS: " + tStatus.hasOperationalTCAS());
+					System.out.println("          Surveillance/Source Integrity Level (SIL): " + tStatus.getSIL());
+					System.out.println("          Has SIL supplement: " + tStatus.hasSILSupplement());
+					System.out.println("          Barometric altitude cross-checked: " + tStatus.getBarometricAltitudeIntegrityCode());
+
+					System.out.printf("          Selected altitude is derived from %s\n", tStatus.isFMSSelectedAltitude() ? "FMS" : "MCP/FCU");
+					if (tStatus.hasSelectedAltitudeInfo()) {
+						System.out.println("          Selected altitude: " + tStatus.getSelectedAltitude() + " ft");
+					} else {
+						System.out.println("          No selected altitude info");
+					}
+
+					if (tStatus.hasBarometricPressureSettingInfo()) {
+						System.out.println("          Barometric pressure setting (minus 800 mbar): " + tStatus.getBarometricPressureSetting() + " mbar");
+					} else {
+						System.out.println("          No barometric pressure setting info");
+					}
+
+					if (tStatus.hasSelectedHeadingInfo()) {
+						System.out.println("          Selected heading: " + tStatus.getSelectedHeading() + "°");
+					} else {
+						System.out.println("          No selected heading info");
+					}
+					if (tStatus.hasModeInfo()) {
+						System.out.printf("          Autopilot is%s enganged\n", tStatus.hasAutopilotEngaged() ? "" : " not");
+						System.out.printf("          VNAV mode is%s enganged\n", tStatus.hasVNAVModeEngaged() ? "" : " not");
+						System.out.printf("          Altitude hold mode is%s enganged\n", tStatus.hasActiveAltitudeHoldMode() ?	"" : " not");
+						System.out.printf("          Approach mode is%s enganged\n", tStatus.hasActiveApproachMode() ? "" : " not");
+					} else {
+						System.out.println("          No MCP/FCU mode info");
+					}
+
+				break;
 			case EXTENDED_SQUITTER:
 				System.out.println("["+icao24+"]: Unknown extended squitter with type code "+((ExtendedSquitter)msg).getFormatTypeCode()+"!");
 				break;
