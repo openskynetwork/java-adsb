@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class TargetStateAndStatusMsgTest {
 
 	// A TSS report observed in reality, decomposed by single bits
-	private static final String tssWithoutHeading =
+	public static final String TSS_WITHOUT_HEADING =
 				// 10001 => DF 17
 				//   101 => FF (firs field, node needed here)
 				"8d" +
@@ -52,7 +52,7 @@ public class TargetStateAndStatusMsgTest {
 				"6472e1";
 
 	// Modified message from above with heading bits set, angle < 180°
-	private static final String tssHeadingLt180Deg =
+	public static final String TSS_HEADING_LT_180_DEG =
 			// see above
 			"8d" +
 			"89653e" +
@@ -68,7 +68,7 @@ public class TargetStateAndStatusMsgTest {
 			"6472e1";
 
 	// Modified message from above with heading bits set, angle > 180°
-	private static final String tssHeadingGt180Deg =
+	public static final String TSS_HEADING_GT_180_DEG =
 			// see above
 			"8d" +
 			"89653e" +
@@ -84,7 +84,7 @@ public class TargetStateAndStatusMsgTest {
 			"6472e1";
 
 	// Modified message from above with reserved bits set
-	private static final String invalidTss =
+	public static final String INVALID_TSS =
 			// see above
 			"8d" +
 			"89653e" +
@@ -106,10 +106,21 @@ public class TargetStateAndStatusMsgTest {
 			// parity bits (invalid, not tested here)
 			"6472e1";
 
+	public static final String TSS_WITH_ME11_BIT_SET = "8d" +
+			// ICAO 24 bit address
+			"4d0131" +
+			//
+			//       11101  => type code 29
+			//          01  => Subtype 1
+			//           0  => SIL supplement
+			//           0  => Selected altitude type
+			// 01110001011 => Selected altitude
+			"ea38b" +
+			"866c33c085693ec";
 
 	@Test
 	public void testTssWithoutHeading() throws UnspecifiedFormatError, BadFormatException {
-		final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(tssWithoutHeading));
+		final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(TSS_WITHOUT_HEADING));
 
 		assertEquals("89653e", tools.toHexString(tss.getIcao24()));
 		assertEquals(17, tss.getDownlinkFormat());
@@ -137,7 +148,7 @@ public class TargetStateAndStatusMsgTest {
 
 	@Test
 	public void testTssWithHeadingLt180Degrees() throws UnspecifiedFormatError, BadFormatException {
-		final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(tssHeadingLt180Deg));
+		final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(TSS_HEADING_LT_180_DEG));
 
 		assertEquals("89653e", tools.toHexString(tss.getIcao24()));
 		assertEquals(17, tss.getDownlinkFormat());
@@ -165,7 +176,7 @@ public class TargetStateAndStatusMsgTest {
 
 	@Test
 	public void testTssWithHeadingGt180Degrees() throws UnspecifiedFormatError, BadFormatException {
-		final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(tssHeadingGt180Deg));
+		final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(TSS_HEADING_GT_180_DEG));
 
 		assertEquals("89653e", tools.toHexString(tss.getIcao24()));
 		assertEquals(17, tss.getDownlinkFormat());
@@ -194,7 +205,7 @@ public class TargetStateAndStatusMsgTest {
 	@Test
 	public void testInvalidReservedBits_shouldThrowBadFormatException() {
 		try {
-			final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(invalidTss));
+			final TargetStateAndStatusMsg tss = new TargetStateAndStatusMsg(tools.hexStringToByteArray(INVALID_TSS));
 			fail();
 		} catch (BadFormatException e) {
 			// NOP
