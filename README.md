@@ -1,3 +1,5 @@
+Note: a more elaborate and maintained branch of the library can be found here: https://github.com/SeRoSystems/lib1090
+
 java-adsb
 =========
 
