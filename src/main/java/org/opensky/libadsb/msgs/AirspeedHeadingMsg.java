@@ -92,7 +92,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 
 		// heading available in ADS-B version 1+, indicates true/magnetic north for version 0
 		heading_status_bit = (msg[1]&0x4)>0;
-		heading = ((msg[1]&0x3)<<8 | msg[2]&0xFF) * 360/1024;
+		heading = ((msg[1]&0x3)<<8 | msg[2]&0xFF) * 360.0/1024.0;
 
 		true_airspeed = (msg[3]&0x80)>0;
 		airspeed = (short) (((msg[3]&0x7F)<<3 | msg[4]>>>5&0x07)-1);
@@ -103,11 +103,13 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 
 		vertical_source = (msg[4]&0x10)>0;
 		vertical_rate_down = (msg[4]&0x08)>0;
-		vertical_rate = (short) ((((msg[4]&0x07)<<6 | msg[5]>>>2&0x3F)-1)<<6);
-		if (vertical_rate == -1) vertical_rate_info_available = false;
+		int raw_vr = ((msg[4]&0x07)<<6 | msg[5]>>>2&0x3F);
+		if (raw_vr == 0) vertical_rate_info_available = false;
+		else vertical_rate = (short) ((raw_vr-1)<<6);
 
-		geo_minus_baro = (short) (((msg[6]&0x7F)-1)*25);
-		if (geo_minus_baro == -1) geo_minus_baro_available = false;
+		int raw_gmb = msg[6]&0x7F;
+		if (raw_gmb == 0) geo_minus_baro_available = false;
+		else geo_minus_baro = (short) ((raw_gmb-1)*25);
 		if ((msg[6]&0x80)>0) geo_minus_baro *= -1;
 	}
 

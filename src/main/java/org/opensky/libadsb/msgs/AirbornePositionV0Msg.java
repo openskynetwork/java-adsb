@@ -295,6 +295,8 @@ public class AirbornePositionV0Msg extends ExtendedSquitter implements Serializa
 		else if (Math.abs(Rlat) > 87) return 1;
 
 		double tmp = 1-(1-Math.cos(Math.PI/(2.0*15.0)))/Math.pow(Math.cos(Math.PI/180.0*Math.abs(Rlat)), 2);
+		if (tmp < -1) tmp = -1;
+		if (tmp > 1) tmp = 1;
 		return Math.floor(2*Math.PI/Math.acos(tmp));
 	}
 

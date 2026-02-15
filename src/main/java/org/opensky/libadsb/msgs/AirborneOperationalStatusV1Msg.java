@@ -80,12 +80,12 @@ public class AirborneOperationalStatusV1Msg extends ExtendedSquitter implements 
 		subtype_code = (byte)(msg[0] & 0x7);
 		if (subtype_code > 1) // currently only 0 and 1 specified, 2-7 are reserved
 			throw new UnspecifiedFormatError("Operational status message subtype "+subtype_code+" reserved.");
-
-		capability_class_code = (msg[1]<<8)|msg[2];
 		if (subtype_code != 0) {
 			throw new BadFormatException("Not an airborne operational status message");
 		}
-		operational_mode_code = (msg[3]<<8)|msg[4];
+
+		capability_class_code = ((msg[1]&0xFF)<<8)|(msg[2]&0xFF);
+		operational_mode_code = ((msg[3]&0xFF)<<8)|(msg[4]&0xFF);
 		version = (byte) ((msg[5]>>>5) & 0x07);
 
 		if ((capability_class_code & 0xC000) != 0)

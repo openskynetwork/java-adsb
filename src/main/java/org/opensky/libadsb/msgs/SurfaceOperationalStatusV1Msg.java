@@ -81,13 +81,14 @@ public class SurfaceOperationalStatusV1Msg extends ExtendedSquitter implements S
 		if (subtype_code > 1) // currently only 0 and 1 specified, 2-7 are reserved
 			throw new UnspecifiedFormatError("Operational status message subtype "+subtype_code+" reserved.");
 
-		capability_class_code = (msg[1]<<4)|(msg[2]&0xF0)>>>4;
-		airplane_len_width = (byte) (msg[2]&0xF);
 		if (subtype_code != 1) {
 			throw new BadFormatException("Not surface operational status message");
 		}
 
-		operational_mode_code = (msg[3]<<8)|msg[4];
+		capability_class_code = ((msg[1]&0xFF)<<4)|((msg[2]&0xF0)>>>4);
+		airplane_len_width = (byte) (msg[2]&0xF);
+
+		operational_mode_code = ((msg[3]&0xFF)<<8)|(msg[4]&0xFF);
 		version = (byte) ((msg[5]>>>5) & 0x07);
 
 		if ((capability_class_code & 0xC000) != 0)

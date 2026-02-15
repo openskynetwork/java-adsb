@@ -71,7 +71,7 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 		}
 
 		emergency_state = (byte) ((msg[1]&0xFF)>>>5);
-		mode_a_code = (short) (msg[2]|((msg[1]&0x1F)<<8));
+		mode_a_code = (short) ((msg[2]&0xFF)|((msg[1]&0x1F)<<8));
 	}
 
 	/**

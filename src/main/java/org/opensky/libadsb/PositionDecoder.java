@@ -231,8 +231,8 @@ public class PositionDecoder {
 				reasonable = false;
 			}
 			ret.setReasonable(reasonable);
+			last_pos = ret;
 		}
-		last_pos = ret;
 		last_time = time;
 
 		if (!reasonable)
@@ -424,9 +424,8 @@ public class PositionDecoder {
 				reasonable = false;
 			}
 			ret.setReasonable(reasonable);
+			last_pos = ret;
 		}
-
-		last_pos = ret;
 		last_time = time;
 
 		if (!reasonable)
